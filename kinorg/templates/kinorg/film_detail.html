@@ -1,0 +1,72 @@
+{% extends "kinorg/base.html" %}
+
+{% block content %}
+
+	<h1>FILM DETAIL</h1>
+	<p>{{ film.original_title }}</p>
+	<p>{{ film.release_date|slice:4 }}</p>
+	<img src="{{config_data.secure_base_url}}w92{{film.poster_path}}">
+	<p>{{ film.overview }}</p>
+
+	<h3>Add film to playlist</h3>
+	
+    <div>
+        {% if my_lists %}
+        <h1>My Lists</h1>
+        <ul>
+
+            {% for list in my_lists %}
+
+                <li>
+
+                	<a href="{% url 'kinorg:list' list.pk  %}"><h3>{{ list.title }}</h3></a>
+                	<form method="POST" action="/add-film/">
+                		{% csrf_token %}
+                		<input type="hidden" id="list_id" name="list_id" value="{{ list.pk }}">
+						<input type="hidden" id="title" name="title" value="{{ film.title }}">
+						<input type="hidden" id="year" name="year" value="{{ film.release_date|slice:4 }}">
+    					<input type="hidden" id="movie_id" name="movie_id" value="{{ film.id }}">
+    					<input type="hidden" id="poster_path" name="poster_path" value="{{ film.poster_path }}">
+        				<button type="submit">ADD TO LIST</button>
+    				</form>
+
+                </li>
+
+
+            {% endfor %}
+
+        </ul>
+        {% endif %}
+
+
+        {% if guest_lists %}
+        <h1>Guest Lists</h1>
+        <ul>
+
+            {% for glist in guest_lists %}
+
+                <li>
+                    <a href="{% url 'kinorg:list' glist.pk  %}"><h3>{{ glist.title }}</h3></a>
+                	<form method="POST" action="/add-film/">
+                		{% csrf_token %}
+                		<input type="hidden" id="list_id" name="list_id" value="{{ glist.pk }}">
+						<input type="hidden" id="title" name="title" value="{{ film.title }}">
+						<input type="hidden" id="year" name="year" value="{{ film.release_date|slice:4 }}">
+    					<input type="hidden" id="movie_id" name="movie_id" value="{{ film.id }}">
+    					<input type="hidden" id="poster_path" name="poster_path" value="{{ film.poster_path }}">
+        				<button type="submit">ADD TO LIST</button>
+    				</form>
+                </li>
+
+                <p>List created by {{ glist.owner }}</p>
+
+            {% endfor %}
+
+        </ul>
+        {% endif %}
+
+    </div>
+
+
+
+{% endblock %}

@@ -1,0 +1,16 @@
+.env
+
+# Misc files
+*.scssc
+*.pyc
+.DS_Store
+*.sublime-workspace
+*.sublime-project
+
+# Tests
+app/tests/.cache/*
+app/tests/__pycache__/*
+
+# virtual env packages
+**/venv/**/*
+

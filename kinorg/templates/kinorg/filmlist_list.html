@@ -1,0 +1,45 @@
+{% extends "kinorg/base.html" %}
+
+{% block content %}
+
+    <div>
+        {% if my_lists %}
+        <h1>My Lists</h1>
+        <ul>
+
+            {% for list in my_lists %}
+
+                <li>
+                <a href="{% url 'kinorg:list' list.pk  %}"><h3>{{ list.title }}</h3></a>
+                </li>
+
+            {% endfor %}
+
+        </ul>
+        {% endif %}
+
+
+        {% if guest_lists %}
+        <h1>Guest Lists</h1>
+        <ul>
+
+            {% for glist in guest_lists %}
+
+                <li>
+                    <a href="{% url 'kinorg:list' glist.pk  %}"><h3>{{ glist.title }}</h3></a>
+                </li>
+
+                <p>List created by {{ glist.owner }}</p>
+
+            {% endfor %}
+
+        </ul>
+        {% endif %}
+
+    </div>
+
+    <a href="{% url 'kinorg:create_list' %}"><p>Create List</p></a>
+
+    <a href="{% url 'kinorg:home' %}"><p>Back to home</p></a>
+
+{% endblock %}

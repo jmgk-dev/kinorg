@@ -1,0 +1,18 @@
+{% extends "kinorg/base.html" %}
+
+{% block content %}
+
+	<h1>KINORG HOMEPAGE</h1>
+
+	<a href="{% url 'kinorg:my_lists' %}"><p>My Lists</p></a>
+
+    <ul>
+    	{% for film in films %}
+    	<li>
+    		<a href="{% url 'kinorg:film_detail' film.movie_id %}">{{ film.title }}</a>
+            <img src="{{config_data.secure_base_url}}w92{{film.poster_path}}">
+    	</li>
+    	{% endfor %}
+    </ul>
+
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "kinorg/base.html" %}
+
+{% block content %}
+
+<div>
+	
+	<h3>{{ object.title }}</h3>
+
+	<ul>
+		{% for addition in object.addition_set.all %}
+		<li>
+		{{ addition.film.title }}
+		({{ addition.film.year }})
+		Added by {{ addition.added_by }}
+		<img src="{{config_data.secure_base_url}}w92{{addition.film.poster_path}}">
+
+		<form method="POST" action="/remove-film/">
+            {% csrf_token %}
+            <input type="hidden" id="list_id" name="list_id" value="{{ addition.film_list.pk }}">
+    		<input type="hidden" id="movie_id" name="movie_id" value="{{ addition.film.movie_id }}">
+        	<button type="submit">REMOVE FROM LIST</button>
+    	</form>
+
+		</li>
+		{% endfor %}
+	</ul>
+
+</div>
+
+
+<a href="{% url 'kinorg:home' %}"><p>Back to home</p></a>
+
+{% endblock %}
