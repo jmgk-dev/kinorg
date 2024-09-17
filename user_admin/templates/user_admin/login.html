@@ -1,13 +1,20 @@
 {% extends "kinorg/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" type="text/css" href="{% static 'user_admin/css/login.css' %}">
+{% endblock %}
 
 {% block content %}
 
-	<form method="post">
-	    {% csrf_token %}
-	    {{ form.as_p }}
-	    <button type="submit">Login</button>
-	</form>
-
-	<a href="{% url 'kinorg:home' %}"><p>Back to home</p></a>
+<div class="login_form_container">
+	<div class="login_form">
+		<form method="post">
+	    	{% csrf_token %}
+	    	{{ form.as_p }}
+	    	<button type="submit">Login</button>
+		</form>
+	</div>
+</div>
 
 {% endblock %}

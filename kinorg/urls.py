@@ -13,5 +13,6 @@ urlpatterns = [
     # path("add-film/", views.AddFilmToList.as_view(), name="add_film"),
     path("add-film/", views.add_film, name="add_film"),
     path("remove-film/", views.remove_film, name="remove_film"),
-    path("film-detail/<int:movie_id>", views.FilmDetail.as_view(), name="film_detail")
+    path("film-detail/<int:movie_id>", views.FilmDetail.as_view(), name="film_detail"),
+    path("no-access", views.no_access, name="no_access")
     ]

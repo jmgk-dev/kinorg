@@ -70,6 +70,11 @@ class FilmList(models.Model):
 
 class Addition(models.Model):
 
+	class Meta:
+		constraints = [
+			models.UniqueConstraint(fields=['film', 'film_list'], name="unique_film_in_list")
+		]
+
 	film = models.ForeignKey(
 		Film, 
 		on_delete=models.CASCADE

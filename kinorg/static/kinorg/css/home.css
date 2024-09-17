@@ -1,0 +1,41 @@
+.home_page_container {
+    display: grid;
+    grid-template-rows: 100px 1fr;
+}
+
+.welcome_message {
+    grid-row: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.film_list_container {
+    grid-row: 2;
+    display: grid;
+    grid-template-columns: auto minmax(500px, 1500px) auto;
+}
+
+
+.latest_added_films {
+    grid-column: 2;
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: flex-start;
+    padding: 0;
+    gap: 10px;
+}
+
+.added_film {
+    display: flex;
+    flex-direction: column;
+    width: 220px;
+    padding: 20px;
+    border-color: black;
+    border-style: solid;
+    border-radius: 5px;
+    border-width: 2px;
+}
+
+.film_poster {
+    max-width: 92px;
+}

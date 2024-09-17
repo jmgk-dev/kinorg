@@ -1,24 +1,34 @@
 {% extends "kinorg/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" type="text/css" href="{% static 'kinorg/css/search.css' %}">
+{% endblock %}
 
 {% block content %}
 
-    <a href="{% url 'kinorg:home' %}"><p>Back to home</p></a>
+    <div class="search_results_container">
 
-    <div>
 
         {% if film_list %}
-        <ul>
+        <ul class="list_of_films">
 
             {% for film in film_list %}
-                <li>
+                <li class="film_item">
                     <a href="{% url 'kinorg:film_detail' film.id %}">{{ film.title }}</a>
-                    <img src="{{config_data.secure_base_url}}w92{{film.poster_path}}">
+                    <img class="film_poster" src="{{config_data.secure_base_url}}w92{{film.poster_path}}">
                 </li>
             {% endfor %}
 
         </ul>
         {% endif %}
 
+
     </div>
+
+<div class="footer_links">
+    <a href="{% url 'kinorg:create_list' %}"><p>Create List</p></a>
+    <a href="{% url 'kinorg:home' %}"><p>Back to home</p></a>
+</div>
 
 {% endblock %}

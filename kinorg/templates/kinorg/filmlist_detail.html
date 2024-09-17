@@ -1,33 +1,45 @@
 {% extends "kinorg/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" type="text/css" href="{% static 'kinorg/css/film_list.css' %}">
+{% endblock %}
 
 {% block content %}
 
 <div>
 	
-	<h3>{{ object.title }}</h3>
+	<div class="list_title">
+		<h3>{{ object.title }}</h3>
+	</div>
 
-	<ul>
+	<ul class="list_of_films">
+
 		{% for addition in object.addition_set.all %}
-		<li>
-		{{ addition.film.title }}
-		({{ addition.film.year }})
-		Added by {{ addition.added_by }}
-		<img src="{{config_data.secure_base_url}}w92{{addition.film.poster_path}}">
+		<li class="film_item">
 
-		<form method="POST" action="/remove-film/">
-            {% csrf_token %}
-            <input type="hidden" id="list_id" name="list_id" value="{{ addition.film_list.pk }}">
-    		<input type="hidden" id="movie_id" name="movie_id" value="{{ addition.film.movie_id }}">
-        	<button type="submit">REMOVE FROM LIST</button>
-    	</form>
+			<p>{{ addition.film.title }} ({{ addition.film.year }})</p>
+			<p>Added by {{ addition.added_by }}</p>
+			<img class="film_poster" src="{{config_data.secure_base_url}}w92{{addition.film.poster_path}}">
+
+			<form method="POST" action="/remove-film/">
+        	    {% csrf_token %}
+        	    <input type="hidden" id="list_id" name="list_id" value="{{ addition.film_list.pk }}">
+    			<input type="hidden" id="movie_id" name="movie_id" value="{{ addition.film.movie_id }}">
+        		<button type="submit">REMOVE FROM LIST</button>
+    		</form>
 
 		</li>
 		{% endfor %}
+
 	</ul>
 
 </div>
 
 
-<a href="{% url 'kinorg:home' %}"><p>Back to home</p></a>
+<div class="footer_links">
+	<a href="{% url 'kinorg:create_list' %}"><p>Create List</p></a>
+	<a href="{% url 'kinorg:home' %}"><p>Back to home</p></a>
+</div>
 
 {% endblock %}

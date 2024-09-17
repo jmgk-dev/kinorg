@@ -8,7 +8,7 @@
 	<title></title>
 
 	{# Global stylesheets #}
-	<link rel="stylesheet" type="text/css" href="{% static 'kinorg/base.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'kinorg/css/base.css' %}">
 	<link rel="shortcut icon" href="{%  static 'favicon.ico' %}">
 
 	{% block extra_css %}
@@ -16,23 +16,35 @@
 
 </head>
 <body>
-	<a href="{% url 'kinorg:home' %}"><h1>KINORG</h1></a>
-	{% if user.is_authenticated %}
-		<p>{{user.username}} is logged in!</p>
-	{% endif %}
-    {% if user.is_authenticated %}
-	<form method="post" action="/admin/logout/">
-    	{% csrf_token %}
-    	<button type="submit">logout</button>
-	</form>
-	{% else %}
-	<a href="{% url 'user_admin:login' %}"><p>Login</p></a>
-	{% endif %}
 
-	<form method="GET" action="{% url 'kinorg:search' %}">
-        <input type="text" name="query" placeholder="Search for a Film...">
-        <button type="submit">Search</button>
-    </form>
+	<div class="top_bar">
+
+		<div class="search_bar">
+			<form method="GET" action="{% url 'kinorg:search' %}">
+        		<input type="text" name="query" placeholder="Search for a Film...">
+        		<button type="submit">Search</button>
+    		</form>
+		</div>
+		
+		<a href="{% url 'kinorg:home' %}" class="main_title"><h1>KINORG</h1></a>
+	
+
+		<div class="user_access">
+			{% if user.is_authenticated %}
+			<p>{{user.username}}</p>
+			{% endif %}
+    		{% if user.is_authenticated %}
+			<form method="post" action="/admin/logout/">
+    			{% csrf_token %}
+    			<button type="submit">logout</button>
+			</form>
+				<a href="{% url 'kinorg:my_lists' %}"><p>My Lists</p></a>
+			{% else %}
+				<a href="{% url 'user_admin:login' %}"><p>Login</p></a>
+			{% endif %}
+		</div>
+
+	</div>
 
         {% block content %}{% endblock %}
 </body>

@@ -4,7 +4,7 @@ import requests
 
 from django.shortcuts import render, redirect
 
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import ListView, CreateView, DetailView, TemplateView
 from django.urls import reverse_lazy
 
@@ -13,22 +13,28 @@ from .models import Film, FilmList, Addition
 
 def home(request):
 
-    api_key = os.environ.get('TMDB_KEY')
+    if request.user.is_authenticated:
 
-    headers = {
-        "accept": "application/json",
-        "Authorization": f"Bearer {api_key}"
-    }
+        return redirect("kinorg:my_lists")
 
-    config_url = "https://api.themoviedb.org/3/configuration"
-    config_response = requests.get(config_url, headers=headers)
-    config_data = config_response.json()
+    else:
 
-    films = Film.objects.all()
+        api_key = os.environ.get('TMDB_KEY')
 
-    context = {"films": films, "config_data": config_data["images"]}
+        headers = {
+            "accept": "application/json",
+            "Authorization": f"Bearer {api_key}"
+        }
 
-    return render(request, "kinorg/home.html", context)
+        config_url = "https://api.themoviedb.org/3/configuration"
+        config_response = requests.get(config_url, headers=headers)
+        config_data = config_response.json()
+
+        films = Film.objects.all()
+
+        context = {"films": films, "config_data": config_data["images"]}
+
+        return render(request, "kinorg/home.html", context)
 
 
 def search(request):
@@ -90,11 +96,19 @@ class MyLists(LoginRequiredMixin, ListView):
         return context
 
 
-class ListDetail(LoginRequiredMixin, DetailView):
+class ListDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
 
     login_url = "user_admin:login"
 
     model = FilmList
+
+    def test_func(self):
+        list_object = self.get_object()
+
+        return list_object.owner == self.request.user or self.request.user in list_object.guests.all()
+
+    def handle_no_permission(self):
+        return redirect("kinorg:no_access")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -186,7 +200,7 @@ def add_film(request):
 
     else:
 
-        return render(request, "kinorg:home.html")
+        return redirect("kinorg:my_lists")
 
 
 def remove_film(request):
@@ -204,7 +218,11 @@ def remove_film(request):
 
     else:
 
-        return render(request, "kinorg:home.html")
+        return redirect("kinorg:my_lists")
+
+ 
+def no_access(request):
+    return render(request, "kinorg/no_access.html")
 
 
 

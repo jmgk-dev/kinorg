@@ -1,11 +1,20 @@
 {% extends "kinorg/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" type="text/css" href="{% static 'kinorg/css/my_lists.css' %}">
+{% endblock %}
 
 {% block content %}
 
-    <div>
+<div class="lists_page_container">
+
+    <div class="my_lists_container">
+
         {% if my_lists %}
-        <h1>My Lists</h1>
-        <ul>
+        <div class="lists_container">
+            <h1>My Lists</h1>
+            <ul>
 
             {% for list in my_lists %}
 
@@ -15,13 +24,15 @@
 
             {% endfor %}
 
-        </ul>
+            </ul>
+        </div>
         {% endif %}
 
 
         {% if guest_lists %}
-        <h1>Guest Lists</h1>
-        <ul>
+        <div class="lists_container">
+            <h1>Guest Lists</h1>
+            <ul>
 
             {% for glist in guest_lists %}
 
@@ -33,13 +44,17 @@
 
             {% endfor %}
 
-        </ul>
+            </ul>
+        </div>
         {% endif %}
 
     </div>
 
+    <div class="footer_links">
     <a href="{% url 'kinorg:create_list' %}"><p>Create List</p></a>
-
     <a href="{% url 'kinorg:home' %}"><p>Back to home</p></a>
+    </div>
+
+</div>
 
 {% endblock %}
