@@ -1,0 +1,37 @@
+{% extends "kinorg/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" type="text/css" href="{% static 'kinorg/css/home.css' %}">
+{% endblock %}
+
+{% block content %}
+
+{% if object_list %}
+<ul>
+{% for invite in object_list %}
+	<li>
+		<p>{{ invite.from_user }} invited you to join his list <b>{{ invite.film_list }}</b></p>
+
+		<form method="POST" action="/accept-invite/">
+        	{% csrf_token %}
+        	<input type="hidden" id="list_id" name="list_id" value="{{ invite.film_list.pk }}">
+    		<input type="hidden" id="user_id" name="user_id" value="{{ invite.to_user.pk }}">
+        	<button type="submit">Accept</button>
+    	</form>
+
+    	<form method="POST" action="/decline-invite/">
+        	{% csrf_token %}
+        	<input type="hidden" id="list_id" name="list_id" value="{{ invite.film_list.pk }}">
+    		<input type="hidden" id="user_id" name="user_id" value="{{ invite.to_user.pk }}">
+        	<button type="submit">Decline</button>
+    	</form>
+
+	</li>
+{% endfor %}
+</ul>
+{% else%}
+<p>No invitations yet dawg!</p>
+{% endif %}
+
+{% endblock %}

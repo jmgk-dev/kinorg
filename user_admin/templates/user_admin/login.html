@@ -7,6 +7,12 @@
 
 {% block content %}
 
+<div class="login_page">
+
+	<div class=login_title>
+		<h3>Login</h3>
+	</div>
+
 <div class="login_form_container">
 	<div class="login_form">
 		<form method="post">
@@ -16,5 +22,13 @@
 		</form>
 	</div>
 </div>
+
+<div class="reset_link">
+	<a href="{% url 'user_admin:reset_password' %}"><p>Reset Password</p></a>
+</div>
+
+</div>
+
+
 
 {% endblock %}

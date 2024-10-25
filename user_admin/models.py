@@ -64,6 +64,9 @@ class SiteUser(AbstractUser):
 	USERNAME_FIELD = "username"
 	REQUIRED_FIELDS = ["email"]
 
+	class Meta:
+		ordering = ["username"]
+
 	def __str__(self):
 		return self.username
 

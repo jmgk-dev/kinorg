@@ -9,19 +9,26 @@
 	
 	<div class="home_page_container">
 
-		<div class="welcome_message">
-			<h1>WELCOME</h1>
+		{% if user.is_authenticated %}
+			<a href="{% url 'kinorg:my_lists' %}" class="login_link"><h3>My Lists</h3></a>
+		{% else %}
+			<a href="{% url 'user_admin:login' %}" class="login_link"><h3>Login</h3></a>
+		{% endif %}
+
+		<div class="list_header">
+			<h3>Recently Added Films</h3>
 		</div>
 
 		<div class="film_list_container">
 
-    		<ul class="latest_added_films">
+    		<ul class="list_of_films">
 
-    			{% for film in films %}
+    			{% for film in object_list %}
 
-    			<li class="added_film">
+    			<li class="film_item">
+    				<img class="film_poster" src="{{config_data.secure_base_url}}w92{{film.poster_path}}">
     				<a href="{% url 'kinorg:film_detail' film.movie_id %}">{{ film.title }}</a>
-    	    	    <img class="film_poster" src="{{config_data.secure_base_url}}w92{{film.poster_path}}">
+					<div>({{ film.year }})</div>
     			</li>
 
     			{% endfor %}	

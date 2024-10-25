@@ -19,28 +19,26 @@
 
 	<div class="top_bar">
 
-		<div class="search_bar">
+		<a href="{% url 'kinorg:home' %}" class="main_title bar_item"><h1>KINORG</h1></a>
+
+		<div class="search_bar bar_item">
+			{% if user.is_authenticated %}
 			<form method="GET" action="{% url 'kinorg:search' %}">
         		<input type="text" name="query" placeholder="Search for a Film...">
         		<button type="submit">Search</button>
     		</form>
+    		{% else %}
+    		<h2>Welcome to the site</h2>
+    		{% endif %}
 		</div>
-		
-		<a href="{% url 'kinorg:home' %}" class="main_title"><h1>KINORG</h1></a>
-	
-
-		<div class="user_access">
+			
+		<div class="user_access bar_item">
 			{% if user.is_authenticated %}
-			<p>{{user.username}}</p>
-			{% endif %}
-    		{% if user.is_authenticated %}
-			<form method="post" action="/admin/logout/">
+			<a href="{% url 'kinorg:my_lists' %}"><p>{{user.username}}</p></a>
+			<form method="post" action="/logout/">
     			{% csrf_token %}
     			<button type="submit">logout</button>
 			</form>
-				<a href="{% url 'kinorg:my_lists' %}"><p>My Lists</p></a>
-			{% else %}
-				<a href="{% url 'user_admin:login' %}"><p>Login</p></a>
 			{% endif %}
 		</div>
 

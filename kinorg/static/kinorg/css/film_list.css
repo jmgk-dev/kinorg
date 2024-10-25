@@ -4,6 +4,11 @@
     justify-content: center;
 }
 
+.invite_user {
+    display: flex;
+    justify-content: center;
+}
+
 .list_of_films {
     display: flex;
     flex-flow: row wrap;

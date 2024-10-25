@@ -1,28 +1,42 @@
 {% extends "kinorg/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" type="text/css" href="{% static 'kinorg/css/film_detail.css' %}">
+{% endblock %}
+
 
 {% block content %}
 
 	<h1>FILM DETAIL</h1>
-	<p>{{ film.original_title }}</p>
-	<p>{{ film.release_date|slice:4 }}</p>
+	<p>{{ film.title }}</p>
+    <p class="italic">{{ film.tagline }}</p>
+	<p>Released: {{ film.release_date|slice:4 }}</p>
 	<img src="{{config_data.secure_base_url}}w92{{film.poster_path}}">
 	<p>{{ film.overview }}</p>
 
 	<h3>Add film to playlist</h3>
 	
     <div>
-        {% if my_lists %}
+
+    {% if to_add or to_remove %}
+
         <h1>My Lists</h1>
+
+        {% if to_add %}
+
         <ul>
 
-            {% for list in my_lists %}
+            {% for list_object in to_add %}
 
                 <li>
 
-                	<a href="{% url 'kinorg:list' list.pk  %}"><h3>{{ list.title }}</h3></a>
+                	<a href="{% url 'kinorg:list' list_object.1  %}">
+                        <h3>{{list_object.0}}</h3>
+                    </a>
                 	<form method="POST" action="/add-film/">
                 		{% csrf_token %}
-                		<input type="hidden" id="list_id" name="list_id" value="{{ list.pk }}">
+                		<input type="hidden" id="list_id" name="list_id" value="{{ list_object.1 }}">
 						<input type="hidden" id="title" name="title" value="{{ film.title }}">
 						<input type="hidden" id="year" name="year" value="{{ film.release_date|slice:4 }}">
     					<input type="hidden" id="movie_id" name="movie_id" value="{{ film.id }}">
@@ -36,35 +50,91 @@
             {% endfor %}
 
         </ul>
+
         {% endif %}
 
+        {% if to_remove %}
 
-        {% if guest_lists %}
+        <ul>
+
+            {% for list_object in to_remove %}
+
+                <li>
+
+                    <a href="{% url 'kinorg:list' list_object.1  %}">
+                        <h3>{{list_object.0}}</h3>
+                    </a>
+                    <form method="POST" action="/remove-film/">
+                        {% csrf_token %}
+                        <input type="hidden" id="list_id" name="list_id" value="{{ list_object.1 }}">
+                        <input type="hidden" id="movie_id" name="movie_id" value="{{ film.id }}">
+                        <button type="submit">REMOVE FROM LIST</button>
+                    </form>
+
+                </li>
+
+            {% endfor %}
+
+        </ul>
+
+        {% endif %}
+
+    {% endif %}
+
+    {% if to_add_g or to_remove_g %}
+
         <h1>Guest Lists</h1>
+
+        {% if to_add_g %}
         <ul>
 
-            {% for glist in guest_lists %}
+            {% for glist_object in to_add_g %}
 
                 <li>
-                    <a href="{% url 'kinorg:list' glist.pk  %}"><h3>{{ glist.title }}</h3></a>
+                    <a href="{% url 'kinorg:list' glist_object.1  %}">
+                        <h3>{{glist_object.0}}</h3>
+                    </a>
                 	<form method="POST" action="/add-film/">
                 		{% csrf_token %}
-                		<input type="hidden" id="list_id" name="list_id" value="{{ glist.pk }}">
+                		<input type="hidden" id="list_id" name="list_id" value="{{ glist_object.1 }}">
 						<input type="hidden" id="title" name="title" value="{{ film.title }}">
 						<input type="hidden" id="year" name="year" value="{{ film.release_date|slice:4 }}">
     					<input type="hidden" id="movie_id" name="movie_id" value="{{ film.id }}">
     					<input type="hidden" id="poster_path" name="poster_path" value="{{ film.poster_path }}">
         				<button type="submit">ADD TO LIST</button>
     				</form>
+                    <p>List created by {{ glist_object.2 }}</p>
                 </li>
 
-                <p>List created by {{ glist.owner }}</p>
+                
+
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% if to_remove_g %}
+        <ul>
+            {% for glist_object in to_remove_g %}
+
+                <li>
+
+                    <a href="{% url 'kinorg:list' glist_object.1  %}">
+                        <h3>{{glist_object.0}}</h3>
+                    </a>
+                    <form method="POST" action="/remove-film/">
+                        {% csrf_token %}
+                        <input type="hidden" id="list_id" name="list_id" value="{{ glist_object.1 }}">
+                        <input type="hidden" id="movie_id" name="movie_id" value="{{ film.id }}">
+                        <button type="submit">REMOVE FROM LIST</button>
+                    </form>
+                    <p>List created by {{ glist_object.2 }}</p>
+                </li>
+
 
             {% endfor %}
 
         </ul>
         {% endif %}
-
+    {% endif %}
     </div>
 
 

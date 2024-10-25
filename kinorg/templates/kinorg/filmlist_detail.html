@@ -13,14 +13,25 @@
 		<h3>{{ object.title }}</h3>
 	</div>
 
+	<div class="invite_user">
+			<form method="POST" action="/invite-guest/">
+        	    {% csrf_token %}
+        	    <input type="email" id="user_email" name="user_email">
+        	    <input type="hidden" id="list_id" name="list_id" value="{{ object.pk }}">
+        		<button type="submit">INVITE USER</button>
+    		</form>
+	</div>
+
 	<ul class="list_of_films">
 
 		{% for addition in object.addition_set.all %}
 		<li class="film_item">
 
-			<p>{{ addition.film.title }} ({{ addition.film.year }})</p>
-			<p>Added by {{ addition.added_by }}</p>
-			<img class="film_poster" src="{{config_data.secure_base_url}}w92{{addition.film.poster_path}}">
+			<a href="{% url 'kinorg:film_detail' addition.film.movie_id %}">
+				<p>{{ addition.film.title }} ({{ addition.film.year }})</p>
+				<p>Added by {{ addition.added_by }}</p>
+				<img class="film_poster" src="{{config_data.secure_base_url}}w92{{addition.film.poster_path}}">
+			</a>
 
 			<form method="POST" action="/remove-film/">
         	    {% csrf_token %}
@@ -39,7 +50,7 @@
 
 <div class="footer_links">
 	<a href="{% url 'kinorg:create_list' %}"><p>Create List</p></a>
-	<a href="{% url 'kinorg:home' %}"><p>Back to home</p></a>
+	<a href="{% url 'kinorg:my_lists' %}"><p>My Lists</p></a>
 </div>
 
 {% endblock %}

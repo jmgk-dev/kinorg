@@ -7,7 +7,7 @@
 
 {% block content %}
 
-    <div class="search_results_container">
+    <div class="film_list_container">
 
 
         {% if film_list %}
@@ -15,8 +15,33 @@
 
             {% for film in film_list %}
                 <li class="film_item">
-                    <a href="{% url 'kinorg:film_detail' film.id %}">{{ film.title }}</a>
-                    <img class="film_poster" src="{{config_data.secure_base_url}}w92{{film.poster_path}}">
+
+                    {% if film.poster_path %}
+                        <img class="film_poster" src="{{config_data.secure_base_url}}w92{{film.poster_path}}">
+                    {% elif film.profile_path %}
+                        <img class="film_poster" src="{{config_data.secure_base_url}}w92{{film.profile_path}}">
+                    {% else %}
+                        <img class="film_poster" src="{% static 'kinorg/images/placeholder.jpg' %}">
+                    {% endif %}
+
+                    {% if film.title %}
+                        <a href="{% url 'kinorg:film_detail' film.id %}">{{ film.title }}</a>
+                    {% endif %}
+
+                    {% if film.name %}
+                        <a href="{% url 'kinorg:film_detail' film.id %}">{{ film.name }}</a>
+                    {% endif %}
+
+                    {% if film.release_date %}
+                        <div>({{ film.release_date|slice:4 }})</div>
+                    {% endif %}
+
+                    {% if film.known_for %}
+                        {% for item in film.known_for %}
+                            <a href="{% url 'kinorg:film_detail' item.id %}"><p>{{ item.title }}</p></a>
+                        {% endfor %}
+                    {% endif %}
+
                 </li>
             {% endfor %}
 

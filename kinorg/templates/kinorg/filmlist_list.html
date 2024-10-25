@@ -9,6 +9,10 @@
 
 <div class="lists_page_container">
 
+    <div class="invitations_container">
+        <a href="{% url 'kinorg:invitations' %}" ><p>Invitations: {{ invitations|length }}</p></a>
+    </div>
+
     <div class="my_lists_container">
 
         {% if my_lists %}
@@ -52,7 +56,6 @@
 
     <div class="footer_links">
     <a href="{% url 'kinorg:create_list' %}"><p>Create List</p></a>
-    <a href="{% url 'kinorg:home' %}"><p>Back to home</p></a>
     </div>
 
 </div>

@@ -61,6 +61,43 @@ class FilmList(models.Model):
 		related_query_name="guestlist",
 		)
 
+	def send_invitation(self, to_user, from_user):
+
+		if Invitation.objects.filter(to_user=to_user, film_list=self):
+			print("already invited!")
+
+		elif from_user != self.owner:
+			print("You don't have permission!")
+
+		elif to_user != self.owner and from_user == self.owner:
+			invitation, created = Invitation.objects.get_or_create(
+				from_user=self.owner,
+				to_user=to_user,
+				film_list=self,
+			)
+			invitation.save()
+
+	def accept_invitation(self, user):
+		invitation = Invitation.objects.filter(
+			film_list=self,
+			to_user=user,
+			accepted=False
+			).first()
+		if invitation:
+			invitation.accepted=True
+			invitation.save()
+			self.guests.add(user)
+
+	def decline_invitation(self, user):
+		invitation = Invitation.objects.filter(
+			film_list=self,
+			to_user=user,
+			accepted=False
+			).first()
+		if invitation:
+			invitation.declined=True
+			invitation.save()
+
 	def __str__(self):
 		return self.title
 
@@ -72,7 +109,9 @@ class Addition(models.Model):
 
 	class Meta:
 		constraints = [
-			models.UniqueConstraint(fields=['film', 'film_list'], name="unique_film_in_list")
+			models.UniqueConstraint(
+				fields=['film', 'film_list'], 
+				name="unique_film_in_list")
 		]
 
 	film = models.ForeignKey(
@@ -95,5 +134,40 @@ class Addition(models.Model):
 		)
 
 
+class Invitation(models.Model):
 
+	class Meta:
+		constraints = [
+			models.UniqueConstraint(
+				fields=['to_user', 'film_list'], 
+				name="unique_invite_per_list")
+		]
 
+	from_user = models.ForeignKey(
+		settings.AUTH_USER_MODEL,
+		on_delete=models.CASCADE,
+		related_name='sent_invitations'
+		)
+
+	to_user = models.ForeignKey(
+		settings.AUTH_USER_MODEL,
+		on_delete=models.CASCADE,
+		related_name='received_invitations'
+		)
+
+	film_list = models.ForeignKey(
+		FilmList, 
+		on_delete=models.CASCADE
+		)
+
+	sent_at = models.DateTimeField(
+		auto_now_add=True
+		)
+
+	accepted = models.BooleanField(
+		default=False
+		)
+
+	declined = models.BooleanField(
+		default=False
+		)

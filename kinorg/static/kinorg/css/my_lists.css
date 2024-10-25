@@ -1,9 +1,10 @@
-/*.lists_page_container {
-    display: grid;
-    grid-template-rows: 100px 1fr;
-}*/
 
 .lists_container {
+    display: flex;
+    justify-content: center;
+}
+
+.invitations_container {
     display: flex;
     justify-content: center;
 }
