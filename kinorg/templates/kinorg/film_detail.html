@@ -8,16 +8,19 @@
 
 {% block content %}
 
-	<h1>FILM DETAIL</h1>
-	<p>{{ film.title }}</p>
-    <p class="italic">{{ film.tagline }}</p>
-	<p>Released: {{ film.release_date|slice:4 }}</p>
-	<img src="{{config_data.secure_base_url}}w92{{film.poster_path}}">
-	<p>{{ film.overview }}</p>
+	<div class="headline"><h1>FILM DETAIL</h1></div>
 
-	<h3>Add film to playlist</h3>
+    <div class="film_details">
+
+	    <p><b>{{ film.title }}</b></p>
+        <p class="italic">{{ film.tagline }}</p>
+	    <p>Released: {{ film.release_date|slice:4 }}</p>
+	    <img class="film_poster" src="{{config_data.secure_base_url}}w92{{film.poster_path}}">
+	    <p class="overview">{{ film.overview }}</p>
+ 
+    </div>
 	
-    <div>
+    <div class="available_lists">
 
     {% if to_add or to_remove %}
 

@@ -1,0 +1,38 @@
+{% extends "kinorg/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" type="text/css" href="{% static 'kinorg/css/person_credits.css' %}">
+{% endblock %}
+
+
+{% block content %}
+
+{% if credits %}
+
+<div class="film_list_container">
+
+<ul class="list_of_films">
+
+{% for film in credits.cast %}
+
+<li class="film_item">
+	{% if film.poster_path %}
+    <img class="film_poster" src="{{config_data.secure_base_url}}w92{{film.poster_path}}">
+    {% else %}
+    <img class="film_poster" src="{% static 'kinorg/images/placeholder.jpg' %}">
+    {% endif %}
+    <a href="{% url 'kinorg:film_detail' film.id %}"><p><b>{{ film.original_title }}</b></p></a>
+    <p>Appears as: {{ film.character }}</p>
+    <p>({{ film.release_date|slice:4 }})</p>
+</li>
+
+{% endfor %}
+
+</ul>
+
+</div>
+
+{% endif %}
+
+{% endblock %}

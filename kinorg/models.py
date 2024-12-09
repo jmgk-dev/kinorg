@@ -63,13 +63,16 @@ class FilmList(models.Model):
 
 	def send_invitation(self, to_user, from_user):
 
-		if Invitation.objects.filter(to_user=to_user, film_list=self):
-			print("already invited!")
+		if from_user != self.owner:
+			raise PermissionError("You don't have permission!")
 
-		elif from_user != self.owner:
-			print("You don't have permission!")
+		elif to_user == self.owner:
+			raise PermissionError("You're already the owner!")
 
-		elif to_user != self.owner and from_user == self.owner:
+		elif Invitation.objects.filter(to_user=to_user, film_list=self):
+			raise PermissionError("Already invited!")
+
+		elif from_user == self.owner:
 			invitation, created = Invitation.objects.get_or_create(
 				from_user=self.owner,
 				to_user=to_user,

@@ -13,32 +13,32 @@
         {% if film_list %}
         <ul class="list_of_films">
 
-            {% for film in film_list %}
+            {% for item in film_list %}
                 <li class="film_item">
 
-                    {% if film.poster_path %}
-                        <img class="film_poster" src="{{config_data.secure_base_url}}w92{{film.poster_path}}">
-                    {% elif film.profile_path %}
-                        <img class="film_poster" src="{{config_data.secure_base_url}}w92{{film.profile_path}}">
+                    {% if item.poster_path %}
+                        <img class="film_poster" src="{{config_data.secure_base_url}}w92{{item.poster_path}}">
+                    {% elif item.profile_path %}
+                        <img class="film_poster" src="{{config_data.secure_base_url}}w92{{item.profile_path}}">
                     {% else %}
                         <img class="film_poster" src="{% static 'kinorg/images/placeholder.jpg' %}">
                     {% endif %}
 
-                    {% if film.title %}
-                        <a href="{% url 'kinorg:film_detail' film.id %}">{{ film.title }}</a>
+                    {% if item.title %}
+                        <a href="{% url 'kinorg:film_detail' item.id %}">{{ item.title }}</a>
                     {% endif %}
 
-                    {% if film.name %}
-                        <a href="{% url 'kinorg:film_detail' film.id %}">{{ film.name }}</a>
+                    {% if item.name %}
+                        <a href="{% url 'kinorg:person_credits' item.id %}">{{ item.name }}</a>
                     {% endif %}
 
-                    {% if film.release_date %}
-                        <div>({{ film.release_date|slice:4 }})</div>
+                    {% if item.release_date %}
+                        <div>({{ item.release_date|slice:4 }})</div>
                     {% endif %}
 
-                    {% if film.known_for %}
-                        {% for item in film.known_for %}
-                            <a href="{% url 'kinorg:film_detail' item.id %}"><p>{{ item.title }}</p></a>
+                    {% if item.known_for %}
+                        {% for film in item.known_for %}
+                            <a href="{% url 'kinorg:film_detail' film.id %}"><button>{{ film.title }}</button></a>
                         {% endfor %}
                     {% endif %}
 

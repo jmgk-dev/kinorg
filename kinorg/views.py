@@ -180,6 +180,27 @@ class FilmDetail(LoginRequiredMixin, TemplateView):
         return context
 
 
+class PersonCredits(LoginRequiredMixin, TemplateView):
+
+    login_url = "user_admin:login"
+
+    template_name = "kinorg/person_credits.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        person_id = self.kwargs["person_id"]
+
+        get_url = f"https://api.themoviedb.org/3/person/{person_id}/movie_credits?language=en-US"
+
+        credits = get_search(get_url)
+
+        context["credits"] = credits
+
+        return context
+
+
+
 class Invitations(LoginRequiredMixin, ListView):
 
     login_url = "user_admin:login"
@@ -264,13 +285,22 @@ def invite_guest(request):
             pk=request.POST.get("list_id")
             )
 
-        list_object.send_invitation(to_user, from_user)
+        try:
+            list_object.send_invitation(to_user, from_user)
+        except PermissionError as error:
+            message = str(error)
+            return render(request, "kinorg/invite_result.html", {"message": message})
 
-        return redirect("kinorg:my_lists")
+        return render(request, "kinorg/invite_result.html", {"message": "Invitation sent!"})
 
     else:
 
         return redirect("kinorg:my_lists")
+
+
+def invite_result(request):
+
+    return render(request, "kinorg/invite_result.html")
 
 
 def accept_invite(request):
