@@ -61,46 +61,6 @@ class FilmList(models.Model):
 		related_query_name="guestlist",
 		)
 
-	def send_invitation(self, to_user, from_user):
-
-		if from_user != self.owner:
-			raise PermissionError("You don't have permission!")
-
-		elif to_user == self.owner:
-			raise PermissionError("You're already the owner!")
-
-		elif Invitation.objects.filter(to_user=to_user, film_list=self):
-			raise PermissionError("Already invited!")
-
-		elif from_user == self.owner:
-			invitation, created = Invitation.objects.get_or_create(
-				from_user=self.owner,
-				to_user=to_user,
-				film_list=self,
-			)
-			invitation.save()
-
-	def accept_invitation(self, user):
-		invitation = Invitation.objects.filter(
-			film_list=self,
-			to_user=user,
-			accepted=False
-			).first()
-		if invitation:
-			invitation.accepted=True
-			invitation.save()
-			self.guests.add(user)
-
-	def decline_invitation(self, user):
-		invitation = Invitation.objects.filter(
-			film_list=self,
-			to_user=user,
-			accepted=False
-			).first()
-		if invitation:
-			invitation.declined=True
-			invitation.save()
-
 	def __str__(self):
 		return self.title
 

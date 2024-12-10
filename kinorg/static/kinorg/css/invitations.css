@@ -1,0 +1,10 @@
+.invitations_list {
+    display: flex;
+    justify-content: center;
+}
+
+.message {
+    display: flex;
+    justify-content: center;
+}
+

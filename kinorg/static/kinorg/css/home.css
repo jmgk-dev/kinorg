@@ -1,18 +1,6 @@
 .home_page_container {
     display: grid;
-    grid-template-rows: 100px 50px 50px 1fr;
-}
-
-.countdown_container {
-    grid-row: 1;
-    display: flex;
-    justify-content: center;
-}
-
-.countdown {
-    border-style: solid;
-    height: fit-content;
-    padding: 10px;
+    grid-template-rows: 10px 50px 50px 1fr;
 }
 
 .login_link {

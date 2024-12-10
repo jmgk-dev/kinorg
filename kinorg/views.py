@@ -12,6 +12,7 @@ from django.urls import reverse_lazy
 
 from .models import Film, FilmList, Addition, Invitation
 
+# Functions ------------------------------------------------------------>
 
 def get_search(url):
 
@@ -38,6 +39,52 @@ def build_add_remove_lists(film_id, film_lists):
             to_add.append((lst.title, lst.pk, lst.owner))
 
     return to_add, to_remove
+
+
+def send_invitation(invited_list, to_user, from_user):
+
+    if from_user != invited_list.owner:
+        raise PermissionError("You don't have permission!")
+
+    elif to_user == invited_list.owner:
+        raise PermissionError("You're already the owner!")
+
+    elif Invitation.objects.filter(to_user=to_user, film_list=invited_list):
+        raise PermissionError("Already invited!")
+
+    elif from_user == invited_list.owner:
+        invitation, created = Invitation.objects.get_or_create(
+            from_user=invited_list.owner,
+            to_user=to_user,
+            film_list=invited_list,
+        )
+        invitation.save()
+
+
+def accept_invitation(invited_list, user):
+    invitation = Invitation.objects.filter(
+        film_list=invited_list,
+        to_user=user,
+        accepted=False
+        ).first()
+    if invitation:
+        invitation.accepted=True
+        invitation.save()
+        invited_list.guests.add(user)
+
+
+def decline_invitation(invited_list, user):
+    invitation = Invitation.objects.filter(
+        film_list=invited_list,
+        to_user=user,
+        accepted=False
+        ).first()
+    if invitation:
+        invitation.declined=True
+        invitation.save()
+
+
+# Functions END ------------------------------------------------------------>
 
 
 class Home(ListView):
@@ -286,7 +333,7 @@ def invite_guest(request):
             )
 
         try:
-            list_object.send_invitation(to_user, from_user)
+            send_invitation(list_object, to_user, from_user)
         except PermissionError as error:
             message = str(error)
             return render(request, "kinorg/invite_result.html", {"message": message})
@@ -320,7 +367,7 @@ def accept_invite(request):
             pk=list_id
             )
 
-        list_object.accept_invitation(user)
+        accept_invitation(list_object, user)
 
         return redirect("kinorg:my_lists")
 
@@ -342,7 +389,7 @@ def decline_invite(request):
 
         list_object = FilmList.objects.get(pk=list_id)
 
-        list_object.decline_invitation(user)
+        decline_invitation(list_object, user)
 
         return redirect("kinorg:my_lists")
 

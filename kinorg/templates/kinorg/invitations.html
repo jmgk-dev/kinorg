@@ -2,13 +2,13 @@
 {% load static %}
 
 {% block extra_css %}
-<link rel="stylesheet" type="text/css" href="{% static 'kinorg/css/home.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'kinorg/css/invitations.css' %}">
 {% endblock %}
 
 {% block content %}
 
 {% if object_list %}
-<ul>
+<ul class="invitations_list">
 {% for invite in object_list %}
 	<li>
 		<p>{{ invite.from_user }} invited you to join his list <b>{{ invite.film_list }}</b></p>
@@ -31,7 +31,7 @@
 {% endfor %}
 </ul>
 {% else%}
-<p>No invitations yet dawg!</p>
+<p class="message">No invitations yet dawg!</p>
 {% endif %}
 
 {% endblock %}
