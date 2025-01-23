@@ -104,9 +104,7 @@ class Search(LoginRequiredMixin, TemplateView):
         
         query = self.request.GET.get('query')
 
-        # search_url = f"https://api.themoviedb.org/3/search/movie?query={query}&include_adult=false&language=en-US&page=1"
         search_url = f"https://api.themoviedb.org/3/search/multi?query={query}&include_adult=false&language=en-US&page=1"
-
 
         search_data = get_search(search_url)
 

@@ -28,9 +28,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ['SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '164.92.66.154']
+ALLOWED_HOSTS = ['127.0.0.1']
 
 
 # Application definition
@@ -87,7 +87,7 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
         "OPTIONS": {
-            "service": "kinorg",
+            "service": "collab3",
         },
     }
 }
