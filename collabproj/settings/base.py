@@ -136,5 +136,11 @@ EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 DEFAULT_FROM_EMAIL = 'Password Reset <passwordreset@jmgk.dev>'
 
+# Bugsnag
+
+BUGSNAG = {
+    'api_key': 'e67ab4514492f52ffdc0c60270c6af28',
+    'project_root': '/home/jamiek/kinorg',
+}
 
 
