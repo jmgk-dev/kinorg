@@ -1,5 +1,6 @@
 asgiref==3.8.1
 asttokens==2.4.1
+bugsnag==4.7.1
 certifi==2024.8.30
 charset-normalizer==3.3.2
 decorator==5.1.1
@@ -28,3 +29,4 @@ traitlets==5.14.3
 typing_extensions==4.12.2
 urllib3==2.2.2
 wcwidth==0.2.13
+WebOb==1.8.9
