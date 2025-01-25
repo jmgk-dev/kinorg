@@ -11,13 +11,12 @@ SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
 
 STATIC_URL = '/deploy_static/'
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "OPTIONS": {
-            "service": "kinorg",
-        },
-    }
+# Bugsnag
+
+BUGSNAG = {
+    'api_key': 'e67ab4514492f52ffdc0c60270c6af28',
+    'project_root': '/home/jamiek/kinorg',
 }
+
 
 

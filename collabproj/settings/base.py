@@ -18,7 +18,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -73,6 +73,16 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'collabproj.wsgi.application'
+
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "OPTIONS": {
+            "service": os.environ['DATABASE_NAME'],
+        },
+    }
+}
+
 
 
 # Password validation
@@ -135,12 +145,5 @@ EMAIL_HOST_PASSWORD = os.environ['EMAIL_HOST_PASSWORD']
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 DEFAULT_FROM_EMAIL = 'Password Reset <passwordreset@jmgk.dev>'
-
-# Bugsnag
-
-BUGSNAG = {
-    'api_key': 'e67ab4514492f52ffdc0c60270c6af28',
-    'project_root': '/home/jamiek/kinorg',
-}
 
 
