@@ -8,11 +8,9 @@
 
 {% block content %}
 
-	<div class="headline"><h1>FILM DETAIL</h1></div>
-
     <div class="film_details">
 
-	    <p><b>{{ film.title }}</b></p>
+	    <h2><b>{{ film.title }}</b></h2>
         <p class="italic">{{ film.tagline }}</p>
 	    <p>Released: {{ film.release_date|slice:4 }}</p>
 	    <img class="film_poster" src="{{config_data.secure_base_url}}w92{{film.poster_path}}">

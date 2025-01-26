@@ -6,7 +6,6 @@
 {% endblock %}
 
 {% block extra_js %}
-<!-- <script src="{% static 'kinorg/js/countdown.js' %}"></script> -->
 {% endblock %}
 
 {% block content %}
@@ -20,7 +19,7 @@
 		{% endif %}
 
 		<div class="list_header">
-			<h3>Recently Added Films</h3>
+			<h3>Recently Added</h3>
 		</div>
 
 		<div class="film_list_container">
@@ -30,9 +29,9 @@
     			{% for film in object_list %}
 
     			<li class="film_item">
-    				<img class="film_poster" src="{{config_data.secure_base_url}}w92{{film.poster_path}}">
-    				<a href="{% url 'kinorg:film_detail' film.movie_id %}">{{ film.title }}</a>
-					<div>({{ film.year }})</div>
+    				<a href="{% url 'kinorg:film_detail' film.movie_id %}">
+    					<img class="film_poster" src="{{config_data.secure_base_url}}w92{{film.poster_path}}">
+    				</a>
     			</li>
 
     			{% endfor %}	

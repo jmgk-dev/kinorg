@@ -24,11 +24,6 @@
     gap: 10px;
 }
 
-.film_poster {
-    max-width: 92px;
-}
-
-
 .footer_links {
     display: flex;
     justify-content: center;

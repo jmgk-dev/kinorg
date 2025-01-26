@@ -21,29 +21,19 @@
 .film_list_container {
     grid-row: 4;
     display: grid;
-    grid-template-columns: auto minmax(100px, 1000px) auto;
+    grid-template-columns: 1fr minmax(110px, 1000px) 1fr;
 }
 
 .list_of_films {
     grid-column: 2;
     display: flex;
-    flex-flow: column;
-    justify-content: flex-start;
+    flex-flow: row wrap;
+    justify-content: center;
     padding: 0;
     gap: 10px;
 }
 
 .film_item {
-    display: flex;
-    flex-direction: row;
-    width: 100%;
-    border-color: black;
-    border-style: solid;
-    border-radius: 5px;
-    border-width: 2px;
-    gap: 10px;
+    width: 100px;
 }
 
-.film_poster {
-    max-width: 92px;
-}
