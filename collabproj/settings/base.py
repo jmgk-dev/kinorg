@@ -122,8 +122,8 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 STATICFILES_DIRS = [
-    'kinorg/static',
-    'user_admin/static',
+    os.path.join(BASE_DIR, 'kinorg/static'),
+    os.path.join(BASE_DIR, 'user_admin/static'),
 ]
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'deploy_static/')
