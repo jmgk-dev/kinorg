@@ -98,6 +98,7 @@ ul {
 
 button {
 	background-color: black;
+  cursor: pointer;
 }
 
 input {

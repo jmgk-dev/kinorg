@@ -1,15 +1,30 @@
+.film_list_page {
+    display: grid;
+    grid-template-rows: 20px auto auto auto;
+    margin-bottom: 20px;
+}
+
+.messages_container {
+    grid-row: 1;
+    display: flex;
+    justify-content: center;
+    margin-top: 5px;
+}
 
 .list_title {
+    grid-row: 2;
     display: flex;
     justify-content: center;
 }
 
 .invite_user {
+    grid-row: 3;
     display: flex;
     justify-content: center;
 }
 
 .film_list_container {
+    grid-row: 4;
     padding-top: 15px;
     display: grid;
     grid-template-columns: 1fr minmax(110px, 1000px) 1fr;
@@ -26,6 +41,7 @@
 
 .film_item {
     width: 100px;
+    padding-bottom: 15px;
 }
 
 .footer_links {

@@ -4,6 +4,7 @@ import requests
 
 from django.shortcuts import render, redirect
 from django.conf import settings
+from django.contrib import messages
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -43,11 +44,16 @@ def build_add_remove_lists(film_id, film_lists):
 
 def send_invitation(invited_list, to_user, from_user):
 
+    users = get_user_model()
+
     if from_user != invited_list.owner:
         raise PermissionError("You don't have permission!")
 
     elif to_user == invited_list.owner:
         raise PermissionError("You're already the owner!")
+
+    elif users.objects.filter(email=to_user).exists():
+        raise PermissionError("User does not exist!")
 
     elif Invitation.objects.filter(to_user=to_user, film_list=invited_list):
         raise PermissionError("Already invited!")
@@ -183,6 +189,20 @@ class ListDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
 
     def handle_no_permission(self):
         return redirect("kinorg:no_access")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Check for success or error messages in session
+        if 'invitation_sent' in self.request.session:
+            messages.success(self.request, "Invitation sent successfully!")
+            self.request.session.pop('invitation_sent') 
+
+        if 'invitation_error' in self.request.session:
+            messages.error(self.request, self.request.session['invitation_error']) 
+            self.request.session.pop('invitation_error')
+
+        return context
 
 
 class FilmDetail(LoginRequiredMixin, TemplateView):
@@ -320,23 +340,28 @@ def invite_guest(request):
 
         users = get_user_model()
 
-        to_user = users.objects.get(
-            email=request.POST.get("user_email")
-            )
-
         from_user = request.user
 
-        list_object = FilmList.objects.get(
-            pk=request.POST.get("list_id")
-            )
+        to_user_email = request.POST.get("user_email")
+
+        list_object = FilmList.objects.get(pk=request.POST.get("list_id"))
+
+        try:
+            to_user = users.objects.get(email=to_user_email)
+        except users.DoesNotExist:
+            request.session['invitation_error'] = "The user with email '{}' does not exist.".format(to_user_email)
+            return redirect('kinorg:list', pk=list_object.pk)
 
         try:
             send_invitation(list_object, to_user, from_user)
+            request.session['invitation_sent'] = True
+            return redirect('kinorg:list', pk=list_object.pk)
         except PermissionError as error:
-            message = str(error)
-            return render(request, "kinorg/invite_result.html", {"message": message})
-
-        return render(request, "kinorg/invite_result.html", {"message": "Invitation sent!"})
+            request.session['invitation_error'] = str(error)
+            return redirect('kinorg:list', pk=list_object.pk)
+        except Exception as e:
+            request.session['invitation_error'] = f"An unexpected error occurred: {str(e)}"
+            return redirect('kinorg:list', pk=list_object.pk) 
 
     else:
 

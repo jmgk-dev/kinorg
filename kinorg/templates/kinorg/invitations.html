@@ -10,8 +10,10 @@
 {% if object_list %}
 <ul class="invitations_list">
 {% for invite in object_list %}
-	<li>
+	<li class="invitation">
 		<p>{{ invite.from_user }} invited you to join his list <b>{{ invite.film_list }}</b></p>
+
+		<div class="invitation_options">
 
 		<form method="POST" action="/accept-invite/">
         	{% csrf_token %}
@@ -26,6 +28,8 @@
     		<input type="hidden" id="user_id" name="user_id" value="{{ invite.to_user.pk }}">
         	<button type="submit">Decline</button>
     	</form>
+
+    	</div>
 
 	</li>
 {% endfor %}

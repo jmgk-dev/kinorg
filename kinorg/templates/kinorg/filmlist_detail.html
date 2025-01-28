@@ -7,16 +7,24 @@
 
 {% block content %}
 
-<div>
+<div class="film_list_page">
+
+	<div class="messages_container">
+	{% if messages %}
+    {% for message in messages %}
+     	<span {% if message.tags %} class="{{ message.tags }}" {% endif %} >{{ message }}</span>
+    {% endfor %}
+	{% endif %}
+	</div>
 	
 	<div class="list_title">
-		<h3>{{ object.title }}</h3>
+		<h2>{{ object.title }}</h2>
 	</div>
 
 	<div class="invite_user">
 			<form method="POST" action="/invite-guest/">
         	    {% csrf_token %}
-        	    <input type="email" id="user_email" name="user_email">
+        	    <input type="email" id="user_email" name="user_email" required>
         	    <input type="hidden" id="list_id" name="list_id" value="{{ object.pk }}">
         		<button type="submit">INVITE USER</button>
     		</form>
@@ -30,17 +38,16 @@
 		<li class="film_item">
 
 			<a href="{% url 'kinorg:film_detail' addition.film.movie_id %}">
-<!-- 				<p>{{ addition.film.title }} ({{ addition.film.year }})</p>
-				<p>Added by {{ addition.added_by }}</p> -->
+				<!-- <p style="font-size: small;">Added by {{ addition.added_by }}</p> -->
 				<img class="film_poster" src="{{config_data.secure_base_url}}w92{{addition.film.poster_path}}">
 			</a>
 
-<!-- 			<form method="POST" action="/remove-film/">
+			<form method="POST" action="/remove-film/">
         	    {% csrf_token %}
         	    <input type="hidden" id="list_id" name="list_id" value="{{ addition.film_list.pk }}">
     			<input type="hidden" id="movie_id" name="movie_id" value="{{ addition.film.movie_id }}">
-        		<button type="submit">REMOVE FROM LIST</button>
-    		</form> -->
+        		<button type="submit">x</button>
+    		</form>
 
 		</li>
 		{% endfor %}
