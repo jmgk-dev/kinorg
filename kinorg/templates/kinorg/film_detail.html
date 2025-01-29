@@ -15,11 +15,11 @@
 	    <p>Released: {{ film.release_date|slice:4 }}</p>
 
         {% if film.poster_path %}
-	    <img class="poster" src="{{config_data.secure_base_url}}w92{{film.poster_path}}">
+	    <img class="poster" src="{{config_data.secure_base_url}}w500{{film.poster_path}}">
         {% else %}
         <img class="poster" src="{% static 'images/placeholder.jpg' %}">
         {% endif %}
-        
+
 	    <p class="overview">{{ film.overview }}</p>
  
     </div>
