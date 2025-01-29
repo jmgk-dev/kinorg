@@ -39,14 +39,20 @@
 
 			<a href="{% url 'kinorg:film_detail' addition.film.movie_id %}">
 				<!-- <p style="font-size: small;">Added by {{ addition.added_by }}</p> -->
-				<img class="film_poster" src="{{config_data.secure_base_url}}w92{{addition.film.poster_path}}">
+
+        		{% if addition.film.poster_path %}
+	    		<img class="poster" src="{{config_data.secure_base_url}}w92{{addition.film.poster_path}}">
+        		{% else %}
+        		<img class="poster" src="{% static 'images/placeholder.jpg' %}">
+        		{% endif %}
+
 			</a>
 
 			<form method="POST" action="/remove-film/">
         	    {% csrf_token %}
         	    <input type="hidden" id="list_id" name="list_id" value="{{ addition.film_list.pk }}">
     			<input type="hidden" id="movie_id" name="movie_id" value="{{ addition.film.movie_id }}">
-        		<button type="submit">x</button>
+        		<button type="submit">Remove</button>
     		</form>
 
 		</li>

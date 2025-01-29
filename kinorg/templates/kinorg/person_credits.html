@@ -8,26 +8,38 @@
 
 {% block content %}
 
-{% if credits %}
+{% if results %}
 
-<div class="film_list_container">
+<div class="results_list_container">
 
-<ul class="list_of_films">
+<div class="artist_name">
+    <h2>{{ results.name }}</h2>
+</div>
 
-{% for film in credits.cast %}
+{% if results.movie_credits.cast %}
 
-<li class="film_item">
-	{% if film.poster_path %}
-    <img class="film_poster" src="{{config_data.secure_base_url}}w92{{film.poster_path}}">
-    {% else %}
-    <img class="film_poster" src="{% static 'kinorg/images/placeholder.jpg' %}">
-    {% endif %}
-    <a href="{% url 'kinorg:film_detail' film.id %}"><p><b>{{ film.original_title }}</b></p></a>
-    <p>Appears as: {{ film.character }}</p>
-    <p>({{ film.release_date|slice:4 }})</p>
+<ul class="list_of_results">
+
+{% for film in results.movie_credits.cast %}
+
+<li class="results_item">
+    <div class="result">
+	   {% if film.poster_path %}
+        <img class="poster" src="{{config_data.secure_base_url}}w92{{film.poster_path}}">
+        {% else %}
+        <img class="poster" src="{% static 'kinorg/images/placeholder.jpg' %}">
+        {% endif %}
+        <div class="result_info">
+            <a href="{% url 'kinorg:film_detail' film.id %}"><div><b>{{ film.original_title }}</b></div></a>
+            <div>({{ film.release_date|slice:4 }})</div>
+            <div>Appears as: {{ film.character }}</div>
+        </div>
+    </div>
 </li>
 
 {% endfor %}
+
+{% endif %}
 
 </ul>
 

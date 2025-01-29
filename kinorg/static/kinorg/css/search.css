@@ -1,10 +1,11 @@
-.film_list_container {
+.results_list_container {
     grid-row: 2;
     display: grid;
     grid-template-columns: auto minmax(100px, 1000px) auto;
+    margin-top: 20px;
 }
 
-.list_of_films {
+.list_of_results {
     grid-column: 2;
     display: flex;
     flex-flow: column;
@@ -13,14 +14,29 @@
     gap: 10px;
 }
 
-.film_item {
+.results_item {
     display: flex;
     flex-direction: row;
-    width: 100%;
-    border-color: black;
-    border-style: solid;
-    border-radius: 5px;
-    border-width: 2px;
+    justify-content: center;
+    margin-bottom: 50px;
+}
+
+.result {
+    display: flex;
+    flex-direction: row;
+    width: 300px;
+    gap: 10px;
+}
+
+.result_info {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.known_for {
+    display: flex;
+    flex-direction: column;
     gap: 10px;
 }
 

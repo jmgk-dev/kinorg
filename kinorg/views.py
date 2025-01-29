@@ -114,7 +114,7 @@ class Search(LoginRequiredMixin, TemplateView):
 
         search_data = get_search(search_url)
 
-        context["film_list"] = search_data["results"]
+        context["results_list"] = search_data["results"]
 
         return context
 
@@ -256,11 +256,11 @@ class PersonCredits(LoginRequiredMixin, TemplateView):
 
         person_id = self.kwargs["person_id"]
 
-        get_url = f"https://api.themoviedb.org/3/person/{person_id}/movie_credits?language=en-US"
+        get_url = f"https://api.themoviedb.org/3/person/{person_id}?append_to_response=movie_credits&language=en-US"
 
-        credits = get_search(get_url)
+        results = get_search(get_url)
 
-        context["credits"] = credits
+        context["results"] = results
 
         return context
 
