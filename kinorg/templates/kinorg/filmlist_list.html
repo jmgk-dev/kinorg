@@ -17,13 +17,12 @@
 
         {% if my_lists %}
         <div class="lists_container">
-            <h1>My Lists</h1>
-            <ul>
+            <ul class="my_lists">
 
             {% for list in my_lists %}
 
                 <li>
-                <a href="{% url 'kinorg:list' list.pk  %}"><h3>{{ list.title }}</h3></a>
+                <a href="{% url 'kinorg:list' list.pk  %}"><button>{{ list.title }}</button></a>
                 </li>
 
             {% endfor %}
@@ -35,16 +34,15 @@
 
         {% if guest_lists %}
         <div class="lists_container">
-            <h1>Guest Lists</h1>
-            <ul>
+            <!-- <h1>Guest Lists</h1> -->
+            <ul class="my_lists">
 
             {% for glist in guest_lists %}
 
-                <li>
-                    <a href="{% url 'kinorg:list' glist.pk  %}"><h3>{{ glist.title }}</h3></a>
+                <li class="list_item">
+                    <a href="{% url 'kinorg:list' glist.pk  %}"><button>{{ glist.title }}</button></a>
+                    <div>List created by {{ glist.owner }}</div>
                 </li>
-
-                <p>List created by {{ glist.owner }}</p>
 
             {% endfor %}
 

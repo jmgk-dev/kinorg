@@ -93,7 +93,10 @@ body {
 }
 
 ul {
-	list-style-type: none
+	list-style-type: none;
+  padding-left: 0px;
+  margin-top: 0em;
+  margin-bottom: 0em;
 }
 
 button {
@@ -131,10 +134,17 @@ input {
 }
 
 .poster {
-    max-width: 92px;
-    border-color: white;
-    border-style: solid;
-    border-width: 1px;
+  max-height: 140px;
+  border-color: white;
+  border-style: solid;
+  border-width: 1px;
+}
+
+.jmgk_credit {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 30px;
 }
 
 

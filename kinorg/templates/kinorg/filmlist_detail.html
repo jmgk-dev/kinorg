@@ -41,7 +41,7 @@
 				<!-- <p style="font-size: small;">Added by {{ addition.added_by }}</p> -->
 
         		{% if addition.film.poster_path %}
-	    		<img class="poster" src="{{config_data.secure_base_url}}w500{{addition.film.poster_path}}">
+	    		<img class="poster" src="{{config_data.secure_base_url}}w200{{addition.film.poster_path}}">
         		{% else %}
         		<img class="poster" src="{% static 'images/placeholder.jpg' %}">
         		{% endif %}

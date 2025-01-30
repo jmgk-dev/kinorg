@@ -19,9 +19,9 @@
                     <div class="result">
 
                     {% if result.poster_path %}
-                        <img class="poster" src="{{config_data.secure_base_url}}w500{{result.poster_path}}">
+                        <img class="poster" src="{{config_data.secure_base_url}}w200{{result.poster_path}}">
                     {% elif result.profile_path %}
-                        <img class="poster" src="{{config_data.secure_base_url}}w500{{result.profile_path}}">
+                        <img class="poster" src="{{config_data.secure_base_url}}w200{{result.profile_path}}">
                     {% else %}
                         <img class="poster" src="{% static 'images/placeholder.jpg' %}">
                     {% endif %}

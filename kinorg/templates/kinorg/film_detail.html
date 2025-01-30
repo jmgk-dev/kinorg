@@ -30,14 +30,14 @@
 
         {% if to_add %}
 
-        <ul>
+        <ul class="my_available_lists">
 
             {% for list_object in to_add %}
 
-                <li>
+                <li class="available_list_item">
 
                 	<a href="{% url 'kinorg:list' list_object.1  %}">
-                        <h3>{{list_object.0}}</h3>
+                        <span>{{list_object.0}}</span>
                     </a>
                 	<form method="POST" action="/add-film/">
                 		{% csrf_token %}
@@ -46,7 +46,7 @@
 						<input type="hidden" id="year" name="year" value="{{ film.release_date|slice:4 }}">
     					<input type="hidden" id="movie_id" name="movie_id" value="{{ film.id }}">
     					<input type="hidden" id="poster_path" name="poster_path" value="{{ film.poster_path }}">
-        				<button type="submit">ADD TO LIST</button>
+        				<button type="submit">add to list</button>
     				</form>
 
                 </li>
@@ -60,20 +60,20 @@
 
         {% if to_remove %}
 
-        <ul>
+        <ul class="my_available_lists">
 
             {% for list_object in to_remove %}
 
-                <li>
+                <li class="available_list_item">
 
                     <a href="{% url 'kinorg:list' list_object.1  %}">
-                        <h3>{{list_object.0}}</h3>
+                        <span>{{list_object.0}}</span>
                     </a>
                     <form method="POST" action="/remove-film/">
                         {% csrf_token %}
                         <input type="hidden" id="list_id" name="list_id" value="{{ list_object.1 }}">
                         <input type="hidden" id="movie_id" name="movie_id" value="{{ film.id }}">
-                        <button type="submit">REMOVE FROM LIST</button>
+                        <button type="submit">remove from list</button>
                     </form>
 
                 </li>
@@ -88,16 +88,16 @@
 
     {% if to_add_g or to_remove_g %}
 
-        <h1>Guest Lists</h1>
+        <!-- <h1>Guest Lists</h1> -->
 
         {% if to_add_g %}
-        <ul>
+        <ul class="my_available_lists">
 
             {% for glist_object in to_add_g %}
 
-                <li>
+                <li class="available_list_item">
                     <a href="{% url 'kinorg:list' glist_object.1  %}">
-                        <h3>{{glist_object.0}}</h3>
+                        <span>{{glist_object.0}}</span>
                     </a>
                 	<form method="POST" action="/add-film/">
                 		{% csrf_token %}
@@ -106,32 +106,34 @@
 						<input type="hidden" id="year" name="year" value="{{ film.release_date|slice:4 }}">
     					<input type="hidden" id="movie_id" name="movie_id" value="{{ film.id }}">
     					<input type="hidden" id="poster_path" name="poster_path" value="{{ film.poster_path }}">
-        				<button type="submit">ADD TO LIST</button>
+        				<button type="submit">add to list</button>
     				</form>
-                    <p>List created by {{ glist_object.2 }}</p>
+                    <!-- <span>List created by {{ glist_object.2 }}</span> -->
                 </li>
 
                 
 
             {% endfor %}
         </ul>
+
         {% endif %}
         {% if to_remove_g %}
-        <ul>
+
+        <ul class="my_available_lists">
             {% for glist_object in to_remove_g %}
 
-                <li>
+                <li class="available_list_item">
 
                     <a href="{% url 'kinorg:list' glist_object.1  %}">
-                        <h3>{{glist_object.0}}</h3>
+                        <span>{{glist_object.0}}</span>
                     </a>
                     <form method="POST" action="/remove-film/">
                         {% csrf_token %}
                         <input type="hidden" id="list_id" name="list_id" value="{{ glist_object.1 }}">
                         <input type="hidden" id="movie_id" name="movie_id" value="{{ film.id }}">
-                        <button type="submit">REMOVE FROM LIST</button>
+                        <button type="submit">remove from list</button>
                     </form>
-                    <p>List created by {{ glist_object.2 }}</p>
+                    <!-- <span>List created by {{ glist_object.2 }}</span> -->
                 </li>
 
 

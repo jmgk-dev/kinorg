@@ -32,7 +32,7 @@
         		<button type="submit">Search</button>
     		</form>
     		{% else %}
-    		<h2>📺🍿˙✧˖°🍿 ༘ ⋆｡˚🎞️ 📹🤍</h2>
+    		<span>📺🍿˙✧˖°🍿 ༘ ⋆｡˚🎞️ 📹🤍</span>
     		{% endif %}
 		</div>
 			
@@ -43,11 +43,16 @@
     			{% csrf_token %}
     			<button type="submit">logout</button>
 			</form>
+			{% else %}
+			<span style="font-style: italic;">Welcome</span>
 			{% endif %}
 		</div>
 
 	</div>
 
         {% block content %}{% endblock %}
+    <div class="jmgk_credit">
+    	<span>jmgk.dev</span>
+	</div>
 </body>
 </html>

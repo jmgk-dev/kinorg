@@ -1,13 +1,35 @@
-
-.lists_container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
 .invitations_container {
     display: flex;
     justify-content: center;
+}
+
+.my_lists_container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+
+}
+
+.lists_container {
+    display: grid;
+    grid-template-columns: auto minmax(100px, 500px) auto;
+}
+
+.my_lists {
+    grid-column: 2;
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: center;
+    gap: 10px;
+}
+
+.list_item {
+    display: flex;
+    flex-direction: row;
+    width: 80%;
+    align-items: flex-start;
+    gap: 10px;
 }
 
 .footer_links {
