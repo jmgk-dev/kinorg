@@ -9,10 +9,10 @@
 
 <div class="lists_page_container">
 
-    <div class="invitations_container">
-        <a href="{% url 'kinorg:invitations' %}" ><p>Invitations: {{ invitations|length }}</p></a>
+    <div class="my_lists_title">
+        <span>My Lists</span>
     </div>
-
+    
     <div class="my_lists_container">
 
         {% if my_lists %}
@@ -34,7 +34,7 @@
 
         {% if guest_lists %}
         <div class="lists_container">
-            <!-- <h1>Guest Lists</h1> -->
+
             <ul class="my_lists">
 
             {% for glist in guest_lists %}
@@ -52,8 +52,12 @@
 
     </div>
 
-    <div class="footer_links">
-    <a href="{% url 'kinorg:create_list' %}"><p>Create List</p></a>
+    <div class="invitations_container">
+        <a href="{% url 'kinorg:invitations' %}" ><span>Invitations: {{ invitations|length }}</span></a>
+    </div>
+
+    <div class="create_list">
+        <a href="{% url 'kinorg:create_list' %}"><p>Create List</p></a>
     </div>
 
 </div>

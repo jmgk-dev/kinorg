@@ -8,17 +8,9 @@
 {% block content %}
 
 <div class="film_list_page">
-
-	<div class="messages_container">
-	{% if messages %}
-    {% for message in messages %}
-     	<span {% if message.tags %} class="{{ message.tags }}" {% endif %} >{{ message }}</span>
-    {% endfor %}
-	{% endif %}
-	</div>
 	
 	<div class="list_title">
-		<h2>{{ object.title }}</h2>
+		<span>{{ object.title }}</span>
 	</div>
 
 	<div class="invite_user">
@@ -30,6 +22,14 @@
     		</form>
 	</div>
 
+	<div class="messages_container">
+	{% if messages %}
+    {% for message in messages %}
+     	<span {% if message.tags %} class="{{ message.tags }}" {% endif %} >{{ message }}</span>
+    {% endfor %}
+	{% endif %}
+	</div>
+
 	<div class="film_list_container">
 
 	<ul class="list_of_films">
@@ -38,7 +38,6 @@
 		<li class="film_item">
 
 			<a href="{% url 'kinorg:film_detail' addition.film.movie_id %}">
-				<!-- <p style="font-size: small;">Added by {{ addition.added_by }}</p> -->
 
         		{% if addition.film.poster_path %}
 	    		<img class="poster" src="{{config_data.secure_base_url}}w200{{addition.film.poster_path}}">

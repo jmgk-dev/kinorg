@@ -1,26 +1,27 @@
 .film_list_page {
     display: grid;
-    grid-template-rows: 20px auto auto auto;
+    grid-template-rows: 60px auto 50px auto auto;
     margin-bottom: 20px;
 }
 
-.messages_container {
+.list_title {
     grid-row: 1;
     display: flex;
     justify-content: center;
-    margin-top: 5px;
+    align-items: center;
 }
 
-.list_title {
+.invite_user {
     grid-row: 2;
     display: flex;
     justify-content: center;
 }
 
-.invite_user {
+.messages_container {
     grid-row: 3;
     display: flex;
     justify-content: center;
+    margin-top: 5px;
 }
 
 .film_list_container {

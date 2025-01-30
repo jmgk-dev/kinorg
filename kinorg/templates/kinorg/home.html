@@ -13,7 +13,7 @@
 	<div class="home_page_container">
 
 		{% if user.is_authenticated %}
-			<div class="my_lists"><a href="{% url 'kinorg:my_lists' %}"><span>My Lists</span></a></div>
+			<div class="my_lists_link"><a href="{% url 'kinorg:my_lists' %}"><span>My Lists</span></a></div>
 		{% else %}
 			<div  class="login_link"><a href="{% url 'user_admin:login' %}"><span>Login</span></a></div>
 		{% endif %}

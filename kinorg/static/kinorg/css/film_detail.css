@@ -16,7 +16,7 @@ p.italic {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 30px;
 }
 
 .my_available_lists {

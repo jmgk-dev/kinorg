@@ -10,22 +10,22 @@
 <div class="login_page">
 
 	<div class=login_title>
-		<h3>Login</h3>
+		<span>Login</span>
 	</div>
 
-<div class="login_form_container">
-	<div class="login_form">
-		<form method="post">
-	    	{% csrf_token %}
-	    	{{ form.as_p }}
-	    	<button type="submit">Login</button>
-		</form>
+	<div class="login_form_container">
+		<div class="login_form">
+			<form method="post">
+	    		{% csrf_token %}
+	    		{{ form.as_p }}
+	    		<button type="submit">Login</button>
+			</form>
+		</div>
 	</div>
-</div>
 
-<div class="reset_link">
-	<a href="{% url 'user_admin:reset_password' %}"><p>Reset Password</p></a>
-</div>
+	<div class="reset_link">
+		<a href="{% url 'user_admin:reset_password' %}"><p>Reset Password</p></a>
+	</div>
 
 </div>
 
