@@ -39,7 +39,7 @@
 
 			<a href="{% url 'kinorg:film_detail' addition.film.movie_id %}">
 
-        		{% if addition.film.poster_path %}
+        		{% if addition.film.poster_path != 'None' %}
 	    		<img class="poster" src="{{config_data.secure_base_url}}w200{{addition.film.poster_path}}">
         		{% else %}
         		<img class="poster" src="{% static 'images/placeholder.jpg' %}">

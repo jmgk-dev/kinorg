@@ -114,7 +114,12 @@ class Search(LoginRequiredMixin, TemplateView):
 
         search_data = get_search(search_url)
 
-        context["results_list"] = search_data["results"]
+        filtered_films = [film for film in search_data["results"] if film['media_type'] != 'tv']
+
+        sorted_films = sorted(filtered_films, key=lambda i: i['popularity'], reverse=True)
+
+        context["query"] = query
+        context["results_list"] = sorted_films
 
         return context
 

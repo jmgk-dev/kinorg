@@ -7,7 +7,7 @@ app_name = "user_admin"
 urlpatterns = [
     path("login/", views.SiteLogin.as_view(), name="login"),
     path("logout/", views.SiteLogout.as_view(), name="logout"),
-    path("adduser/", views.AddUser.as_view(), name="adduser"),
+    # path("adduser/", views.AddUser.as_view(), name="adduser"),
     path("success/", views.success_page, name="success_page"),
 
 

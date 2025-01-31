@@ -24,18 +24,15 @@
  
     </div>
 	
+    <div class="available_lists_container">
+
     <div class="available_lists">
 
     {% if to_add or to_remove %}
-
         {% if to_add %}
-
         <ul class="my_available_lists">
-
             {% for list_object in to_add %}
-
                 <li class="available_list_item">
-
                 	<a href="{% url 'kinorg:list' list_object.1  %}">
                         <span>{{list_object.0}}</span>
                     </a>
@@ -48,24 +45,14 @@
     					<input type="hidden" id="poster_path" name="poster_path" value="{{ film.poster_path }}">
         				<button type="submit">add to list</button>
     				</form>
-
                 </li>
-
-
             {% endfor %}
-
         </ul>
-
         {% endif %}
-
         {% if to_remove %}
-
         <ul class="my_available_lists">
-
             {% for list_object in to_remove %}
-
                 <li class="available_list_item">
-
                     <a href="{% url 'kinorg:list' list_object.1  %}">
                         <span>{{list_object.0}}</span>
                     </a>
@@ -75,26 +62,16 @@
                         <input type="hidden" id="movie_id" name="movie_id" value="{{ film.id }}">
                         <button type="submit">remove from list</button>
                     </form>
-
                 </li>
-
             {% endfor %}
-
         </ul>
-
         {% endif %}
-
     {% endif %}
 
     {% if to_add_g or to_remove_g %}
-
-        <!-- <h1>Guest Lists</h1> -->
-
         {% if to_add_g %}
         <ul class="my_available_lists">
-
             {% for glist_object in to_add_g %}
-
                 <li class="available_list_item">
                     <a href="{% url 'kinorg:list' glist_object.1  %}">
                         <span>{{glist_object.0}}</span>
@@ -108,22 +85,14 @@
     					<input type="hidden" id="poster_path" name="poster_path" value="{{ film.poster_path }}">
         				<button type="submit">add to list</button>
     				</form>
-                    <!-- <span>List created by {{ glist_object.2 }}</span> -->
                 </li>
-
-                
-
             {% endfor %}
         </ul>
-
         {% endif %}
         {% if to_remove_g %}
-
         <ul class="my_available_lists">
             {% for glist_object in to_remove_g %}
-
                 <li class="available_list_item">
-
                     <a href="{% url 'kinorg:list' glist_object.1  %}">
                         <span>{{glist_object.0}}</span>
                     </a>
@@ -133,15 +102,14 @@
                         <input type="hidden" id="movie_id" name="movie_id" value="{{ film.id }}">
                         <button type="submit">remove from list</button>
                     </form>
-                    <!-- <span>List created by {{ glist_object.2 }}</span> -->
                 </li>
-
-
             {% endfor %}
-
         </ul>
         {% endif %}
     {% endif %}
+
+    </div>
+
     </div>
 
 

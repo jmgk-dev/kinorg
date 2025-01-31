@@ -12,17 +12,24 @@ p.italic {
   max-width: 500px;
 }
 
+.available_lists_container {
+  display: grid;
+  grid-template-columns: auto minmax(100px, 300px) auto;
+}
+
 .available_lists {
+  grid-column: 2;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   gap: 30px;
+  margin-top: 30px;
 }
 
 .my_available_lists {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 30px;
 }
 
 .available_list_item {
