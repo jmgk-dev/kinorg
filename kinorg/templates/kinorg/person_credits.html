@@ -13,14 +13,12 @@
 <div class="results_list_container">
 
 <div class="artist_name">
-    <span>{{ results.name }}</span>
+    <span>{{ name }}</span>
 </div>
-
-{% if results.movie_credits.cast %}
 
 <ul class="list_of_results">
 
-{% for film in results.movie_credits.cast %}
+{% for film in results %}
 
 <li class="results_item">
     <div class="result">
@@ -38,8 +36,6 @@
 </li>
 
 {% endfor %}
-
-{% endif %}
 
 </ul>
 

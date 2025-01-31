@@ -22,39 +22,36 @@
 
                     <div class="result">
 
-                    {% if result.poster_path %}
-                        <img class="poster" src="{{config_data.secure_base_url}}w200{{result.poster_path}}">
-                    {% elif result.profile_path %}
-                        <img class="poster" src="{{config_data.secure_base_url}}w200{{result.profile_path}}">
-                    {% else %}
-                        <img class="poster" src="{% static 'images/placeholder.jpg' %}">
-                    {% endif %}
+                        {% if result.poster_path %}
+                            <a href="{% url 'kinorg:film_detail' result.id %}"><img class="poster" src="{{config_data.secure_base_url}}w200{{result.poster_path}}"></a>
+                        {% elif result.profile_path %}
+                            <a href="{% url 'kinorg:person_credits' result.id %}"><img class="poster" src="{{config_data.secure_base_url}}w200{{result.profile_path}}"></a>
+                        {% else %}
+                            <a href="{% url 'kinorg:film_detail' result.id %}"><img class="poster" src="{% static 'images/placeholder.jpg' %}"></a>
+                        {% endif %}
 
-                    <div class="result_info">
-                    {% if result.title %}
-                        <a href="{% url 'kinorg:film_detail' result.id %}">{{ result.title }}</a>
-                    {% endif %}
+                        <div class="result_info">
 
-                    {% if result.name %}
-                        <a href="{% url 'kinorg:person_credits' result.id %}">{{ result.name }}</a>
-                    {% endif %}
+                            {% if result.title %}
+                                <a href="{% url 'kinorg:film_detail' result.id %}">{{ result.title }}</a>
+                            {% endif %}
+    
+                            {% if result.name %}
+                                <a href="{% url 'kinorg:person_credits' result.id %}">{{ result.name }}</a>
+                            {% endif %}
 
-                    {% if result.release_date %}
-                        <div>({{ result.release_date|slice:4 }})</div>
-                    {% endif %}
+                            {% if result.release_date %}
+                                <div>({{ result.release_date|slice:4 }})</div>
+                            {% endif %}
 
-                    {% if result.title %}
-                        <p>Add to list</p>
-                    {% endif %}
+                            {% if result.known_for %}
+                                <div class="known_for">
+                                {% for film in result.known_for %}
+                                    <a href="{% url 'kinorg:film_detail' film.id %}"><button>{{ film.title }}</button></a>
+                                {% endfor %}
+                            {% endif %}
 
-                    {% if result.known_for %}
-                        <div class="known_for">
-                        {% for film in result.known_for %}
-                            <a href="{% url 'kinorg:film_detail' film.id %}"><button>{{ film.title }}</button></a>
-                        {% endfor %}
                         </div>
-                    {% endif %}
-                    </div>
 
                     </div>
 

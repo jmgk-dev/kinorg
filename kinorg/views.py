@@ -12,6 +12,7 @@ from django.views.generic import ListView, CreateView, DetailView, TemplateView
 from django.urls import reverse_lazy
 
 from .models import Film, FilmList, Addition, Invitation
+from .forms import AddFilmForm
 
 # Functions ------------------------------------------------------------>
 
@@ -110,6 +111,8 @@ class Search(LoginRequiredMixin, TemplateView):
         
         query = self.request.GET.get('query')
 
+        user = self.request.user
+
         search_url = f"https://api.themoviedb.org/3/search/multi?query={query}&include_adult=false&language=en-US&page=1"
 
         search_data = get_search(search_url)
@@ -118,6 +121,11 @@ class Search(LoginRequiredMixin, TemplateView):
 
         sorted_films = sorted(filtered_films, key=lambda i: i['popularity'], reverse=True)
 
+        for film in sorted_films:
+            form = AddFilmForm(user=user)
+            # film['form'] = form
+            # print(film['title'])
+            
         context["query"] = query
         context["results_list"] = sorted_films
 
@@ -263,9 +271,15 @@ class PersonCredits(LoginRequiredMixin, TemplateView):
 
         get_url = f"https://api.themoviedb.org/3/person/{person_id}?append_to_response=movie_credits&language=en-US"
 
-        results = get_search(get_url)
+        search_data = get_search(get_url)
 
-        context["results"] = results
+        context["name"] = search_data["name"]
+
+        films = search_data['movie_credits']['cast']
+
+        sorted_films = sorted(films, key=lambda i: i['popularity'], reverse=True)
+
+        context["results"] = sorted_films
 
         return context
 
