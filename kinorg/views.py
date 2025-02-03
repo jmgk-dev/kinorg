@@ -36,9 +36,9 @@ def build_add_remove_lists(film_id, film_lists):
 
     for lst in film_lists:
         if film_id in lst.films.values_list('movie_id', flat=True):
-            to_remove.append((lst.title, lst.pk, lst.owner))
+            to_remove.append((lst.title, lst.pk, lst.owner, lst.sqid))
         else:
-            to_add.append((lst.title, lst.pk, lst.owner))
+            to_add.append((lst.title, lst.pk, lst.owner, lst.sqid))
 
     return to_add, to_remove
 
@@ -313,6 +313,7 @@ def add_film(request):
         movie_id = request.POST.get("movie_id")
         poster_path = request.POST.get("poster_path")
         list_id = request.POST.get("list_id")
+        list_sqid = request.POST.get("list_sqid")
 
         user = request.user
 
@@ -329,7 +330,7 @@ def add_film(request):
             added_by=user
             )
 
-        return redirect("kinorg:list", list_id)
+        return redirect("kinorg:list", list_sqid)
 
     else:
 

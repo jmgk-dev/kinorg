@@ -33,7 +33,7 @@
         <ul class="my_available_lists">
             {% for list_object in to_add %}
                 <li class="available_list_item">
-                	<a href="{% url 'kinorg:list' list_object.1  %}">
+                	<a href="{% url 'kinorg:list' list_object.3  %}">
                         <span>{{list_object.0}}</span>
                     </a>
                 	<form method="POST" action="/add-film/">
@@ -43,6 +43,7 @@
 						<input type="hidden" id="year" name="year" value="{{ film.release_date|slice:4 }}">
     					<input type="hidden" id="movie_id" name="movie_id" value="{{ film.id }}">
     					<input type="hidden" id="poster_path" name="poster_path" value="{{ film.poster_path }}">
+                        <input type="hidden" id="list_sqid" name="list_sqid" value="{{ list_object.3 }}">
         				<button type="submit">add to list</button>
     				</form>
                 </li>
@@ -53,13 +54,14 @@
         <ul class="my_available_lists">
             {% for list_object in to_remove %}
                 <li class="available_list_item">
-                    <a href="{% url 'kinorg:list' list_object.1  %}">
+                    <a href="{% url 'kinorg:list' list_object.3  %}">
                         <span>{{list_object.0}}</span>
                     </a>
                     <form method="POST" action="/remove-film/">
                         {% csrf_token %}
                         <input type="hidden" id="list_id" name="list_id" value="{{ list_object.1 }}">
                         <input type="hidden" id="movie_id" name="movie_id" value="{{ film.id }}">
+                        <input type="hidden" id="list_sqid" name="list_sqid" value="{{ list_object.3 }}">
                         <button type="submit">remove from list</button>
                     </form>
                 </li>
@@ -73,7 +75,7 @@
         <ul class="my_available_lists">
             {% for glist_object in to_add_g %}
                 <li class="available_list_item">
-                    <a href="{% url 'kinorg:list' glist_object.1  %}">
+                    <a href="{% url 'kinorg:list' glist_object.3  %}">
                         <span>{{glist_object.0}}</span>
                     </a>
                 	<form method="POST" action="/add-film/">
@@ -83,6 +85,7 @@
 						<input type="hidden" id="year" name="year" value="{{ film.release_date|slice:4 }}">
     					<input type="hidden" id="movie_id" name="movie_id" value="{{ film.id }}">
     					<input type="hidden" id="poster_path" name="poster_path" value="{{ film.poster_path }}">
+                        <input type="hidden" id="list_sqid" name="list_sqid" value="{{ list_object.3 }}">
         				<button type="submit">add to list</button>
     				</form>
                 </li>
@@ -93,13 +96,14 @@
         <ul class="my_available_lists">
             {% for glist_object in to_remove_g %}
                 <li class="available_list_item">
-                    <a href="{% url 'kinorg:list' glist_object.1  %}">
+                    <a href="{% url 'kinorg:list' glist_object.3  %}">
                         <span>{{glist_object.0}}</span>
                     </a>
                     <form method="POST" action="/remove-film/">
                         {% csrf_token %}
                         <input type="hidden" id="list_id" name="list_id" value="{{ glist_object.1 }}">
                         <input type="hidden" id="movie_id" name="movie_id" value="{{ film.id }}">
+                        <input type="hidden" id="list_sqid" name="list_sqid" value="{{ list_object.3 }}">
                         <button type="submit">remove from list</button>
                     </form>
                 </li>
