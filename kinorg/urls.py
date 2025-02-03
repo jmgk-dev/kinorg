@@ -8,7 +8,7 @@ urlpatterns = [
     path("search/", views.Search.as_view(), name="search"),
     path("search-user/", views.SearchUser.as_view(), name="search_user"),
     path("lists/", views.MyLists.as_view(), name="my_lists"),
-    path("lists/<int:pk>", views.ListDetail.as_view(), name="list"),
+    path("lists/<slug>/", views.ListDetail.as_view(), name="list"),
     path("create/", views.CreateList.as_view(), name="create_list"),
     path("add-film/", views.add_film, name="add_film"),
     path("remove-film/", views.remove_film, name="remove_film"),
@@ -19,5 +19,5 @@ urlpatterns = [
     path("invite-result/", views.invite_result, name="invite_result"),
     path("accept-invite/", views.accept_invite, name="accept_invite"),
     path("decline-invite/", views.decline_invite, name="decline_invite"),
-    path("no-access", views.no_access, name="no_access")
+    path("no-access/", views.no_access, name="no_access")
     ]

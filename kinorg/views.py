@@ -117,15 +117,14 @@ class Search(LoginRequiredMixin, TemplateView):
 
         search_data = get_search(search_url)
 
-        filtered_films = [film for film in search_data["results"] if film['media_type'] != 'tv']
+        filtered_films = [film for film in search_data["results"] if film['media_type'] == 'movie' or film['media_type'] == 'person']
 
         sorted_films = sorted(filtered_films, key=lambda i: i['popularity'], reverse=True)
 
         for film in sorted_films:
             form = AddFilmForm(user=user)
-            # film['form'] = form
-            # print(film['title'])
-            
+            film['form'] = form
+
         context["query"] = query
         context["results_list"] = sorted_films
 
@@ -194,6 +193,8 @@ class ListDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     login_url = "user_admin:login"
 
     model = FilmList
+
+    slug_field = 'sqid'
 
     def test_func(self):
         list_object = self.get_object()

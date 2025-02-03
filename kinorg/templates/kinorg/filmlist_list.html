@@ -22,7 +22,7 @@
             {% for list in my_lists %}
 
                 <li>
-                <a href="{% url 'kinorg:list' list.pk  %}"><button>{{ list.title }}</button></a>
+                <a href="{% url 'kinorg:list' list.sqid  %}"><button>{{ list.title }}</button></a>
                 </li>
 
             {% endfor %}
@@ -40,7 +40,7 @@
             {% for glist in guest_lists %}
 
                 <li class="list_item">
-                    <a href="{% url 'kinorg:list' glist.pk  %}"><button>{{ glist.title }}</button></a>
+                    <a href="{% url 'kinorg:list' glist.sqid  %}"><button>{{ glist.title }}</button></a>
                     <div>List created by {{ glist.owner }}</div>
                 </li>
 

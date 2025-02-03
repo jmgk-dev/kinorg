@@ -1,6 +1,8 @@
 from django.db import models
 from django.conf import settings
 
+from django_sqids import SqidsField, shuffle_alphabet
+
 class Film(models.Model):
 
 	title = models.CharField(
@@ -35,6 +37,12 @@ class Film(models.Model):
 
 
 class FilmList(models.Model):
+
+	sqid = SqidsField(
+		real_field_name="id",
+		min_length=5,
+		unique=True,
+		)
 
 	title = models.CharField(
 		max_length=200,

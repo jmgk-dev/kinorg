@@ -23,9 +23,9 @@
 <li class="results_item">
     <div class="result">
 	   {% if film.poster_path %}
-        <img class="poster" src="{{config_data.secure_base_url}}w200{{film.poster_path}}">
+        <a href="{% url 'kinorg:film_detail' film.id %}"><img class="poster" src="{{config_data.secure_base_url}}w200{{film.poster_path}}"></a>
         {% else %}
-        <img class="poster" src="{% static 'kinorg/images/placeholder.jpg' %}">
+        <a href="{% url 'kinorg:film_detail' film.id %}"><img class="poster" src="{% static 'kinorg/images/placeholder.jpg' %}"></a>
         {% endif %}
         <div class="result_info">
             <a href="{% url 'kinorg:film_detail' film.id %}"><div><b>{{ film.original_title }}</b></div></a>
