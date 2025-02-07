@@ -53,16 +53,16 @@
 
                         </div>
 
-                        
+
                         </div>
 
                         {% if result.title %}
 
-                        <div class="add_result">
+                        <div class="add_result" id="form_container_{{ forloop.counter }}">
                             
                             {% if my_lists or guest_lists %}
 
-                            <form method="POST" action="/add-film/">
+                            <form method="POST" action="/add-film/" hx-post="/add-film/" hx-target="#form_container_{{ forloop.counter }}" hx-swap="innerHTML">
                                 {% csrf_token %}
 
                                 <input type="hidden" id="title" name="title" value="{{ result.title }}">
@@ -75,6 +75,11 @@
                                     {% for lst in my_lists %}
                                         {% if result.id not in lst.movie_ids %}
                                         <option value="{{ lst.id }}">{{ lst.title }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% for glst in guest_lists %}
+                                        {% if film.id not in glst.movie_ids %}
+                                        <option value="{{ glst.id }}">{{ glst.title }}</option>
                                         {% endif %}
                                     {% endfor %}
                                 </select>

@@ -116,8 +116,8 @@ class Search(LoginRequiredMixin, TemplateView):
 
         for lst in my_lists:
             lst.movie_ids = lst.films.values_list('movie_id', flat=True)
-        for lst in guest_lists:
-            lst.movie_ids = lst.films.values_list('movie_id', flat=True)
+        for glst in guest_lists:
+            glst.movie_ids = glst.films.values_list('movie_id', flat=True)
 
         query = self.request.GET.get('query')
         search_url = f"https://api.themoviedb.org/3/search/multi?query={query}&include_adult=false&language=en-US&page=1"
@@ -345,11 +345,11 @@ def add_film(request):
             added_by=user
             )
 
-        return redirect("kinorg:list", list_sqid)
+        return render(request, "kinorg/success_message.html")
 
     else:
 
-        return redirect("kinorg:my_lists")
+        return JsonResponse({'error': 'Invalid request'}, status=400)
 
 
 def remove_film(request):
