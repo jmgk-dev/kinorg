@@ -108,23 +108,27 @@ class Search(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        
-        query = self.request.GET.get('query')
 
         user = self.request.user
 
-        search_url = f"https://api.themoviedb.org/3/search/multi?query={query}&include_adult=false&language=en-US&page=1"
+        my_lists = FilmList.objects.filter(owner=user)
+        guest_lists = FilmList.objects.filter(guests=user)
 
+        for lst in my_lists:
+            lst.movie_ids = lst.films.values_list('movie_id', flat=True)
+        for lst in guest_lists:
+            lst.movie_ids = lst.films.values_list('movie_id', flat=True)
+
+        query = self.request.GET.get('query')
+        search_url = f"https://api.themoviedb.org/3/search/multi?query={query}&include_adult=false&language=en-US&page=1"
         search_data = get_search(search_url)
 
         filtered_films = [film for film in search_data["results"] if film['media_type'] == 'movie' or film['media_type'] == 'person']
 
         sorted_films = sorted(filtered_films, key=lambda i: i['popularity'], reverse=True)
 
-        for film in sorted_films:
-            form = AddFilmForm(user=user)
-            film['form'] = form
-
+        context["my_lists"] = my_lists
+        context["guest_lists"] = guest_lists
         context["query"] = query
         context["results_list"] = sorted_films
 
@@ -268,18 +272,27 @@ class PersonCredits(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        user = self.request.user
+
+        my_lists = FilmList.objects.filter(owner=user)
+        guest_lists = FilmList.objects.filter(guests=user)
+
+        for lst in my_lists:
+            lst.movie_ids = lst.films.values_list('movie_id', flat=True)
+        for lst in guest_lists:
+            lst.movie_ids = lst.films.values_list('movie_id', flat=True)
+
         person_id = self.kwargs["person_id"]
-
         get_url = f"https://api.themoviedb.org/3/person/{person_id}?append_to_response=movie_credits&language=en-US"
-
         search_data = get_search(get_url)
-
-        context["name"] = search_data["name"]
 
         films = search_data['movie_credits']['cast']
 
         sorted_films = sorted(films, key=lambda i: i['popularity'], reverse=True)
 
+        context["my_lists"] = my_lists
+        context["guest_lists"] = guest_lists
+        context["name"] = search_data["name"]
         context["results"] = sorted_films
 
         return context
@@ -313,7 +326,9 @@ def add_film(request):
         movie_id = request.POST.get("movie_id")
         poster_path = request.POST.get("poster_path")
         list_id = request.POST.get("list_id")
-        list_sqid = request.POST.get("list_sqid")
+
+        filmlist_object = FilmList.objects.get(pk=list_id)
+        list_sqid = filmlist_object.sqid
 
         user = request.user
 
@@ -343,12 +358,13 @@ def remove_film(request):
 
         list_id = request.POST.get("list_id")
         movie_id = request.POST.get("movie_id")
+        sqid = request.POST.get("sqid")
 
         my_list = FilmList.objects.get(pk=list_id)
         my_film = Film.objects.get(movie_id=movie_id)
         my_list.films.remove(my_film)
 
-        return redirect("kinorg:list", list_id)
+        return redirect("kinorg:list", sqid)
 
     else:
 
@@ -371,18 +387,18 @@ def invite_guest(request):
             to_user = users.objects.get(email=to_user_email)
         except users.DoesNotExist:
             request.session['invitation_error'] = "The user with email '{}' does not exist.".format(to_user_email)
-            return redirect('kinorg:list', pk=list_object.pk)
+            return redirect('kinorg:list', list_object.sqid)
 
         try:
             send_invitation(list_object, to_user, from_user)
             request.session['invitation_sent'] = True
-            return redirect('kinorg:list', pk=list_object.pk)
+            return redirect('kinorg:list', list_object.sqid)
         except PermissionError as error:
             request.session['invitation_error'] = str(error)
-            return redirect('kinorg:list', pk=list_object.pk)
+            return redirect('kinorg:list', list_object.sqid)
         except Exception as e:
             request.session['invitation_error'] = f"An unexpected error occurred: {str(e)}"
-            return redirect('kinorg:list', pk=list_object.pk) 
+            return redirect('kinorg:list', list_object.sqid) 
 
     else:
 

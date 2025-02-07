@@ -40,7 +40,7 @@ class FilmList(models.Model):
 
 	sqid = SqidsField(
 		real_field_name="id",
-		min_length=5,
+		min_length=5, 
 		unique=True,
 		)
 

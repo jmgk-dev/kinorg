@@ -26,9 +26,11 @@
 
 .results_item {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     justify-content: center;
+    align-items: center;
     margin-bottom: 50px;
+    gap: 10px;
 }
 
 .result {
@@ -39,6 +41,16 @@
 }
 
 .result_info {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.add_result {
+    width: 300px;
+}
+
+.add_result_form {
     display: flex;
     flex-direction: column;
     gap: 10px;

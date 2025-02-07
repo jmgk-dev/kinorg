@@ -53,7 +53,39 @@
 
                         </div>
 
-                    </div>
+                        
+                        </div>
+
+                        {% if result.title %}
+
+                        <div class="add_result">
+                            
+                            {% if my_lists or guest_lists %}
+
+                            <form method="POST" action="/add-film/">
+                                {% csrf_token %}
+
+                                <input type="hidden" id="title" name="title" value="{{ result.title }}">
+                                <input type="hidden" id="year" name="year" value="{{ result.release_date|slice:4 }}">
+                                <input type="hidden" id="movie_id" name="movie_id" value="{{ result.id }}">
+                                <input type="hidden" id="poster_path" name="poster_path" value="{{ result.poster_path }}">
+
+                                <label for="list_id"></label>
+                                <select name="list_id" id="list_id">
+                                    {% for lst in my_lists %}
+                                        {% if result.id not in lst.movie_ids %}
+                                        <option value="{{ lst.id }}">{{ lst.title }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+
+                                <button type="submit">add to list</button>
+
+                            </form>
+
+                            {% endif %}
+
+                        {% endif %}
 
                 </li>
             {% endfor %}

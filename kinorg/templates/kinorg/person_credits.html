@@ -25,7 +25,7 @@
 	   {% if film.poster_path %}
         <a href="{% url 'kinorg:film_detail' film.id %}"><img class="poster" src="{{config_data.secure_base_url}}w200{{film.poster_path}}"></a>
         {% else %}
-        <a href="{% url 'kinorg:film_detail' film.id %}"><img class="poster" src="{% static 'kinorg/images/placeholder.jpg' %}"></a>
+        <a href="{% url 'kinorg:film_detail' film.id %}"><img class="poster" src="{% static 'images/placeholder.jpg' %}"></a>
         {% endif %}
         <div class="result_info">
             <a href="{% url 'kinorg:film_detail' film.id %}"><div><b>{{ film.original_title }}</b></div></a>
@@ -33,6 +33,38 @@
             <div>Appears as: {{ film.character }}</div>
         </div>
     </div>
+
+    {% if film.title %}
+
+        <div class="add_result">
+                            
+        {% if my_lists or guest_lists %}
+
+            <form method="POST" action="/add-film/">
+            {% csrf_token %}
+
+            <input type="hidden" id="title" name="title" value="{{ film.title }}">
+            <input type="hidden" id="year" name="year" value="{{ film.release_date|slice:4 }}">
+            <input type="hidden" id="movie_id" name="movie_id" value="{{ film.id }}">
+            <input type="hidden" id="poster_path" name="poster_path" value="{{ film.poster_path }}">
+
+            <label for="list_id"></label>
+            <select name="list_id" id="list_id">
+                {% for lst in my_lists %}
+                    {% if film.id not in lst.movie_ids %}
+                    <option value="{{ lst.id }}">{{ lst.title }}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+
+            <button type="submit">add to list</button>
+
+            </form>
+
+        {% endif %}
+
+    {% endif %}
+    
 </li>
 
 {% endfor %}

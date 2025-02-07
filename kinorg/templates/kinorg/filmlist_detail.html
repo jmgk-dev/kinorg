@@ -13,23 +13,6 @@
 		<span>{{ object.title }}</span>
 	</div>
 
-	<div class="invite_user">
-			<form method="POST" action="/invite-guest/">
-        	    {% csrf_token %}
-        	    <input type="email" id="user_email" name="user_email" required>
-        	    <input type="hidden" id="list_id" name="list_id" value="{{ object.pk }}">
-        		<button type="submit">INVITE USER</button>
-    		</form>
-	</div>
-
-	<div class="messages_container">
-	{% if messages %}
-    {% for message in messages %}
-     	<span {% if message.tags %} class="{{ message.tags }}" {% endif %} >{{ message }}</span>
-    {% endfor %}
-	{% endif %}
-	</div>
-
 	<div class="film_list_container">
 
 	<ul class="list_of_films">
@@ -50,6 +33,7 @@
 			<form method="POST" action="/remove-film/">
         	    {% csrf_token %}
         	    <input type="hidden" id="list_id" name="list_id" value="{{ addition.film_list.pk }}">
+        	    <input type="hidden" id="sqid" name="sqid" value="{{ addition.film_list.sqid }}">
     			<input type="hidden" id="movie_id" name="movie_id" value="{{ addition.film.movie_id }}">
         		<button type="submit">Remove</button>
     		</form>
@@ -59,6 +43,24 @@
 
 	</ul>
 
+	</div>
+
+	<div class="invite_user">
+			<form method="POST" action="/invite-guest/">
+        	    {% csrf_token %}
+        	    <input type="email" id="user_email" name="user_email" required>
+        	    <input type="hidden" id="list_id" name="list_id" value="{{ object.pk }}">
+        	    <input type="hidden" id="sqid" name="sqid" value="{{ object.sqid }}">
+        		<button type="submit">INVITE USER</button>
+    		</form>
+	</div>
+
+	<div class="messages_container">
+	{% if messages %}
+    {% for message in messages %}
+     	<span {% if message.tags %} class="{{ message.tags }}" {% endif %} >{{ message }}</span>
+    {% endfor %}
+	{% endif %}
 	</div>
 
 </div>

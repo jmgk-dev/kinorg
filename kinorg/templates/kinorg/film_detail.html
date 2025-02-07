@@ -33,7 +33,7 @@
         <ul class="my_available_lists">
             {% for list_object in to_add %}
                 <li class="available_list_item">
-                	<a href="{% url 'kinorg:list' list_object.3  %}">
+                	<a href="{% url 'kinorg:list' list_object.3 %}">
                         <span>{{list_object.0}}</span>
                     </a>
                 	<form method="POST" action="/add-film/">
@@ -54,7 +54,7 @@
         <ul class="my_available_lists">
             {% for list_object in to_remove %}
                 <li class="available_list_item">
-                    <a href="{% url 'kinorg:list' list_object.3  %}">
+                    <a href="{% url 'kinorg:list' list_object.3 %}">
                         <span>{{list_object.0}}</span>
                     </a>
                     <form method="POST" action="/remove-film/">
@@ -75,7 +75,7 @@
         <ul class="my_available_lists">
             {% for glist_object in to_add_g %}
                 <li class="available_list_item">
-                    <a href="{% url 'kinorg:list' glist_object.3  %}">
+                    <a href="{% url 'kinorg:list' glist_object.3 %}">
                         <span>{{glist_object.0}}</span>
                     </a>
                 	<form method="POST" action="/add-film/">
@@ -96,7 +96,7 @@
         <ul class="my_available_lists">
             {% for glist_object in to_remove_g %}
                 <li class="available_list_item">
-                    <a href="{% url 'kinorg:list' glist_object.3  %}">
+                    <a href="{% url 'kinorg:list' glist_object.3 %}">
                         <span>{{glist_object.0}}</span>
                     </a>
                     <form method="POST" action="/remove-film/">

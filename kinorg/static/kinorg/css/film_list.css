@@ -1,6 +1,6 @@
 .film_list_page {
     display: grid;
-    grid-template-rows: 60px auto 50px auto auto;
+    grid-template-rows: 60px auto auto 50px auto;
     margin-bottom: 20px;
 }
 
@@ -11,21 +11,8 @@
     align-items: center;
 }
 
-.invite_user {
-    grid-row: 2;
-    display: flex;
-    justify-content: center;
-}
-
-.messages_container {
-    grid-row: 3;
-    display: flex;
-    justify-content: center;
-    margin-top: 5px;
-}
-
 .film_list_container {
-    grid-row: 4;
+    grid-row: 2;
     padding-top: 15px;
     display: grid;
     grid-template-columns: 1fr minmax(110px, 1000px) 1fr;
@@ -43,6 +30,20 @@
 .film_item {
     width: 100px;
     padding-bottom: 15px;
+}
+
+.invite_user {
+    grid-row: 3;
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.messages_container {
+    grid-row: 4;
+    display: flex;
+    justify-content: center;
+    margin-top: 5px;
 }
 
 .footer_links {
