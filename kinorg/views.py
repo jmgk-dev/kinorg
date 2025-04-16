@@ -12,7 +12,6 @@ from django.views.generic import ListView, CreateView, DetailView, TemplateView
 from django.urls import reverse_lazy
 
 from .models import Film, FilmList, Addition, Invitation
-from .forms import AddFilmForm
 
 # Functions ------------------------------------------------------------>
 

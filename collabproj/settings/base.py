@@ -12,20 +12,19 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 import os
 from pathlib import Path
-
 from dotenv import load_dotenv
 
+# Load environment variables from .env file
 load_dotenv()
+
+# Debugging statements to print environment variables
+# print("Environment variables loaded:")
+# print("DATABASE_NAME:", os.environ.get('DATABASE_NAME'))
+# print("DATABASE_SERVICE:", os.environ.get('DATABASE_SERVICE'))
+# print("Database service name:", os.environ.get('DATABASE_NAME'))
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-
-# SECURITY WARNING: don't run with debug turned on in production!
 
 # Application definition
 
@@ -77,11 +76,14 @@ WSGI_APPLICATION = 'collabproj.wsgi.application'
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "OPTIONS": {
-            "service": os.environ['DATABASE_NAME'],
-        },
+        "NAME": os.environ.get('DATABASE_NAME', 'default_db_name'),
+        "USER": os.environ.get('DATABASE_USER', 'default_user'),
+        "PASSWORD": os.environ.get('DATABASE_PASSWORD', 'default_password'),
+        "HOST": os.environ.get('DATABASE_HOST', 'localhost'),
+        "PORT": os.environ.get('DATABASE_PORT', '5432'),
     }
 }
+
 
 
 
