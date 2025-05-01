@@ -7,14 +7,16 @@ DEBUG = False
 
 ALLOWED_HOSTS = ['kinorg.com', 'www.kinorg.com', '164.92.66.154']
 
-SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
+print("Using production settings")
+
+SECRET_KEY = os.environ['DJANGO_SECURE_PRODUCTION_KEY']
 
 # Bugsnag
 
-BUGSNAG = {
-    'api_key': 'e67ab4514492f52ffdc0c60270c6af28',
-    'project_root': '/home/jamiek/kinorg',
-}
+# BUGSNAG = {
+#     'api_key': os.environ['BUGSNAG_API_KEY'],
+#     'project_root': os.environ['PATH_TO_YOUR_APP'],
+# }
 
 
 

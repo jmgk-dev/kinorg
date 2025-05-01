@@ -6,7 +6,16 @@ import sys
 
 def main():
     """Run administrative tasks."""
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'collabproj.settings.prod')
+
+    # Determine which settings to use based on DJANGO_ENV
+    django_env = os.getenv('DJANGO_ENV', 'development').lower()
+    if django_env == 'production':
+        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'collabproj.settings.prod')
+    elif django_env == 'development':
+        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'collabproj.settings.dev')
+    else:
+        raise RuntimeError(f"Unknown DJANGO_ENV: {django_env}")
+
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
