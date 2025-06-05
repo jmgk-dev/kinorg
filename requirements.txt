@@ -4,7 +4,7 @@ backports.tarfile==1.2.0
 bugsnag==4.7.1
 certifi==2025.1.31
 charset-normalizer==3.4.1
-Django==5.2
+Django==5.2.1
 django-extensions==3.2.3
 django-shell-plus==1.1.7
 django-sqids==0.2.1
