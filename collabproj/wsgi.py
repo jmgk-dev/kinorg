@@ -11,6 +11,9 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
+from dotenv import load_dotenv
+load_dotenv()
+
 # Determine which settings to use based on DJANGO_ENV
 django_env = os.getenv('DJANGO_ENV', 'development').lower()
 if django_env == 'production':
