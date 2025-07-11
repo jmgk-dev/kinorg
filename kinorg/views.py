@@ -135,7 +135,8 @@ class Search(LoginRequiredMixin, TemplateView):
             else:
                 search_url = f"https://api.themoviedb.org/3/search/multi?query={year}&include_adult=false&language=en-US&page=1"
                 search_data = get_search(search_url)
-                filtered_films = [film for film in search_data["results"] if film['media_type'] == 'movie' or film['media_type'] == 'person']
+                search_results = search_data["results"]
+                search_results = sorted(search_results, key=lambda i: i['popularity'], reverse=True)
 
         else:
             search_url = f"https://api.themoviedb.org/3/search/multi?query={query}&include_adult=false&language=en-US&page=1"
