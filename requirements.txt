@@ -22,6 +22,7 @@ packaging==25.0
 pillow==11.2.1
 pillow_heif==0.22.0
 psycopg==3.2.1
+pylibmc==1.6.3
 python-dotenv==1.0.1
 requests==2.32.3
 sqids==0.5.1
@@ -32,4 +33,5 @@ typing_extensions==4.13.2
 urllib3==2.4.0
 webencodings==0.5.1
 WebOb==1.8.9
+wheel==0.45.1
 zipp==3.21.0

@@ -30,11 +30,11 @@
 		<div class="search_bar bar_item">
 			{% if user.is_authenticated %}
 			<form method="GET" action="{% url 'kinorg:search' %}">
-        		<input type="text" name="query" placeholder="Search for a Film...">
+        		<input type="text" name="query" placeholder="Search for a Film..." required>
         		<button type="submit">Search</button>
     		</form>
     		{% else %}
-    		<span>📺🍿˙✧˖°🍿 ༘ ⋆｡˚🎞️ 📹🤍</span>
+    		<img src="https://web.archive.org/web/20091027150006im_/http://geocities.com/donandphil.geo/images/movies.gif" width="300">
     		{% endif %}
 		</div>
 			

@@ -76,6 +76,35 @@ class FilmList(models.Model):
 		ordering = ["title"]
 
 
+class Tag(models.Model):
+
+	name = models.CharField(
+		max_length=50,
+		null=False,
+		blank=False,
+		unique=True,
+		)
+
+	creator = models.ForeignKey(
+		settings.AUTH_USER_MODEL, 
+		on_delete=models.CASCADE,
+		null=False,
+		blank=False,
+		)
+
+	films = models.ManyToManyField(
+		Film,
+		related_name="tags",
+		related_query_name="tagged",
+		)
+
+	def __str__(self):
+		return self.name
+
+	class Meta:
+		ordering = ["name"]
+
+
 class Addition(models.Model):
 
 	class Meta:

@@ -1,5 +1,6 @@
 import os
 
+import re
 import requests
 
 from django.shortcuts import render, redirect
@@ -105,11 +106,44 @@ class Search(LoginRequiredMixin, TemplateView):
 
     template_name = "kinorg/search.html"
 
+    def get(self, request, *args, **kwargs):
+        # If no query is provided, redirect to home
+        if not request.GET.get('query'):
+            return redirect('kinorg:home')
+
+        return super().get(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
         user = self.request.user
 
+        # Search
+        query = self.request.GET.get('query').strip()
+
+        year_match = re.search(r'\b(19\d{2}|20\d{2})\b', query)
+
+        if year_match:
+            year = year_match.group(1)
+            title = re.sub(r'\b(19\d{2}|20\d{2})\b', '', query).strip()
+
+            if title:
+                search_url = f"https://api.themoviedb.org/3/search/movie?query={title}&include_adult=false&language=en-US&primary_release_year={year}&page=1"
+                search_data = get_search(search_url)
+                search_results = search_data["results"]
+                search_results = sorted(search_results, key=lambda i: i['popularity'], reverse=True)
+
+            else:
+                search_url = f"https://api.themoviedb.org/3/search/multi?query={year}&include_adult=false&language=en-US&page=1"
+                search_data = get_search(search_url)
+                filtered_films = [film for film in search_data["results"] if film['media_type'] == 'movie' or film['media_type'] == 'person']
+
+        else:
+            search_url = f"https://api.themoviedb.org/3/search/multi?query={query}&include_adult=false&language=en-US&page=1"
+            search_data = get_search(search_url)
+            filtered_films = [film for film in search_data["results"] if film['media_type'] == 'movie' or film['media_type'] == 'person']
+            search_results = sorted(filtered_films, key=lambda i: i['popularity'], reverse=True)
+
+        # Build lists
         my_lists = FilmList.objects.filter(owner=user)
         guest_lists = FilmList.objects.filter(guests=user)
 
@@ -118,18 +152,10 @@ class Search(LoginRequiredMixin, TemplateView):
         for glst in guest_lists:
             glst.movie_ids = glst.films.values_list('movie_id', flat=True)
 
-        query = self.request.GET.get('query')
-        search_url = f"https://api.themoviedb.org/3/search/multi?query={query}&include_adult=false&language=en-US&page=1"
-        search_data = get_search(search_url)
-
-        filtered_films = [film for film in search_data["results"] if film['media_type'] == 'movie' or film['media_type'] == 'person']
-
-        sorted_films = sorted(filtered_films, key=lambda i: i['popularity'], reverse=True)
-
         context["my_lists"] = my_lists
         context["guest_lists"] = guest_lists
         context["query"] = query
-        context["results_list"] = sorted_films
+        context["results_list"] = search_results
 
         return context
 
