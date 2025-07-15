@@ -4,7 +4,7 @@ backports.tarfile==1.2.0
 bugsnag==4.7.1
 certifi==2025.1.31
 charset-normalizer==3.4.1
-Django==5.2.1
+Django==5.2.4
 django-extensions==3.2.3
 django-shell-plus==1.1.7
 django-sqids==0.2.1
@@ -24,7 +24,7 @@ pillow_heif==0.22.0
 psycopg==3.2.1
 pylibmc==1.6.3
 python-dotenv==1.0.1
-requests==2.32.3
+requests==2.32.4
 sqids==0.5.1
 sqlparse==0.5.3
 tinycss2==1.4.0
