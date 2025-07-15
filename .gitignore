@@ -53,6 +53,7 @@ app/tests/__pycache__/*
 *.sql
 *.sqlite
 *.sqlite3
+logs/
 venv/
 
 # OS generated files #

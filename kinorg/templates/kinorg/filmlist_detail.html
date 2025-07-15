@@ -30,13 +30,17 @@
 
 			</a>
 
-			<form method="POST" action="/remove-film/">
-        	    {% csrf_token %}
-        	    <input type="hidden" id="list_id" name="list_id" value="{{ addition.film_list.pk }}">
-        	    <input type="hidden" id="sqid" name="sqid" value="{{ addition.film_list.sqid }}">
-    			<input type="hidden" id="movie_id" name="movie_id" value="{{ addition.film.movie_id }}">
-        		<button type="submit">Remove</button>
-    		</form>
+			<div id="remove_form_container_{{ forloop.counter }}">
+
+				<form method="POST" action="/remove-film/" hx-post="/remove-film/" hx-target="#remove_form_container_{{ forloop.counter }}" hx-swap="innerHTML">
+	        	    {% csrf_token %}
+	        	    <input type="hidden" id="list_id" name="list_id" value="{{ addition.film_list.pk }}">
+	        	    <input type="hidden" id="sqid" name="sqid" value="{{ addition.film_list.sqid }}">
+	    			<input type="hidden" id="movie_id" name="movie_id" value="{{ addition.film.movie_id }}">
+	        		<button type="submit">Remove</button>
+	    		</form>
+
+    		</div>
 
 		</li>
 		{% endfor %}

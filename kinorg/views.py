@@ -124,7 +124,7 @@ class Search(LoginRequiredMixin, TemplateView):
 
         if year_match:
             year = year_match.group(1)
-            title = re.sub(r'\b(19\d{2}|20\d{2})\b', '', query).strip()
+            title = query.replace(year, '').strip()
 
             if title:
                 search_url = f"https://api.themoviedb.org/3/search/movie?query={title}&include_adult=false&language=en-US&primary_release_year={year}&page=1"
@@ -371,7 +371,7 @@ def add_film(request):
             added_by=user
             )
 
-        return render(request, "kinorg/success_message.html")
+        return render(request, "kinorg/success_add_message.html")
 
     else:
 
@@ -390,11 +390,11 @@ def remove_film(request):
         my_film = Film.objects.get(movie_id=movie_id)
         my_list.films.remove(my_film)
 
-        return redirect("kinorg:list", sqid)
+        return render(request, "kinorg/success_remove_message.html")
 
     else:
 
-        return redirect("kinorg:my_lists")
+        return JsonResponse({'error': 'Invalid request'}, status=400)
 
 
 def invite_guest(request):

@@ -4,7 +4,12 @@ import logging
 from django.core.cache import cache
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(filename='kinorg.log', encoding='utf-8', level=logging.DEBUG)
+logging.basicConfig(
+    filename='logs/cache.log',
+    format='%(asctime)s - %(message)s',
+    encoding='utf-8', 
+    level=logging.INFO
+    )
 
 def get_image_config(request):
 
