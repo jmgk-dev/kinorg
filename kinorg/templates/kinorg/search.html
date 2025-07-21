@@ -72,21 +72,46 @@
 
                                 <label for="list_id"></label>
                                 <select name="list_id" id="list_id">
+
+                                    <option value="" selected>--- Pick a list</option>
+
                                     {% for lst in my_lists %}
+
                                         {% if result.id not in lst.movie_ids %}
-                                        <option value="{{ lst.id }}">{{ lst.title }}</option>
+
+                                            <option value="{{ lst.id }}">{{ lst.title }}</option>
+
+                                        {% else %}
+
+                                            <option value="" disabled>{{ lst.title }} - already added</option>
+
                                         {% endif %}
+
                                     {% endfor %}
+
                                     {% for glst in guest_lists %}
+
                                         {% if film.id not in glst.movie_ids %}
+
                                         <option value="{{ glst.id }}">{{ glst.title }}</option>
+
+                                        {% else %}
+
+                                            <option value="" disabled>{{ glst.title }} - already added</option>
+
                                         {% endif %}
+
                                     {% endfor %}
+
                                 </select>
 
                                 <button type="submit">add to list</button>
 
                             </form>
+
+                            {% else %}
+
+                                <a href="{% url 'kinorg:create_list' %}"><p>Create List</p></a>
 
                             {% endif %}
 

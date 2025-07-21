@@ -29,6 +29,20 @@ def get_search(url):
     return search_data
 
 
+def order_by_popularity(search_results):
+
+    ordered_results = sorted(search_results, key=lambda i: i['popularity'], reverse=True)
+
+    return ordered_results
+
+
+def films_and_people(search_data):
+
+    filtered_films = [film for film in search_data["results"] if film['media_type'] == 'movie' or film['media_type'] == 'person']
+
+    return filtered_films
+
+
 def build_add_remove_lists(film_id, film_lists):
 
     to_add = []
@@ -117,37 +131,42 @@ class Search(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         user = self.request.user
 
-        # Search
+        # Search based on query content -------------------------------------
         query = self.request.GET.get('query').strip()
 
         year_match = re.search(r'\b(19\d{2}|20\d{2})\b', query)
 
+        # if there's a year in the query
         if year_match:
             year = year_match.group(1)
             title = query.replace(year, '').strip()
 
+            # if there's also text
             if title:
                 search_url = f"https://api.themoviedb.org/3/search/movie?query={title}&include_adult=false&language=en-US&primary_release_year={year}&page=1"
                 search_data = get_search(search_url)
-                search_results = search_data["results"]
-                search_results = sorted(search_results, key=lambda i: i['popularity'], reverse=True)
+                ordered_results = order_by_popularity(search_data["results"])
 
+            # if there's just a year
             else:
                 search_url = f"https://api.themoviedb.org/3/search/multi?query={year}&include_adult=false&language=en-US&page=1"
                 search_data = get_search(search_url)
-                search_results = search_data["results"]
-                search_results = sorted(search_results, key=lambda i: i['popularity'], reverse=True)
+                filtered_films = films_and_people(search_data)
+                ordered_results = order_by_popularity(filtered_films)
 
+        #if it's just text
         else:
             search_url = f"https://api.themoviedb.org/3/search/multi?query={query}&include_adult=false&language=en-US&page=1"
             search_data = get_search(search_url)
-            filtered_films = [film for film in search_data["results"] if film['media_type'] == 'movie' or film['media_type'] == 'person']
-            search_results = sorted(filtered_films, key=lambda i: i['popularity'], reverse=True)
+            filtered_films = films_and_people(search_data)
+            ordered_results = order_by_popularity(filtered_films)
+        # -------------------------------------------------------------------
 
-        # Build lists
+        # get user's lists
         my_lists = FilmList.objects.filter(owner=user)
         guest_lists = FilmList.objects.filter(guests=user)
 
+        # add move IDs to each user list
         for lst in my_lists:
             lst.movie_ids = lst.films.values_list('movie_id', flat=True)
         for glst in guest_lists:
@@ -156,7 +175,7 @@ class Search(LoginRequiredMixin, TemplateView):
         context["my_lists"] = my_lists
         context["guest_lists"] = guest_lists
         context["query"] = query
-        context["results_list"] = search_results
+        context["results_list"] = ordered_results
 
         return context
 

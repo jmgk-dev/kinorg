@@ -42,6 +42,15 @@
     gap: 10px;
 }
 
+.list_poster_stack {
+    display: flex;
+    flex-direction: row;
+}
+
+.stack_item {
+  margin-left: -20px;
+}
+
 .invitations_container {
     grid-row: 3;
     display: flex;

@@ -77,19 +77,24 @@
             {% endfor %}
 
         </ul>
+
         {% endif %}
 
     {% endif %}
 
     {% if to_add_g or to_remove_g %}
+
         {% if to_add_g %}
+
         <ul class="my_available_lists">
+
             {% for glist_object in to_add_g %}
-                <li class="available_list_item">
+
+                <li class="available_list_item" id="glist_add_form_container_{{ forloop.counter }}">
                     <a href="{% url 'kinorg:list' glist_object.3 %}">
                         <span>{{glist_object.0}}</span>
                     </a>
-                	<form method="POST" action="/add-film/">
+                	<form method="POST" action="/add-film/" hx-post="/add-film/" hx-target="#glist_add_form_container_{{ forloop.counter }}" hx-swap="innerHTML">
                 		{% csrf_token %}
                 		<input type="hidden" id="list_id" name="list_id" value="{{ glist_object.1 }}">
 						<input type="hidden" id="title" name="title" value="{{ film.title }}">
@@ -100,17 +105,24 @@
         				<button type="submit">add to list</button>
     				</form>
                 </li>
+
             {% endfor %}
+
         </ul>
+
         {% endif %}
+
         {% if to_remove_g %}
+
         <ul class="my_available_lists">
+
             {% for glist_object in to_remove_g %}
-                <li class="available_list_item">
+
+                <li class="available_list_item" id="glist_remove_form_container_{{ forloop.counter }}">
                     <a href="{% url 'kinorg:list' glist_object.3 %}">
                         <span>{{glist_object.0}}</span>
                     </a>
-                    <form method="POST" action="/remove-film/">
+                    <form method="POST" action="/remove-film/" hx-post="/remove-film/" hx-target="#glist_remove_form_container_{{ forloop.counter }}" hx-swap="innerHTML">
                         {% csrf_token %}
                         <input type="hidden" id="list_id" name="list_id" value="{{ glist_object.1 }}">
                         <input type="hidden" id="movie_id" name="movie_id" value="{{ film.id }}">
@@ -118,9 +130,13 @@
                         <button type="submit">remove from list</button>
                     </form>
                 </li>
+
             {% endfor %}
+
         </ul>
+
         {% endif %}
+        
     {% endif %}
 
     </div>
