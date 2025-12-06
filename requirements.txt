@@ -1,10 +1,10 @@
-asgiref==3.8.1
+asgiref==3.11.0
 autocommand==2.2.2
 backports.tarfile==1.2.0
 bugsnag==4.7.1
 certifi==2025.1.31
 charset-normalizer==3.4.1
-Django==5.2.4
+Django==6.0
 django-extensions==3.2.3
 django-shell-plus==1.1.7
 django-sqids==0.2.1
@@ -30,7 +30,7 @@ sqlparse==0.5.3
 tinycss2==1.4.0
 tomli==2.0.1
 typing_extensions==4.13.2
-urllib3==2.5.0
+urllib3==2.6.0
 webencodings==0.5.1
 WebOb==1.8.9
 wheel==0.45.1
