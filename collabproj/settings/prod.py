@@ -5,7 +5,7 @@ from .base import *
 
 DEBUG = False
 
-ALLOWED_HOSTS = ['kinorg.com', 'www.kinorg.com', 'SITE_IP']
+ALLOWED_HOSTS = ['kinorg.com', 'www.kinorg.com', os.environ.get('SITE_IP')]
 
 print("Using production settings")
 
