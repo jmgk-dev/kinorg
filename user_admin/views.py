@@ -47,6 +47,7 @@ class ResetPassword(PasswordResetView):
 	template_name = 'user_admin/reset_password.html'
 	email_template_name = 'user_admin/reset_password_email.html' 
 	success_url = reverse_lazy('user_admin:reset_password_done')
+	from_email = settings.DEFAULT_FROM_EMAIL
 
 
 class ResetPasswordConfirm(PasswordResetConfirmView):
