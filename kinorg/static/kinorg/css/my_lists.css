@@ -1,0 +1,59 @@
+.lists_page_container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.my_lists_title {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.my_lists_container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    margin: 0px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.my_lists {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: flex-start;
+    gap: 30px;
+}
+
+.list_item {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.list_poster_stack {
+/*    display: flex;
+    flex-direction: row;
+    width: 100%;
+    overflow: scroll;
+    gap: 10px;*/
+}
+
+.stack_item {
+  /*margin-left: -40px;*/
+}
+
+.invitations_container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.create_list {
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+}

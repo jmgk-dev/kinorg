@@ -1,0 +1,43 @@
+{% extends "kinorg/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" type="text/css" href="{% static 'kinorg/css/search.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'kinorg/css/content_list.css' %}">
+{% endblock %}
+
+
+{% block content %}
+
+{% if results %}
+
+<div class="results_title_info">
+    <span>{{ name }}</span>
+</div>
+
+<div class="content_list_container">
+
+<ul class="list_of_content">
+
+{% for film in results %}
+
+<li class="results_item">
+    <div class="result">
+	   {% if film.poster_path %}
+        <a href="{% url 'kinorg:film_detail' film.id %}"><img class="poster" src="{{config_data.secure_base_url}}w200{{film.poster_path}}"></a>
+        {% else %}
+        <a href="{% url 'kinorg:film_detail' film.id %}"><img class="poster" src="{% static 'images/placeholder.jpg' %}"></a>
+        {% endif %}
+    </div>
+
+</li>
+
+{% endfor %}
+
+</ul>
+
+</div>
+
+{% endif %}
+
+{% endblock %}

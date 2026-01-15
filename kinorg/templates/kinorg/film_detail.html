@@ -1,0 +1,45 @@
+{% extends "kinorg/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" type="text/css" href="{% static 'kinorg/css/film_detail.css' %}">
+{% endblock %}
+
+
+{% block content %}
+
+<div class="film_details">
+
+    <h2><b>{{ film.title }}</b></h2>
+    <p class="italic">{{ film.tagline }}</p>
+    <p>Released: {{ film.release_date|slice:4 }}</p>
+
+    {% if film.poster_path %}
+    <img class="poster" src="{{config_data.secure_base_url}}w500{{film.poster_path}}">
+    {% else %}
+    <img class="poster" src="{% static 'images/placeholder.jpg' %}">
+    {% endif %}
+
+    <p class="overview">{{ film.overview }}</p>
+
+</div>
+
+{% if my_lists %}
+<div class="add_remove_buttons">
+
+    {% for lst in my_lists %}
+
+        <div class="add_remove_button">
+            <a href="{% url 'kinorg:list' lst.sqid %}">{{ lst.title }}</a>
+
+            {% include "kinorg/_toggle_button.html" with lst=lst film=film is_in_list=lst.contains_film %}
+
+        </div>
+
+    {% endfor %}
+
+</div>
+{% endif %}
+	
+
+{% endblock %}

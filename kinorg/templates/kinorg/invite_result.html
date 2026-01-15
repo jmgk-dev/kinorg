@@ -1,0 +1,14 @@
+{% extends "kinorg/base.html" %}
+{% load static %}
+
+{% block content %}
+
+    {% if message %}
+    <div style="display: flex; justify-content: center;">
+        <p>{{ message }}</p>
+    </div>
+    {% endif %}
+
+    <button onclick="history.back()">Go Back</button>
+
+{% endblock %}

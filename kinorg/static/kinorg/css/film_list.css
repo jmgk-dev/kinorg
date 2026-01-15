@@ -1,0 +1,27 @@
+.film_list_page {
+
+
+.list_title {
+    grid-row: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.invite_user {
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.messages_container {
+    display: flex;
+    justify-content: center;
+    margin-top: 5px;
+}
+
+.footer_links {
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+}

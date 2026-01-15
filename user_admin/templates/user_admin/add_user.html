@@ -1,0 +1,12 @@
+{% extends "kinorg/base.html" %}
+
+{% block content %}
+
+	<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Add User</button>
+
+    <a href="{% url 'kinorg:home' %}"><p>Back to home</p></a>
+
+{% endblock %}

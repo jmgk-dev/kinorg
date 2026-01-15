@@ -1,0 +1,34 @@
+{% extends "kinorg/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" type="text/css" href="{% static 'user_admin/css/custom_login.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="login_page">
+
+	<div class=login_title>
+		<span>Login</span>
+	</div>
+
+	<div class="login_form_container">
+		<div class="login_form">
+			<form method="post">
+	    		{% csrf_token %}
+	    		{{ form.as_p }}
+	    		<button type="submit">Login</button>
+			</form>
+		</div>
+	</div>
+
+	<div class="reset_link">
+		<a href="{% url 'user_admin:reset_password' %}"><p>Reset Password</p></a>
+	</div>
+
+</div>
+
+
+
+{% endblock %}

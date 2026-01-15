@@ -1,0 +1,73 @@
+.home_page_container {
+  width: 100%;
+}
+
+.login_link, .my_lists_link {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-decoration: underline;
+    margin-bottom: 40px;
+}
+
+.list_header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
+    font-style: italic;
+}
+
+
+/* Scrolling bar ----------------------------------- */
+
+#container {
+  height: 160px; 
+  position: relative; 
+  overflow: hidden;
+}
+
+.photobanner {
+  position: absolute; 
+  top: 0px; 
+  left: 0px; 
+  overflow: hidden; 
+  white-space: nowrap;
+  animation: bannermove 60s linear infinite;
+}
+
+.photobanner-reverse {
+  animation: bannermove-reverse 70s linear infinite;
+}
+
+.photobanner img {    
+  margin: 0 0.3em 
+}
+
+@keyframes bannermove {
+  0% {
+      transform: translate(0, 0);
+  }
+  100% {
+      transform: translate(-50%, 0);
+  }
+}
+
+@keyframes bannermove-reverse {
+  0% {
+      transform: translate(-50%, 0);
+  }
+  100% {
+      transform: translate(0, 0);
+  }
+}
+
+#container:hover {
+   overflow: auto;
+}
+
+#container:hover .photobanner {
+   animation-play-state:paused;
+}
+
+/* Scrolling bar END ----------------------------------- */

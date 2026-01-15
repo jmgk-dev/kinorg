@@ -1,0 +1,26 @@
+.results_title_info {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.content_list_container {
+/*    display: flex;
+    justify-content: center;
+    padding: 2rem;*/
+}
+
+.list_of_content {
+    display: grid;
+    grid-gap: 0.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(6rem, 1fr));
+    list-style: none;
+    padding: 10px;
+    margin: 10px;
+}
+
+.results_item {
+    display: inline-flex;
+    justify-content: center;
+}
+

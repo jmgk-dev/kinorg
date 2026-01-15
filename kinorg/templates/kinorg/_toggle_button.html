@@ -1,0 +1,31 @@
+<div id="toggle-{{ lst.id }}">
+    <button
+
+        {% if is_in_list %}
+            class="remove_button"
+            hx-post="{% url 'kinorg:remove_film' %}"
+        {% else %}
+            class="add_button"
+            hx-post="{% url 'kinorg:add_film' %}"
+        {% endif %}
+
+
+        hx-include="[name=csrfmiddlewaretoken]"
+
+
+        hx-vals='{
+            "title": "{{ film.title }}",
+            "release_date": "{{ film.release_date|safe }}",
+            "movie_id": "{{ film.id }}",
+            "poster_path": "{{ film.poster_path }}",
+            "list_id": "{{ lst.id }}"
+        }'
+
+
+        hx-target="#toggle-{{ lst.id }}"
+        hx-swap="outerHTML">
+
+
+        {% if is_in_list %}Remove{% else %}Add{% endif %}
+    </button>
+</div>

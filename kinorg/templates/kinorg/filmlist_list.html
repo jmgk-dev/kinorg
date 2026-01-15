@@ -1,0 +1,97 @@
+{% extends "kinorg/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" type="text/css" href="{% static 'kinorg/css/my_lists.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="lists_page_container">
+
+    <div class="my_lists_title">
+        <span>My Lists</span>
+    </div>
+    
+    <div class="my_lists_container">
+
+        {% if my_lists %}
+            <ul class="my_lists">
+
+            {% for list in my_lists %}
+
+                <li class="list_item">
+
+<!--                 {% if list.addition_set.all|length > 0 %}
+                    <ul class="list_poster_stack">
+                        {% for addition in list.addition_set.all %}
+                            <li class="stack_item">
+                                <a href="{% url 'kinorg:film_detail' addition.film.id %}">
+                                <img class="poster" src="{{config_data.secure_base_url}}w200{{addition.film.poster_path}}">
+                                </a>
+                            <li>
+                        {% endfor %}
+                    </ul>
+
+                    {% else %}
+                        <img class="poster" src="{% static 'images/placeholder.jpg' %}">
+                    {% endif %} -->
+
+                <a href="{% url 'kinorg:list' list.sqid  %}"><button>{{ list.title }}</button></a>
+
+                </li>
+
+            {% endfor %}
+
+            </ul>
+        </div>
+        {% endif %}
+
+
+        {% if guest_lists %}
+        <div class="lists_container">
+
+            <ul class="my_lists">
+
+            {% for glist in guest_lists %}
+
+                <li class="list_item">
+
+<!--                     {% if glist.addition_set.all|length > 0 %}
+                        <ul class="list_poster_stack">
+                            {% for addition in glist.addition_set.all %}
+                                <li class="stack_item">
+                                    <a href="{% url 'kinorg:film_detail' addition.film.id %}">
+                                    <img class="poster" src="{{config_data.secure_base_url}}w200{{addition.film.poster_path}}">
+                                    </a>
+                                <li>
+                            {% endfor %}
+                        </ul>
+
+                    {% else %}
+                        <img class="poster" src="{% static 'images/placeholder.jpg' %}">
+                    {% endif %} -->
+
+                    <a href="{% url 'kinorg:list' glist.sqid  %}"><button>{{ glist.title }}</button></a>
+                    <div>List created by {{ glist.owner }}</div>
+                </li>
+
+            {% endfor %}
+
+            </ul>
+
+        {% endif %}
+
+    </div>
+
+    <div class="invitations_container">
+        <a href="{% url 'kinorg:invitations' %}" ><span>Invitations: {{ invitations|length }}</span></a>
+    </div>
+
+    <div class="create_list">
+        <a href="{% url 'kinorg:create_list' %}"><p>Create List</p></a>
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends "kinorg/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" type="text/css" href="{% static 'kinorg/css/search.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'kinorg/css/content_list.css' %}">
+{% endblock %}
+
+{% block content %}
+
+        <div class="results_title_info">
+        <span>results for "{{query}}"</span>
+    </div>
+
+    <div class="content_list_container">
+
+        {% if results_list %}
+        <ul class="list_of_content">
+
+            {% for result in results_list %}
+                <li class="results_item">
+
+
+
+
+                        {% if result.poster_path %}
+                            <a href="{% url 'kinorg:film_detail' result.id %}"><img class="poster" src="{{config_data.secure_base_url}}w200{{result.poster_path}}"></a>
+                        {% elif result.profile_path %}
+                            <a href="{% url 'kinorg:person_credits' result.id %}"><img class="poster" src="{{config_data.secure_base_url}}w200{{result.profile_path}}"></a>
+                        {% else %}
+                            <a href="{% url 'kinorg:film_detail' result.id %}"><img class="poster" src="{% static 'images/placeholder.jpg' %}"></a>
+                        {% endif %}
+
+
+
+
+
+                </li>
+            {% endfor %}
+
+        </ul>
+        {% endif %}
+
+
+    </div>
+
+<div class="footer_links">
+    <a href="{% url 'kinorg:create_list' %}"><p>Create List</p></a>
+    <a href="{% url 'kinorg:home' %}"><p>Back to home</p></a>
+</div>
+
+{% endblock %}

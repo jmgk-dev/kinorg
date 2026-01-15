@@ -1,0 +1,173 @@
+.ibm-plex-mono-thin {
+  font-family: "IBM Plex Mono", serif;
+  font-weight: 100;
+  font-style: normal;
+}
+
+.ibm-plex-mono-extralight {
+  font-family: "IBM Plex Mono", serif;
+  font-weight: 200;
+  font-style: normal;
+}
+
+.ibm-plex-mono-light {
+  font-family: "IBM Plex Mono", serif;
+  font-weight: 300;
+  font-style: normal;
+}
+
+.ibm-plex-mono-regular {
+  font-family: "IBM Plex Mono", serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.ibm-plex-mono-medium {
+  font-family: "IBM Plex Mono", serif;
+  font-weight: 500;
+  font-style: normal;
+}
+
+.ibm-plex-mono-semibold {
+  font-family: "IBM Plex Mono", serif;
+  font-weight: 600;
+  font-style: normal;
+}
+
+.ibm-plex-mono-bold {
+  font-family: "IBM Plex Mono", serif;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.ibm-plex-mono-thin-italic {
+  font-family: "IBM Plex Mono", serif;
+  font-weight: 100;
+  font-style: italic;
+}
+
+.ibm-plex-mono-extralight-italic {
+  font-family: "IBM Plex Mono", serif;
+  font-weight: 200;
+  font-style: italic;
+}
+
+.ibm-plex-mono-light-italic {
+  font-family: "IBM Plex Mono", serif;
+  font-weight: 300;
+  font-style: italic;
+}
+
+.ibm-plex-mono-regular-italic {
+  font-family: "IBM Plex Mono", serif;
+  font-weight: 400;
+  font-style: italic;
+}
+
+.ibm-plex-mono-medium-italic {
+  font-family: "IBM Plex Mono", serif;
+  font-weight: 500;
+  font-style: italic;
+}
+
+.ibm-plex-mono-semibold-italic {
+  font-family: "IBM Plex Mono", serif;
+  font-weight: 600;
+  font-style: italic;
+}
+
+.ibm-plex-mono-bold-italic {
+  font-family: "IBM Plex Mono", serif;
+  font-weight: 700;
+  font-style: italic;
+}
+
+.bbh-bartle-regular {
+  font-family: "BBH Bartle", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+* {
+	font-family: "IBM Plex Mono";
+	color: white;
+	text-decoration: none;
+}
+
+
+body {
+	background-color: black;
+  margin: 0;
+}
+
+h1 {
+  font-family: "BBH Bartle";
+  color: white;
+  text-decoration: none;
+  font-size: 13.5vw;
+  margin-bottom: 0px;
+  margin-top: -2.5vw;
+  letter-spacing: -2vw;
+}
+
+ul {
+	list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+button {
+  background-color: rebeccapurple;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+input {
+  background-color: black;
+}
+
+select {
+  background-color: black;
+}
+
+.top_bar {
+/*	display: grid;
+	grid-template-rows: 75px 50px 50px;*/
+}
+
+.bar_item {
+	display: flex;
+	justify-content: center;
+  align-items: center;
+  gap: 5px;
+}
+
+.main_title {
+  height: 100%;
+}
+
+.poster {
+  width: 95px;
+  height: 142.5px;
+  border-color: white;
+  border-style: solid;
+  border-width: 1px;
+}
+
+.footer_links {
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+}
+
+.jmgk_credit {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
+
+
+
+

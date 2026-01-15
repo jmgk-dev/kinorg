@@ -1,0 +1,24 @@
+.invitations_list {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.invitation {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.invitation_options {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+}
+
+.message {
+    display: flex;
+    justify-content: center;
+}
+
