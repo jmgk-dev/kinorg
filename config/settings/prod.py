@@ -5,7 +5,7 @@ from .base import *
 
 DEBUG = False
 
-ALLOWED_HOSTS = ['kinorg.com', 'www.kinorg.com', '134.199.237.228']
+ALLOWED_HOSTS = ['kinorg.com', 'www.kinorg.com', '134.199.237.228', 'localhost']
 
 SECRET_KEY = os.environ['DJANGO_SECURE_PRODUCTION_KEY']
 
