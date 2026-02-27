@@ -12,8 +12,7 @@
 
 .my_lists_container {
     display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
+    justify-content: center;
     margin: 0px;
     margin-top: 20px;
     margin-bottom: 20px;
@@ -21,8 +20,7 @@
 
 .my_lists {
     display: flex;
-    flex-flow: row wrap;
-    justify-content: flex-start;
+    flex-flow: column;
     gap: 30px;
 }
 

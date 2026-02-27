@@ -2,7 +2,6 @@
 {% load static %}
 
 {% block extra_css %}
-<link rel="stylesheet" type="text/css" href="{% static 'kinorg/css/search.css' %}">
 <link rel="stylesheet" type="text/css" href="{% static 'kinorg/css/content_list.css' %}">
 {% endblock %}
 
@@ -20,9 +19,6 @@
             {% for result in results_list %}
                 <li class="results_item">
 
-
-
-
                         {% if result.poster_path %}
                             <a href="{% url 'kinorg:film_detail' result.id %}"><img class="poster" src="{{config_data.secure_base_url}}w200{{result.poster_path}}"></a>
                         {% elif result.profile_path %}
@@ -30,10 +26,6 @@
                         {% else %}
                             <a href="{% url 'kinorg:film_detail' result.id %}"><img class="poster" src="{% static 'images/placeholder.jpg' %}"></a>
                         {% endif %}
-
-
-
-
 
                 </li>
             {% endfor %}

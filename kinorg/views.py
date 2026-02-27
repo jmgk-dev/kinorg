@@ -419,11 +419,6 @@ class PersonCredits(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        user = self.request.user
-
-        my_lists = FilmList.objects.filter(owner=user)
-        guest_lists = FilmList.objects.filter(guests=user)
-
         person_id = self.kwargs["person_id"]
         get_url = f"https://api.themoviedb.org/3/person/{person_id}?append_to_response=movie_credits&language=en-US"
         search_data = get_tmdb_data(get_url)
@@ -432,8 +427,6 @@ class PersonCredits(LoginRequiredMixin, TemplateView):
 
         sorted_films = sorted(films, key=lambda i: i['popularity'], reverse=True)
 
-        context["my_lists"] = my_lists
-        context["guest_lists"] = guest_lists
         context["name"] = search_data["name"]
         context["results"] = sorted_films
 
