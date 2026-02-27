@@ -427,10 +427,20 @@ class PersonCredits(LoginRequiredMixin, TemplateView):
 
         films = search_data['movie_credits'].get('cast', []) + [f for f in search_data['movie_credits'].get('crew', []) if f.get('job') == 'Director'
 ]
-        sorted_films = sorted(films, key=lambda film: film['popularity'], reverse=True)
+
+        cast_films = sorted(search_data['movie_credits'].get('cast', []), key=lambda i: i['popularity'], reverse=True)
+        directed_films = sorted(
+            [f for f in search_data['movie_credits'].get('crew', []) if f.get('job') == 'Director'],
+            key=lambda i: i['popularity'], reverse=True
+        )
+
+        # Determine active tab - only relevant if both lists have films
+        active_tab = self.request.GET.get('tab', 'directed') if directed_films and cast_films else None
 
         context["name"] = search_data["name"]
-        context["results"] = sorted_films
+        context["cast_films"] = cast_films
+        context["directed_films"] = directed_films
+        context["active_tab"] = active_tab
 
         return context
 

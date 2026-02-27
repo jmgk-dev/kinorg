@@ -2,42 +2,55 @@
 {% load static %}
 
 {% block extra_css %}
-<link rel="stylesheet" type="text/css" href="{% static 'kinorg/css/search.css' %}">
 <link rel="stylesheet" type="text/css" href="{% static 'kinorg/css/content_list.css' %}">
 {% endblock %}
 
 
 {% block content %}
 
-{% if results %}
-
 <div class="results_title_info">
     <span>{{ name }}</span>
 </div>
+
+{% if directed_films and cast_films %}
+<div class="results_title_info">
+    <a class="tab {% if active_tab == 'directed' %}active{% endif %}" href="?tab=directed">Directed</a>
+    <a class="tab {% if active_tab == 'acted' %}active{% endif %}" href="?tab=acted">Acted In</a>
+</div>
+{% endif %}
 
 <div class="content_list_container">
 
 <ul class="list_of_content">
 
-{% for film in results %}
-
-<li class="results_item">
-    <div class="result">
-	   {% if film.poster_path %}
-        <a href="{% url 'kinorg:film_detail' film.id %}"><img class="poster" src="{{config_data.secure_base_url}}w200{{film.poster_path}}"></a>
-        {% else %}
-        <a href="{% url 'kinorg:film_detail' film.id %}"><img class="poster" src="{% static 'images/placeholder.jpg' %}"></a>
-        {% endif %}
-    </div>
-
-</li>
-
-{% endfor %}
+{% if active_tab == 'acted' %}
+    {% for film in cast_films %}
+    <li class="results_item">
+        <div class="result">
+            {% if film.poster_path %}
+            <a href="{% url 'kinorg:film_detail' film.id %}"><img class="poster" src="{{config_data.secure_base_url}}w200{{film.poster_path}}"></a>
+            {% else %}
+            <a href="{% url 'kinorg:film_detail' film.id %}"><img class="poster" src="{% static 'images/placeholder.jpg' %}"></a>
+            {% endif %}
+        </div>
+    </li>
+    {% endfor %}
+{% else %}
+    {% for film in directed_films %}
+    <li class="results_item">
+        <div class="result">
+            {% if film.poster_path %}
+            <a href="{% url 'kinorg:film_detail' film.id %}"><img class="poster" src="{{config_data.secure_base_url}}w200{{film.poster_path}}"></a>
+            {% else %}
+            <a href="{% url 'kinorg:film_detail' film.id %}"><img class="poster" src="{% static 'images/placeholder.jpg' %}"></a>
+            {% endif %}
+        </div>
+    </li>
+    {% endfor %}
+{% endif %}
 
 </ul>
 
 </div>
-
-{% endif %}
 
 {% endblock %}
