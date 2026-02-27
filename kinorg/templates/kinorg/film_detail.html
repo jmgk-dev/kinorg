@@ -23,11 +23,10 @@
             <p class="italic">{{ film.tagline }}</p>
             <p>Released: {{ film.release_date|slice:4 }}</p>
             <p>Directed by: 
-                {% for member in film.credits.crew %}
-                    {% if member.job == "Director" %}
-                        {{ member.name }}
-                    {% endif %}
-                {% endfor %}</p>
+                {% for director in directors %}
+                    <a href="{% url 'kinorg:person_credits' director.id %}" class="link">{{ director.name }}</a>{% if not forloop.last %}, {% endif %}
+                {% endfor %}
+            </p>
 
             <p class="overview">{{ film.overview|slice:":100" }}<span id="dots">...</span><span id="more">{{ film.overview|slice:"100:" }}</p><button onclick="ReadMore()" id="myBtn">Read more</button>
 

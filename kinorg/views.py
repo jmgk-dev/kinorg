@@ -262,6 +262,9 @@ class FilmDetail(LoginRequiredMixin, TemplateView):
 
         film_data = get_tmdb_data(f"https://api.themoviedb.org/3/movie/{movie_id}?append_to_response=credits,keywords,videos&language=en-US")
 
+        directors = [c for c in film_data.get('credits', {}).get('crew', []) if c['job'] == 'Director']
+        context["directors"] = directors
+
         # Convert complex fields to JSON strings for the add_film form
         film_data['cast_json'] = json.dumps(film_data['credits']['cast'])
         film_data['crew_json'] = json.dumps(film_data['credits']['crew'])
@@ -420,12 +423,11 @@ class PersonCredits(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
 
         person_id = self.kwargs["person_id"]
-        get_url = f"https://api.themoviedb.org/3/person/{person_id}?append_to_response=movie_credits&language=en-US"
-        search_data = get_tmdb_data(get_url)
+        search_data = get_tmdb_data(f"https://api.themoviedb.org/3/person/{person_id}?append_to_response=movie_credits&language=en-US")
 
-        films = search_data['movie_credits']['cast']
-
-        sorted_films = sorted(films, key=lambda i: i['popularity'], reverse=True)
+        films = search_data['movie_credits'].get('cast', []) + [f for f in search_data['movie_credits'].get('crew', []) if f.get('job') == 'Director'
+]
+        sorted_films = sorted(films, key=lambda film: film['popularity'], reverse=True)
 
         context["name"] = search_data["name"]
         context["results"] = sorted_films
