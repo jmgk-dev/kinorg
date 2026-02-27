@@ -5,35 +5,84 @@ from django_sqids import SqidsField, shuffle_alphabet
 
 class Film(models.Model):
 
+	def __str__(self):
+		return self.title
+
+	class Meta:
+		ordering = ["title"]
+
 	title = models.CharField(
 		max_length=200,
 		null=False,
 		blank=False,
-		)
+	)
 
 	release_date = models.DateField(
 		null=False,
 		unique=False,
 		blank=False,
-		)
+	)
 
 	id = models.BigIntegerField(
 		primary_key=True,
 		editable=False,
-		help_text="TMDB movie identifier"
 	)
 
 	poster_path = models.CharField(
 		null=False,
 		unique=False,
 		blank=True,
-		)
+	)
 
-	def __str__(self):
-		return self.title
+	backdrop_path = models.CharField(
+		null=False,
+		unique=False,
+		blank=True,
+	)
 
-	class Meta:
-		ordering = ["title"]
+	overview = models.TextField(
+		blank=True, 
+	)
+	
+	genres = models.JSONField(
+		default=list, 
+		blank=True, 
+	)
+	
+	embedding = models.JSONField(
+		null=True, 
+		blank=True, 
+	)
+	
+	embedding_updated_at = models.DateTimeField(
+		null=True, 
+		blank=True
+	)
+	
+	cast = models.JSONField(
+		default=list, 
+		blank=True, 
+	)
+	
+	crew = models.JSONField(
+		default=list, 
+		blank=True, 
+	)
+	
+	keywords = models.JSONField(
+		default=list, 
+		blank=True, 
+	)
+	
+	runtime = models.IntegerField(
+		null=True, 
+		blank=True, 
+	)
+	
+	production_companies = models.JSONField(
+		default=list, 
+		blank=True,
+	)
 
 
 class FilmList(models.Model):
@@ -77,35 +126,6 @@ class FilmList(models.Model):
 
 	class Meta:
 		ordering = ["title"]
-
-
-class Tag(models.Model):
-
-	name = models.CharField(
-		max_length=50,
-		null=False,
-		blank=False,
-		unique=True,
-		)
-
-	creator = models.ForeignKey(
-		settings.AUTH_USER_MODEL, 
-		on_delete=models.CASCADE,
-		null=False,
-		blank=False,
-		)
-
-	films = models.ManyToManyField(
-		Film,
-		related_name="tags",
-		related_query_name="tagged",
-		)
-
-	def __str__(self):
-		return self.name
-
-	class Meta:
-		ordering = ["name"]
 
 
 class Addition(models.Model):
@@ -174,3 +194,46 @@ class Invitation(models.Model):
 	declined = models.BooleanField(
 		default=False
 		)
+
+
+class WatchedFilm(models.Model):
+
+	class Meta:
+		constraints = [
+			models.UniqueConstraint(
+				fields=['user', 'film'], 
+				name="unique_watched_film_per_user")
+		]
+		ordering = ['-watched_at']
+
+
+	user = models.ForeignKey(
+		settings.AUTH_USER_MODEL,
+		on_delete=models.CASCADE,
+		related_name='watched_films'
+	)
+
+	film = models.ForeignKey(
+		Film,
+		on_delete=models.CASCADE,
+		related_name='watched_by'
+	)
+
+	watched_at = models.DateTimeField(
+		auto_now_add=True
+	)
+
+	stars = models.IntegerField(
+		choices=[(i, i) for i in range(1, 6)],
+	)
+
+	mini_review = models.CharField(
+		max_length=280,
+		blank=True,
+	)
+
+	review_visible = models.BooleanField(
+		default=True,
+	)
+
+

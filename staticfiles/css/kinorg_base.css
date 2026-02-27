@@ -110,6 +110,26 @@ h1 {
   letter-spacing: -2vw;
 }
 
+h2 {
+  font-family: "BBH Bartle";
+  color: white;
+  text-decoration: none;
+  font-size: 3vw;
+  margin-bottom: 0px;
+  margin-top: -0.5vw;
+  letter-spacing: -0.3vw;
+}
+
+h3 {
+  font-family: "BBH Bartle";
+  color: white;
+  text-decoration: none;
+  font-size: 3rem;
+  margin-bottom: 0px;
+  margin-top: 10px;
+  letter-spacing: -0.2vw;
+}
+
 ul {
 	list-style-type: none;
   padding: 0;
@@ -131,8 +151,9 @@ select {
 }
 
 .top_bar {
-/*	display: grid;
-	grid-template-rows: 75px 50px 50px;*/
+	display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .bar_item {
@@ -144,6 +165,12 @@ select {
 
 .main_title {
   height: 100%;
+}
+
+.links_container {
+  display: flex;
+  flex-direction: column;
+  margin-top: 40px;
 }
 
 .poster {
@@ -169,5 +196,16 @@ select {
 }
 
 
+@media (max-width: 600px) {
+
+  h3 {
+      font-size: 2rem;
+  }
+
+  p {
+    font-size: 0.8rem;
+  }
+
+}
 
 

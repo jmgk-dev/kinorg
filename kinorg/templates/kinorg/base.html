@@ -18,33 +18,41 @@
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=BBH+Bartle&family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
 
-	<script src="https://unpkg.com/htmx.org@2.0.4"></script>
-
 </head>
 <body>
 
 	<div class="top_bar">
 
-		<a href="{% url 'kinorg:home' %}" class="main_title bar_item"><h1>KINORG</h1></a>
-
-		<div class="search_bar bar_item">
-			{% if user.is_authenticated %}
-			<form method="GET" action="{% url 'kinorg:search' %}">
-        		<input type="text" name="query" placeholder="Search for a Film..." required>
-        		<button type="submit">Search</button>
-    		</form>
-    		{% endif %}
-		</div>
-			
-		<div class="user_access bar_item">
-			{% if user.is_authenticated %}
-			<a href="{% url 'kinorg:my_lists' %}"><p>{{user.username}}</p></a>
-			<form method="post" action="/logout/">
-    			{% csrf_token %}
-    			<button type="submit">logout</button>
-			</form>
+		<div class="logo_container">
+			{% if user.is_authenticated  %}
+			<a href="{% url 'kinorg:home' %}" class="main_title bar_item"><h3>KINORG</h3></a>
+			{% else %}
+			<a href="{% url 'kinorg:home' %}" class="main_title bar_item"><h1>KINORG</h1></a>
 			{% endif %}
 		</div>
+
+		<div class="links_container">
+
+			<div class="search_bar bar_item">
+				{% if user.is_authenticated %}
+				<form method="GET" action="{% url 'kinorg:search' %}">
+	        		<input type="text" name="query" placeholder="Search for a Film..." required>
+	        		<button type="submit">Search</button>
+	    		</form>
+	    		{% endif %}
+			</div>
+				
+			<div class="user_access bar_item">
+				{% if user.is_authenticated %}
+				<a href="{% url 'kinorg:my_lists' %}"><p>{{user.username}}</p></a>
+				<form method="post" action="/logout/">
+	    			{% csrf_token %}
+	    			<button type="submit">logout</button>
+				</form>
+				{% endif %}
+			</div>
+
+		</div>	
 
 	</div>
 

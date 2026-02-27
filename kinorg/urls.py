@@ -12,6 +12,7 @@ urlpatterns = [
     path("create/", views.CreateList.as_view(), name="create_list"),
     path("add-film/", views.add_film, name="add_film"),
     path("remove-film/", views.remove_film, name="remove_film"),
+    path('add-review/', views.add_review, name='add_review'),
     path("film-detail/<int:id>", views.FilmDetail.as_view(), name="film_detail"),
     path("person-credits/<int:person_id>", views.PersonCredits.as_view(), name="person_credits"),
     path("invitations/", views.Invitations.as_view(), name="invitations"),

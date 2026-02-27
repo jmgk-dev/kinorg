@@ -2,6 +2,7 @@ import os
 
 import re
 import requests
+import json
 
 from django.shortcuts import render, redirect
 from django.conf import settings
@@ -13,12 +14,12 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import ListView, CreateView, DetailView, TemplateView
 from django.urls import reverse_lazy
 
-from .models import Film, FilmList, Addition, Invitation
+from .models import Film, FilmList, Addition, Invitation, WatchedFilm
 
 
 # Functions ------------------------------------------------------------>
 
-def get_search(url):
+def get_tmdb_data(url):
 
     headers = {
         "accept": "application/json",
@@ -132,20 +133,20 @@ class Search(LoginRequiredMixin, TemplateView):
             # if there's also text
             if title:
                 search_url = f"https://api.themoviedb.org/3/search/movie?query={title}&include_adult=false&language=en-US&primary_release_year={year}&page=1"
-                search_data = get_search(search_url)
+                search_data = get_tmdb_data(search_url)
                 ordered_results = order_by_popularity(search_data["results"])
 
             # if there's just a year
             else:
                 search_url = f"https://api.themoviedb.org/3/search/multi?query={year}&include_adult=false&language=en-US&page=1"
-                search_data = get_search(search_url)
+                search_data = get_tmdb_data(search_url)
                 filtered_films = films_and_people(search_data)
                 ordered_results = order_by_popularity(filtered_films)
 
         #if it's just text
         else:
             search_url = f"https://api.themoviedb.org/3/search/multi?query={query}&include_adult=false&language=en-US&page=1"
-            search_data = get_search(search_url)
+            search_data = get_tmdb_data(search_url)
             filtered_films = films_and_people(search_data)
             ordered_results = order_by_popularity(filtered_films)
         # -------------------------------------------------------------------
@@ -259,21 +260,154 @@ class FilmDetail(LoginRequiredMixin, TemplateView):
         my_lists = FilmList.objects.filter(owner=user)
         guest_lists = FilmList.objects.filter(guests=user)
 
-        get_url = f"https://api.themoviedb.org/3/movie/{movie_id}?language=en-US"
+        film_data = get_tmdb_data(f"https://api.themoviedb.org/3/movie/{movie_id}?append_to_response=credits,keywords,videos&language=en-US")
 
-        film_data = get_search(get_url)
+        # Convert complex fields to JSON strings for the add_film form
+        film_data['cast_json'] = json.dumps(film_data['credits']['cast'])
+        film_data['crew_json'] = json.dumps(film_data['credits']['crew'])
+        film_data['genres_json'] = json.dumps(film_data['genres'])
+        film_data['keywords_json'] = json.dumps(film_data['keywords']['keywords'])
+        film_data['production_companies_json'] = json.dumps(film_data['production_companies'])
 
         for lst in my_lists:
             lst.contains_film = lst.films.filter(id=movie_id).exists()
         
         for lst in guest_lists:
             lst.contains_film = lst.films.filter(id=movie_id).exists()
+
+        # Check if user has already reviewed this film
+        try:
+            watched = WatchedFilm.objects.get(user=user, film__id=movie_id)
+        except WatchedFilm.DoesNotExist:
+            watched = None
                 
         context["my_lists"] = my_lists
         context["guest_lists"] = guest_lists
         context["film"] = film_data
+        context["watched"] = watched
 
         return context
+
+
+def add_film(request):
+
+    if request.method == "POST":
+
+        user = request.user
+
+        fields = [
+            'title', 'release_date', 'poster_path', 'backdrop_path',
+            'overview', 'runtime', 'cast', 'crew', 'genres', 'keywords',
+            'production_companies'
+        ]
+
+        film_data = {field: request.POST.get(field) for field in fields}
+
+        film_id = request.POST.get("id")
+
+        film_object, created = Film.objects.update_or_create(
+            id=film_id,
+            defaults=film_data
+        )
+
+        filmlist_object = FilmList.objects.get(pk=request.POST.get('list_id'))
+
+        addition_object = Addition.objects.create(
+            film=film_object,
+            film_list=filmlist_object,
+            added_by=user
+        )
+
+        return render(request, "kinorg/_toggle_button.html", {
+            "film": film_object, 
+            "lst": filmlist_object,
+            "is_in_list": True
+        })
+
+    else:
+
+        return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
+def remove_film(request):
+
+    if request.method == "POST":
+
+        my_list = FilmList.objects.get(pk=request.POST.get("list_id"))
+        my_film = Film.objects.get(id=request.POST.get("id"))
+        my_list.films.remove(my_film)
+
+        return render(request, "kinorg/_toggle_button.html", {
+            "film": my_film, 
+            "lst": my_list,
+            "is_in_list": False
+            })
+
+    else:
+
+        return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
+def add_review(request):
+    if request.method == "POST":
+
+        user = request.user
+
+        stars = request.POST.get("stars")  # Can be None
+        mini_review = request.POST.get("mini_review", "").strip()
+
+        fields = [
+            'title', 'release_date', 'poster_path', 'backdrop_path',
+            'overview', 'runtime', 'cast', 'crew', 'genres', 'keywords',
+            'production_companies'
+        ]
+
+        film_data = {field: request.POST.get(field) for field in fields}
+
+        film_id = request.POST.get("id")
+
+        film_object, created = Film.objects.update_or_create(
+            id=film_id,
+            defaults=film_data
+        )
+
+        # Prepare review data
+        defaults = {}
+        if stars:
+            defaults['stars'] = int(stars)
+        if mini_review:
+            defaults['mini_review'] = mini_review
+
+        # Create or update review
+        watched, created = WatchedFilm.objects.update_or_create(
+            user=user,
+            film=film_object,
+            defaults=defaults
+        )
+
+        # Redirect back to the film detail page
+        return redirect('kinorg:film_detail', id=film_id)
+
+    else:
+        return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
+def remove_review(request):
+    
+        if request.method == "POST":
+    
+            user = request.user
+            film_id = request.POST.get("id")
+
+            # Remove WatchedFilm record
+            WatchedFilm.objects.filter(user=user, film__id=film_id).delete()
+            
+            # Redirect back to the film detail page
+            return redirect('kinorg:film_detail', id=film_id)
+    
+        else:
+    
+            return JsonResponse({'error': 'Invalid request'}, status=400)
 
 
 class PersonCredits(LoginRequiredMixin, TemplateView):
@@ -292,7 +426,7 @@ class PersonCredits(LoginRequiredMixin, TemplateView):
 
         person_id = self.kwargs["person_id"]
         get_url = f"https://api.themoviedb.org/3/person/{person_id}?append_to_response=movie_credits&language=en-US"
-        search_data = get_search(get_url)
+        search_data = get_tmdb_data(get_url)
 
         films = search_data['movie_credits']['cast']
 
@@ -322,69 +456,6 @@ class Invitations(LoginRequiredMixin, ListView):
         queryset = queryset.filter(to_user=user).exclude(accepted=True)
 
         return queryset
-
-
-def add_film(request):
-
-    if request.method == "POST":
-
-        title = request.POST.get("title")
-        release_date = request.POST.get("release_date")
-        movie_id = request.POST.get("movie_id")
-        poster_path = request.POST.get("poster_path")
-        list_id = request.POST.get("list_id")
-
-        filmlist_object = FilmList.objects.get(pk=list_id)
-
-        user = request.user
-
-        film_object, created = Film.objects.get_or_create(
-            title=title,
-            release_date=release_date,
-            id=movie_id,
-            poster_path=poster_path
-            )
-
-        addition_object = Addition.objects.create(
-            film=film_object,
-            film_list=filmlist_object,
-            added_by=user
-            )
-        addition_object.save()
-
-        filmlist_object.refresh_from_db()
-
-        return render(request, "kinorg/_toggle_button.html", {
-            "film": film_object, 
-            "lst": filmlist_object,
-            "is_in_list": True
-            })
-
-    else:
-
-        return JsonResponse({'error': 'Invalid request'}, status=400)
-
-
-def remove_film(request):
-
-    if request.method == "POST":
-
-        list_id = request.POST.get("list_id")
-        movie_id = request.POST.get("movie_id")
-
-        my_list = FilmList.objects.get(pk=list_id)
-        my_film = Film.objects.get(id=movie_id)
-        my_list.films.remove(my_film)
-
-        return render(request, "kinorg/_toggle_button.html", {
-            "film": my_film, 
-            "lst": my_list,
-            "is_in_list": False
-            })
-
-    else:
-
-        return JsonResponse({'error': 'Invalid request'}, status=400)
 
 
 def invite_guest(request):

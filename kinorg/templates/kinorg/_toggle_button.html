@@ -1,31 +1,31 @@
 <div id="toggle-{{ lst.id }}">
-    <button
-
-        {% if is_in_list %}
-            class="remove_button"
-            hx-post="{% url 'kinorg:remove_film' %}"
-        {% else %}
-            class="add_button"
-            hx-post="{% url 'kinorg:add_film' %}"
-        {% endif %}
-
-
-        hx-include="[name=csrfmiddlewaretoken]"
-
-
-        hx-vals='{
-            "title": "{{ film.title }}",
-            "release_date": "{{ film.release_date|safe }}",
-            "movie_id": "{{ film.id }}",
-            "poster_path": "{{ film.poster_path }}",
-            "list_id": "{{ lst.id }}"
-        }'
-
-
-        hx-target="#toggle-{{ lst.id }}"
-        hx-swap="outerHTML">
-
-
-        {% if is_in_list %}Remove{% else %}Add{% endif %}
-    </button>
+    <form>
+        {% csrf_token %}
+        <input type="hidden" name="title" value="{{ film.title }}">
+        <input type="hidden" name="release_date" value="{{ film.release_date|safe }}">
+        <input type="hidden" name="id" value="{{ film.id }}">
+        <input type="hidden" name="poster_path" value="{{ film.poster_path }}">
+        <input type="hidden" name="backdrop_path" value="{{ film.backdrop_path }}">
+        <input type="hidden" name="list_id" value="{{ lst.id }}">
+        <input type="hidden" name="overview" value="{{ film.overview }}">
+        <input type="hidden" name="runtime" value="{{ film.runtime }}">
+        <input type="hidden" name="genres" value="{{ film.genres_json }}">
+        <input type="hidden" name="cast" value="{{ film.cast_json }}">
+        <input type="hidden" name="crew" value="{{ film.crew_json }}">
+        <input type="hidden" name="keywords" value="{{ film.keywords_json }}">
+        <input type="hidden" name="production_companies" value="{{ film.production_companies_json }}">
+        
+        <button
+            {% if is_in_list %}
+                class="remove_button"
+                data-url="{% url 'kinorg:remove_film' %}"
+            {% else %}
+                class="add_button"
+                data-url="{% url 'kinorg:add_film' %}"
+            {% endif %}
+            data-target="toggle-{{ lst.id }}"
+            onclick="toggleFilm(this); return false;">
+            {% if is_in_list %}Remove{% else %}Add{% endif %}
+        </button>
+    </form>
 </div>

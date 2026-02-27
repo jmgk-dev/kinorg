@@ -5,41 +5,189 @@
 <link rel="stylesheet" type="text/css" href="{% static 'kinorg/css/film_detail.css' %}">
 {% endblock %}
 
-
 {% block content %}
 
-<div class="film_details">
+<div class="detail_container">
 
-    <h2><b>{{ film.title }}</b></h2>
-    <p class="italic">{{ film.tagline }}</p>
-    <p>Released: {{ film.release_date|slice:4 }}</p>
+    <div class=detail_content>
 
-    {% if film.poster_path %}
-    <img class="poster" src="{{config_data.secure_base_url}}w500{{film.poster_path}}">
-    {% else %}
-    <img class="poster" src="{% static 'images/placeholder.jpg' %}">
-    {% endif %}
+        {% if film.poster_path %}
+            <img class="detail_poster" src="{{config_data.secure_base_url}}w500{{film.poster_path}}">
+        {% else %}
+            <img class="detail_poster" src="{% static 'images/placeholder.jpg' %}">
+        {% endif %}
 
-    <p class="overview">{{ film.overview }}</p>
+        <div class="film_details">
 
-</div>
+            <h3><b>{{ film.title }}</b></h3>
+            <p class="italic">{{ film.tagline }}</p>
+            <p>Released: {{ film.release_date|slice:4 }}</p>
+            <p>Directed by: 
+                {% for member in film.credits.crew %}
+                    {% if member.job == "Director" %}
+                        {{ member.name }}
+                    {% endif %}
+                {% endfor %}</p>
 
-{% if my_lists %}
-<div class="add_remove_buttons">
-
-    {% for lst in my_lists %}
-
-        <div class="add_remove_button">
-            <a href="{% url 'kinorg:list' lst.sqid %}">{{ lst.title }}</a>
-
-            {% include "kinorg/_toggle_button.html" with lst=lst film=film is_in_list=lst.contains_film %}
+            <p class="overview">{{ film.overview|slice:":100" }}<span id="dots">...</span><span id="more">{{ film.overview|slice:"100:" }}</p><button onclick="ReadMore()" id="myBtn">Read more</button>
 
         </div>
 
-    {% endfor %}
+    </div> 
 
 </div>
-{% endif %}
-	
 
+
+<div class="detail_container">
+
+    {% include "kinorg/_review_section.html" with film=film %}
+
+</div>
+
+<div class="detail_container">
+
+    {% if my_lists %}
+
+    <div class="add_remove_buttons">
+
+        {% for lst in my_lists %}
+
+            <div class="add_remove_button">
+                <a href="{% url 'kinorg:list' lst.sqid %}">{{ lst.title }}</a>
+
+                {% include "kinorg/_toggle_button.html" with lst=lst film=film is_in_list=lst.contains_film %}
+
+            </div>
+
+        {% endfor %}
+
+    </div>
+
+    {% else %}
+
+        <p>You don't have any lists yet. <a href="{% url 'kinorg:my_lists' %}">Create a list</a> to add this film!</p>
+
+    {% endif %}
+
+</div>
+
+<div class="videos_container detail_container">
+
+    <div class="videos_section detail_content">
+        
+        {% if film.videos %}
+            <!-- <h3><b>Videos</b></h3> -->
+            
+            <div class="videos">
+                {% for video in film.videos.results %}
+                    <div class="video_item">
+                        <a href="https://www.youtube.com/watch?v={{ video.key }}"><p>{{ video.name }}</p></a>
+                    </div>
+                {% endfor %}
+            </div>
+        
+        {% else %}
+        
+            <p>No videos available for this film.</p>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+<div class="detail_container">
+
+    <div class="detail_content">
+
+        {% if film.credits.cast %}
+            <!-- <h3><b>Cast</b></h3> -->
+            
+            <div class="cast_list">
+                {% for member in film.credits.cast|slice:":10" %}
+                    <div class="cast_item">
+                        <p><b>{{ member.name }}</b> as {{ member.character }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        
+        {% else %}
+        
+            <p>No cast information available.</p>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+<script>
+
+function toggleFilm(button) {
+    // 1. Get the form that contains this button
+    const form = button.closest('form');
+    
+    // 2. Get the URL from the button's data-url attribute
+    const url = button.getAttribute('data-url');
+    
+    // 3. Get the target div ID
+    const targetId = button.getAttribute('data-target');
+    
+    // 4. Collect all the form data
+    const formData = new FormData(form);
+    
+    // 5. Send the data to the server
+    fetch(url, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'  // Optional: helps Django detect AJAX requests
+        }
+    })
+    .then(response => response.text())  // Get the HTML response as text
+    .then(html => {
+        // 6. Replace the entire toggle div with the new HTML
+        const targetDiv = document.getElementById(targetId);
+        targetDiv.outerHTML = html;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Something went wrong. Please try again.');
+    });
+}
+
+function ReadMore() {
+  var dots = document.getElementById("dots");
+  var moreText = document.getElementById("more");
+  var btnText = document.getElementById("myBtn");
+
+  if (dots.style.display === "none") {
+    dots.style.display = "inline";
+    btnText.innerHTML = "Read more";
+    moreText.style.display = "none";
+  } else {
+    dots.style.display = "none";
+    btnText.innerHTML = "Read less";
+    moreText.style.display = "inline";
+  }
+}
+
+function openReviewModal() {
+    document.getElementById('review-modal').style.display = 'block';
+}
+
+function closeReviewModal() {
+    document.getElementById('review-modal').style.display = 'none';
+}
+
+// Close modal if user clicks outside of it
+window.onclick = function(event) {
+    const modal = document.getElementById('review-modal');
+    if (event.target == modal) {
+        closeReviewModal();
+    }
+}
+
+</script>
+	
 {% endblock %}
