@@ -296,8 +296,6 @@ def add_film(request):
 
     if request.method == "POST":
 
-        user = request.user
-
         fields = [
             'title', 'release_date', 'poster_path', 'backdrop_path',
             'overview', 'runtime', 'cast', 'crew', 'genres', 'keywords',
@@ -315,10 +313,10 @@ def add_film(request):
 
         filmlist_object = FilmList.objects.get(pk=request.POST.get('list_id'))
 
-        addition_object = Addition.objects.create(
+        addition_object = Addition.objects.get_or_create(
             film=film_object,
             film_list=filmlist_object,
-            added_by=user
+            defaults={'added_by': request.user}
         )
 
         return render(request, "kinorg/_toggle_button.html", {
@@ -425,17 +423,20 @@ class PersonCredits(LoginRequiredMixin, TemplateView):
         person_id = self.kwargs["person_id"]
         search_data = get_tmdb_data(f"https://api.themoviedb.org/3/person/{person_id}?append_to_response=movie_credits&language=en-US")
 
+        known_for = search_data.get('known_for_department', 'Acting')
+
         films = search_data['movie_credits'].get('cast', []) + [f for f in search_data['movie_credits'].get('crew', []) if f.get('job') == 'Director'
 ]
 
-        cast_films = sorted(search_data['movie_credits'].get('cast', []), key=lambda i: i['popularity'], reverse=True)
+        cast_films = sorted(search_data['movie_credits'].get('cast', []), key=lambda film: film['popularity'], reverse=True)
         directed_films = sorted(
             [f for f in search_data['movie_credits'].get('crew', []) if f.get('job') == 'Director'],
-            key=lambda i: i['popularity'], reverse=True
+            key=lambda film: film['popularity'], reverse=True
         )
 
-        # Determine active tab - only relevant if both lists have films
-        active_tab = self.request.GET.get('tab', 'directed') if directed_films and cast_films else None
+        # Determine active tab - only relevant if both lists have film
+        default_tab = 'directing' if known_for == 'Directing' else 'acting'
+        active_tab = self.request.GET.get('tab', default_tab)
 
         context["name"] = search_data["name"]
         context["cast_films"] = cast_films

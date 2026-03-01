@@ -14,8 +14,14 @@
 
 {% if directed_films and cast_films %}
 <div class="results_title_info">
-    <a class="tab {% if active_tab == 'directed' %}active{% endif %}" href="?tab=directed">Directed</a>
-    <a class="tab {% if active_tab == 'acted' %}active{% endif %}" href="?tab=acted">Acted In</a>
+    <a href="?tab=acting" 
+       class="tab {% if active_tab == 'acting' %}active{% endif %}">
+        Acting ({{ cast_films|length }})
+    </a>
+    <a href="?tab=directing" 
+       class="tab {% if active_tab == 'directing' %}active{% endif %}">
+        Directing ({{ directed_films|length }})
+    </a>
 </div>
 {% endif %}
 
@@ -23,7 +29,7 @@
 
 <ul class="list_of_content">
 
-{% if active_tab == 'acted' %}
+{% if active_tab == 'acting' %}
     {% for film in cast_films %}
     <li class="results_item">
         <div class="result">
