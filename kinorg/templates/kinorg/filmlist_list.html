@@ -12,10 +12,11 @@
     <div class="my_lists_title">
         <span>My Lists</span>
     </div>
+
+{% if my_lists %}
     
     <div class="my_lists_container">
 
-        {% if my_lists %}
             <ul class="my_lists">
 
             {% for list in my_lists %}
@@ -44,12 +45,13 @@
             {% endfor %}
 
             </ul>
-        </div>
-        {% endif %}
+    </div>
 
+{% endif %}
 
-        {% if guest_lists %}
-        <div class="lists_container">
+{% if guest_lists %}
+
+    <div class="my_lists_container">
 
             <ul class="my_lists">
 
@@ -80,9 +82,9 @@
 
             </ul>
 
-        {% endif %}
-
     </div>
+
+ {% endif %}
 
     <div class="invitations_container">
         <a href="{% url 'kinorg:invitations' %}" ><span>Invitations: {{ invitations|length }}</span></a>

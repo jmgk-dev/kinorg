@@ -48,21 +48,16 @@ def films_and_people(search_data):
 
 def send_invitation(invited_list, to_user, from_user):
 
-    users = get_user_model()
-
     if from_user != invited_list.owner:
         raise PermissionError("You don't have permission!")
 
     elif to_user == invited_list.owner:
         raise PermissionError("You're already the owner!")
 
-    elif users.objects.filter(email=to_user).exists():
-        raise PermissionError("User does not exist!")
-
-    elif Invitation.objects.filter(to_user=to_user, film_list=invited_list):
+    elif Invitation.objects.filter(to_user=to_user, film_list=invited_list).exists():
         raise PermissionError("Already invited!")
 
-    elif from_user == invited_list.owner:
+    else:
         invitation, created = Invitation.objects.get_or_create(
             from_user=invited_list.owner,
             to_user=to_user,
@@ -472,14 +467,14 @@ def invite_guest(request):
 
         from_user = request.user
 
-        to_user_email = request.POST.get("user_email")
+        to_username = request.POST.get("username") 
 
         list_object = FilmList.objects.get(pk=request.POST.get("list_id"))
 
         try:
-            to_user = users.objects.get(email=to_user_email)
+            to_user = users.objects.get(username=to_username)
         except users.DoesNotExist:
-            request.session['invitation_error'] = "The user with email '{}' does not exist.".format(to_user_email)
+            request.session['invitation_error'] = "The user '{}' does not exist.".format(to_username)
             return redirect('kinorg:list', list_object.sqid)
 
         try:

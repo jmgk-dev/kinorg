@@ -45,11 +45,22 @@
 
 <div class="detail_container">
 
-    {% if my_lists %}
+    {% if my_lists or guest_lists %}
 
     <div class="add_remove_buttons">
 
         {% for lst in my_lists %}
+
+            <div class="add_remove_button">
+                <a href="{% url 'kinorg:list' lst.sqid %}" class="link">{{ lst.title }}</a>
+
+                {% include "kinorg/_toggle_button.html" with lst=lst film=film is_in_list=lst.contains_film %}
+
+            </div>
+
+        {% endfor %}
+
+        {% for lst in guest_lists %}
 
             <div class="add_remove_button">
                 <a href="{% url 'kinorg:list' lst.sqid %}" class="link">{{ lst.title }}</a>
