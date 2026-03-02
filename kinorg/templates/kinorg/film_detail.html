@@ -88,13 +88,17 @@
         {% if film.videos %}
             <!-- <h3><b>Videos</b></h3> -->
             
-            <div class="videos">
+            <ul class="video_list">
                 {% for video in film.videos.results %}
-                    <div class="video_item">
-                        <a href="https://www.youtube.com/watch?v={{ video.key }}"><p class="link">{{ video.name }}</p></a>
-                    </div>
+                    <li class="video_item">
+                        <a href="https://www.youtube.com/watch?v={{ video.key }}" target="_blank">
+                          <img src="https://img.youtube.com/vi/{{ video.key }}/maxresdefault.jpg" 
+                               alt="Video Thumbnail" 
+                               style="width: 100%; min-width: 300px; max-width: 720px; border-radius: 10px;"></a>
+                        <a href="https://www.youtube.com/watch?v={{ video.key }}" target="_blank"><p class="link">{{ video.name }}</p></a>
+                    </li>
                 {% endfor %}
-            </div>
+            </ul>
         
         {% else %}
         
@@ -113,13 +117,22 @@
         {% if film.credits.cast %}
             <!-- <h3><b>Cast</b></h3> -->
             
-            <div class="cast_list">
+            <ul class="cast_list">
                 {% for member in film.credits.cast|slice:":10" %}
-                    <div class="cast_item">
+                    <li class="cast_item">
+
+                        <a href="{% url 'kinorg:person_credits' member.id %}">
+                        {% if member.profile_path %}
+                            <img class="detail_poster" src="{{config_data.secure_base_url}}w500{{member.profile_path}}">
+                        {% else %}
+                            <img class="detail_poster" src="{% static 'images/placeholder.jpg' %}">
+                        {% endif %}
+                        </a>
+
                         <p><a href="{% url 'kinorg:person_credits' member.id %}"><b class="link">{{ member.name }}</b></a> as {{ member.character }}</p>
-                    </div>
+                    </li>
                 {% endfor %}
-            </div>
+            </ul>
         
         {% else %}
         

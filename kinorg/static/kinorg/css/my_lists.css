@@ -23,22 +23,35 @@
     display: flex;
     flex-flow: column;
     gap: 30px;
+    align-items: center;
+    width: 95%;
+    padding: 0;
+    list-style: none;
+
 }
 
 .list_item {
     display: flex;
-    flex-direction: column;
-    width: 100%;
-    align-items: flex-start;
-    gap: 10px;
+    flex-direction: row;
+    gap: 20px;
+    justify-content: center;
+    border-color: white;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 10px;
+    padding: 15px;
+    width: 100%;       
+    max-width: 720px;  
+    box-sizing: border-box;
+    min-width: 0;
 }
 
 .list_poster_stack {
-/*    display: flex;
+    display: flex;
     flex-direction: row;
     width: 100%;
     overflow: scroll;
-    gap: 10px;*/
+    gap: 10px;
 }
 
 .stack_item {
@@ -57,4 +70,8 @@
     justify-content: center;
     gap: 50px;
     margin-top: 20px;
+}
+
+@media (max-width: 600px) {
+    
 }

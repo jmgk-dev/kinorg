@@ -69,6 +69,24 @@ p.italic {
   background-color: red;
 }
 
+.cast_list {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    overflow: scroll;
+}
+
+.video_list {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    overflow: scroll;
+}
+
+.cast_item{
+
+}
+
 /* REVIEW SECION ------------------------------------- */
 
 .review_section {

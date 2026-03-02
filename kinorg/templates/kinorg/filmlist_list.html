@@ -22,8 +22,8 @@
             {% for list in my_lists %}
 
                 <li class="list_item">
-
-<!--                 {% if list.addition_set.all|length > 0 %}
+                    
+                    {% if list.addition_set.all|length > 0 %}
                     <ul class="list_poster_stack">
                         {% for addition in list.addition_set.all %}
                             <li class="stack_item">
@@ -36,7 +36,7 @@
 
                     {% else %}
                         <img class="poster" src="{% static 'images/placeholder.jpg' %}">
-                    {% endif %} -->
+                    {% endif %}
 
                 <a href="{% url 'kinorg:list' list.sqid  %}"><button>{{ list.title }}</button></a>
 
@@ -58,21 +58,6 @@
             {% for glist in guest_lists %}
 
                 <li class="list_item">
-
-<!--                     {% if glist.addition_set.all|length > 0 %}
-                        <ul class="list_poster_stack">
-                            {% for addition in glist.addition_set.all %}
-                                <li class="stack_item">
-                                    <a href="{% url 'kinorg:film_detail' addition.film.id %}">
-                                    <img class="poster" src="{{config_data.secure_base_url}}w200{{addition.film.poster_path}}">
-                                    </a>
-                                <li>
-                            {% endfor %}
-                        </ul>
-
-                    {% else %}
-                        <img class="poster" src="{% static 'images/placeholder.jpg' %}">
-                    {% endif %} -->
 
                     <a href="{% url 'kinorg:list' glist.sqid  %}"><button>{{ glist.title }}</button></a>
                     <div>List created by {{ glist.owner }}</div>
