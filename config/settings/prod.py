@@ -50,3 +50,11 @@ CACHES = {
         "LOCATION": "127.0.0.1:11211",
     }
 }
+
+# Manifest storage for static files
+
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
