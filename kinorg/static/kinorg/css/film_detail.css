@@ -26,6 +26,17 @@ p.italic {
     gap: 0px;
 }
 
+.film_content_container {
+    flex-direction: column;
+    width: 100%;
+}
+
+.film_content_a {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+}
+
 .detail_poster {
   height: 300px;
   border-color: white;
@@ -224,7 +235,7 @@ p.italic {
     }
 
     .detail_poster {
-      height: 150px;
+      height: 180px;
       border-color: white;
       border-style: solid;
       border-width: 1px;

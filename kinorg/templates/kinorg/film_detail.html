@@ -9,30 +9,34 @@
 
 <div class="detail_container">
 
-    <div class=detail_content>
+    <div class="detail_content film_content_container">
 
-        {% if film.poster_path %}
-            <img class="detail_poster" src="{{config_data.secure_base_url}}w500{{film.poster_path}}">
-        {% else %}
-            <img class="detail_poster" src="{% static 'images/placeholder.jpg' %}">
-        {% endif %}
+        <div class="film_content_a">
+                
+            <img class="detail_poster" src="{% if film.poster_path %}{{config_data.secure_base_url}}w500{{film.poster_path}}{% else %}{% static 'images/placeholder.jpg' %}{% endif %}">
 
-        <div class="film_details">
+            <div class="film_details">
 
-            <h3><b>{{ film.title }}</b></h3>
-            <p class="italic">{{ film.tagline }}</p>
-            <p>Released: {{ film.release_date|slice:4 }}</p>
-            <p>Directed by: 
-                {% for director in directors %}
-                    <a href="{% url 'kinorg:person_credits' director.id %}" class="link">{{ director.name }}</a>{% if not forloop.last %}, {% endif %}
-                {% endfor %}
-            </p>
+                <h4><b>{{ film.title }}</b></h4>
+                <p class="italic">{{ film.tagline }}</p>
+                <p>Released: {{ film.release_date|slice:4 }}</p>
+                <p>Directed by: 
+                    {% for director in directors %}
+                        <a href="{% url 'kinorg:person_credits' director.id %}" class="link">{{ director.name }}</a>{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                </p>
+
+            </div>
+
+        </div> 
+
+        <div class="film_content_b">
 
             <p class="overview">{{ film.overview|slice:":100" }}<span id="dots">...</span><span id="more">{{ film.overview|slice:"100:" }}</p><button onclick="ReadMore()" id="myBtn">Read more</button>
-
+            
         </div>
 
-    </div> 
+    </div>
 
 </div>
 
