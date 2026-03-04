@@ -5,7 +5,28 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<!-- HTML Meta Tags -->
 	<title>KINORG</title>
+	<meta name="description" content="" />
+
+	<!-- Google / Search Engine Tags -->
+	<meta itemprop="name" content="KINORG" />
+	<meta itemprop="description" content="Collaborative film watchlists" />
+	<meta itemprop="image" content="{% static 'images/kinorg_logo.jpg' %}" />
+
+	<!-- Facebook Meta Tags -->
+	<meta property="og:url" content="https://kinorg.com/" />
+	<meta property="og:type" content="website" />
+	<meta property="og:title" content="KINORG" />
+	<meta property="og:description" content="Collaborative film watchlists" />
+	<meta property="og:image" content="{% static 'images/kinorg_logo.jpg' %}" />
+
+	<!-- Twitter Meta Tags -->
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:title" content="KINORG" />
+	<meta name="twitter:description" content="Collaborative film watchlists" />
+	<meta name="twitter:image" content="{% static 'images/kinorg_logo.jpg' %}" />
 
 	{# Global stylesheets #}
 	<link rel="stylesheet" type="text/css" href="{% static 'css/kinorg_base.css' %}">
