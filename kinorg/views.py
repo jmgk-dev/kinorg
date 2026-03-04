@@ -94,7 +94,7 @@ def film_autocomplete(request):
     if len(query) < 2:
         return JsonResponse({'results': []})
     
-    data = fetch_tmdb_data(
+    data = get_tmdb_data(
         f"https://api.themoviedb.org/3/search/movie?query={query}&include_adult=false&language=en-US&page=1"
     )
     
@@ -123,7 +123,7 @@ def user_autocomplete(request):
     ).values('username')[:8]
     
     return JsonResponse({'results': list(results)})
-    
+
 
 # Functions END ------------------------------------------------------------>
 
