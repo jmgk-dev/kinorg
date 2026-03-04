@@ -94,7 +94,7 @@
                         <a href="https://www.youtube.com/watch?v={{ video.key }}" target="_blank">
                           <img src="https://img.youtube.com/vi/{{ video.key }}/maxresdefault.jpg" 
                                alt="Video Thumbnail" 
-                               style="width: 100%; min-width: 300px; max-width: 720px; border-radius: 10px; border-color: white; border-style: solid;border-width: 1px;"></a>
+                               style="width: 100%; min-width: 270px; max-width: 720px; border-radius: 10px; border-color: white; border-style: solid;border-width: 1px;"></a>
                         <a href="https://www.youtube.com/watch?v={{ video.key }}" target="_blank"><p class="link">{{ video.name }}</p></a>
                     </li>
                 {% endfor %}
@@ -112,10 +112,10 @@
 
 <div class="detail_container">
 
-    <div class="detail_content">
+    <div class="detail_content cast_content">
 
         {% if film.credits.cast %}
-            <!-- <h3><b>Cast</b></h3> -->
+            <p><b>Cast</b></p>
             
             <ul class="cast_list">
                 {% for member in film.credits.cast|slice:":10" %}
@@ -146,10 +146,10 @@
 
 <div class="detail_container">
     
-    <div class="detail_content">
+    <div class="detail_content similar_content">
 
     {% if film.similar %}
-        <!-- <h3><b>Similar Films</b></h3> -->
+        <p><b>Similar Films</b></p>
         
         <ul class="similar_list">
             {% for similar_film in film.similar.results|slice:":10" %}

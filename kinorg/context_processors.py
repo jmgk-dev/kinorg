@@ -38,6 +38,3 @@ def get_image_config(request):
     return {
         'config_data': images_config
         }
-
-def get_tmdb_key(request):
-    return {'TMDB_KEY': os.environ.get('TMDB_KEY', '')}
