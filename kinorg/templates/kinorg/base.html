@@ -79,10 +79,19 @@
 
 	<div class="search_bar bar_item">
 		{% if user.is_authenticated %}
-		<form method="GET" action="{% url 'kinorg:search' %}">
-    		<input type="text" name="query" placeholder="Search for a Film..." required>
-    		<button type="submit">Search</button>
-		</form>
+		<div class="search-wrapper">
+		    <form action="{% url 'kinorg:search' %}" method="get">
+		        <input 
+		            id="film-search-input"
+		            type="text" 
+		            name="query" 
+		            placeholder="Search films..."
+		            autocomplete="off"
+		        >
+		        <button type="submit">Search</button>
+		    </form>
+		    <div id="film-search-dropdown" class="typeahead-dropdown" hidden></div>
+		</div>
 		{% endif %}
 	</div>
 
@@ -106,7 +115,7 @@
     		<span>jmgk.dev</span>
     	<a/>
 	</div>
-	
+
 <script src="{% static 'kinorg/js/typeahead.js' %}"></script>
 {% block extra_js %}{% endblock %}
 </body>
