@@ -27,6 +27,7 @@ p.italic {
   border-style: solid;
   border-width: 1px;
   margin-top: 20px;
+  border-radius: 5px;
 }
 
 .film_details {
