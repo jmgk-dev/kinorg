@@ -150,9 +150,9 @@ select {
   background-color: black;
 }
 
-.top_bar {
+header {
 	display: flex;
-  flex-direction: column;
+  flex-direction: row;
   justify-content: space-between;
 }
 
@@ -165,6 +165,12 @@ select {
 
 .main_title {
   height: 100%;
+}
+
+.logo_container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
 }
 
 .links_container {
@@ -207,6 +213,7 @@ select {
 
   h3 {
       font-size: 2rem;
+      margin-top: 0px;
   }
 
   p {

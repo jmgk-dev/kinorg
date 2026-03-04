@@ -21,35 +21,76 @@
 </head>
 <body>
 
-	<div class="top_bar">
+<header>
 
-		<div class="logo_container">
-			{% if user.is_authenticated  %}
-			<a href="{% url 'kinorg:home' %}" class="main_title bar_item"><h3>KINORG</h3></a>
-			{% else %}
-			<a href="{% url 'kinorg:home' %}" class="main_title bar_item"><h1>KINORG</h1></a>
-			{% endif %}
-		</div>
-
-		<div class="links_container">
-
-			<div class="search_bar bar_item">
-				{% if user.is_authenticated %}
-				<form method="GET" action="{% url 'kinorg:search' %}">
-	        		<input type="text" name="query" placeholder="Search for a Film..." required>
-	        		<button type="submit">Search</button>
-	    		</form>
-	    		{% endif %}
-			</div>
-
-		</div>	
-
+	<div class="logo_container">
+		{% if user.is_authenticated  %}
+		<a href="{% url 'kinorg:home' %}" class="main_title bar_item"><h3>KINORG</h3></a>
+		{% else %}
+		<a href="{% url 'kinorg:home' %}" class="main_title bar_item"><h1>KINORG</h1></a>
+		{% endif %}
 	</div>
+
+{% if user.is_authenticated %}
+
+    <!-- Hamburger button -->
+    <button id="nav_toggle" style="background:none; border:none; font-size:1.75rem; cursor:pointer;">&#9776;</button>
+
+    <!-- Menu -->
+    <nav id="nav_menu" style="display:none; position:fixed; top:0; right:0; width:260px; height:100vh; background:black; box-shadow:-4px 0 16px rgba(0,0,0,0.15); z-index:1000; padding:1.5rem; box-sizing:border-box;">
+        <button id="nav_close" style="background:none; border:none; font-size:1.5rem; cursor:pointer; display:block; margin-left:auto;">✕</button>
+        <ul style="list-style:none; padding:0; margin-top:1rem; display:flex; flex-direction:column; gap:1rem;">
+            <li><a href="{% url 'kinorg:my_lists' %}">My Lists</a></li>
+            <li><a href="{% url 'kinorg:create_list' %}">Create List</a></li>
+            <li><a href="{% url 'kinorg:invitations' %}">Invitations</a></li>
+            <li>
+                <form method="POST" action="{% url 'user_admin:logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" style="background:none; border:none; cursor:pointer; font-size:inherit; padding:0;">Log Out</button>
+                </form>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Backdrop -->
+    <div id="nav_backdrop" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:999;"></div>
+
+    <script>
+        document.getElementById('nav_toggle').onclick = function() {
+            document.getElementById('nav_menu').style.display = 'block';
+            document.getElementById('nav_backdrop').style.display = 'block';
+        };
+        document.getElementById('nav_close').onclick = function() {
+            document.getElementById('nav_menu').style.display = 'none';
+            document.getElementById('nav_backdrop').style.display = 'none';
+        };
+        document.getElementById('nav_backdrop').onclick = function() {
+            document.getElementById('nav_menu').style.display = 'none';
+            document.getElementById('nav_backdrop').style.display = 'none';
+        };
+    </script>
+
+{% endif %}
+
+</header>
+
+<div class="links_container">
+
+	<div class="search_bar bar_item">
+		{% if user.is_authenticated %}
+		<form method="GET" action="{% url 'kinorg:search' %}">
+    		<input type="text" name="query" placeholder="Search for a Film..." required>
+    		<button type="submit">Search</button>
+		</form>
+		{% endif %}
+	</div>
+
+</div>
 
         {% block content %}{% endblock %}
 
 
-    <div class="footer_links">
+<!--     <div class="footer_links">
 		{% if user.is_authenticated %}
 			<a href="{% url 'kinorg:my_lists' %}"><p>{{user.username}}</p></a>
 			<form method="post" action="/logout/">
@@ -57,7 +98,7 @@
 				<button type="submit">logout</button>
 			</form>
 		{% endif %}
-    </div>
+    </div> -->
 
     <div class="jmgk_credit">
     	<a href="https://jmgk.dev/" target="_blank">
