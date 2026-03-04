@@ -7,7 +7,7 @@ import json
 from django.shortcuts import render, redirect
 from django.conf import settings
 from django.contrib import messages
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -88,6 +88,42 @@ def decline_invitation(invited_list, user):
         invitation.declined=True
         invitation.save()
 
+
+def film_autocomplete(request):
+    query = request.GET.get('q', '').strip()
+    if len(query) < 2:
+        return JsonResponse({'results': []})
+    
+    data = fetch_tmdb_data(
+        f"https://api.themoviedb.org/3/search/movie?query={query}&include_adult=false&language=en-US&page=1"
+    )
+    
+    results = [
+        {
+            'id': film['id'],
+            'title': film['title'],
+            'year': film.get('release_date', '')[:4]
+        }
+        for film in data.get('results', [])[:6]
+    ]
+    
+    return JsonResponse({'results': results})
+
+
+def user_autocomplete(request):
+    query = request.GET.get('q', '').strip()
+    if len(query) < 2:
+        return JsonResponse({'results': []})
+    
+    users = get_user_model()
+    results = users.objects.filter(
+        username__icontains=query
+    ).exclude(
+        id=request.user.id
+    ).values('username')[:8]
+    
+    return JsonResponse({'results': list(results)})
+    
 
 # Functions END ------------------------------------------------------------>
 
@@ -255,7 +291,7 @@ class FilmDetail(LoginRequiredMixin, TemplateView):
         my_lists = FilmList.objects.filter(owner=user)
         guest_lists = FilmList.objects.filter(guests=user)
 
-        film_data = get_tmdb_data(f"https://api.themoviedb.org/3/movie/{movie_id}?append_to_response=credits,keywords,videos&language=en-US")
+        film_data = get_tmdb_data(f"https://api.themoviedb.org/3/movie/{movie_id}?append_to_response=credits,keywords,similar,videos&language=en-US")
 
         directors = [c for c in film_data.get('credits', {}).get('crew', []) if c['job'] == 'Director']
         context["directors"] = directors

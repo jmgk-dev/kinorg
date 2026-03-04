@@ -10,6 +10,7 @@
 	{# Global stylesheets #}
 	<link rel="stylesheet" type="text/css" href="{% static 'css/kinorg_base.css' %}">
 	<link rel="shortcut icon" href="{%  static 'favicon/favicon.ico' %}">
+	<link rel="stylesheet" href="{% static 'kinorg/css/typeahead.css' %}">
 
 	{% block extra_css %}
     {% endblock %}
@@ -105,6 +106,8 @@
     		<span>jmgk.dev</span>
     	<a/>
 	</div>
+	
+<script src="{% static 'kinorg/js/typeahead.js' %}"></script>
 {% block extra_js %}{% endblock %}
 </body>
 </html>

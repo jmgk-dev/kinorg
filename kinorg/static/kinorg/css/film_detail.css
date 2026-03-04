@@ -84,6 +84,15 @@ p.italic {
     overflow: scroll;
 }
 
+.similar_list {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    overflow: scroll;
+}
+
+
+
 .cast_item{
 
 }

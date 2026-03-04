@@ -20,5 +20,7 @@ urlpatterns = [
     path("invite-result/", views.invite_result, name="invite_result"),
     path("accept-invite/", views.accept_invite, name="accept_invite"),
     path("decline-invite/", views.decline_invite, name="decline_invite"),
+    path("film-autocomplete/", views.film_autocomplete, name="film_autocomplete"),
+    path("user-autocomplete/", views.user_autocomplete, name="user_autocomplete"),
     path("no-access/", views.no_access, name="no_access")
     ]

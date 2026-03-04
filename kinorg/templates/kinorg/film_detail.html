@@ -144,6 +144,38 @@
 
 </div>
 
+<div class="detail_container">
+    
+    <div class="detail_content">
+
+    {% if film.similar %}
+        <!-- <h3><b>Similar Films</b></h3> -->
+        
+        <ul class="similar_list">
+            {% for similar_film in film.similar.results|slice:":10" %}
+                <li class="similar_item">
+                    <a href="{% url 'kinorg:film_detail' similar_film.id %}">
+                    {% if similar_film.poster_path %}
+                        <img class="detail_poster" src="{{config_data.secure_base_url}}w500{{similar_film.poster_path}}">
+                    {% else %}
+                        <img class="detail_poster" src="{% static 'images/placeholder.jpg' %}">
+                    {% endif %}
+                    </a>
+                    <p><a href="{% url 'kinorg:film_detail' similar_film.id %}"><b class="link">{{ similar_film.title }}</b></a></p>
+                </li>
+            {% endfor %}
+        </ul>
+    
+    {% else %}
+    
+        <p>No similar films found.</p>
+    {% endif %}
+        
+    </div>
+    
+
+</div>
+
 <script>
 
 function toggleFilm(button) {

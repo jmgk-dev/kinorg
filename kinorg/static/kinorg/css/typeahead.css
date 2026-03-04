@@ -1,0 +1,28 @@
+.search-wrapper,
+.invite-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.typeahead-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ccc;
+    border-top: none;
+    z-index: 1000;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.typeahead-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    color: black;
+}
+
+.typeahead-item:hover {
+    background-color: #f0f0f0;
+}

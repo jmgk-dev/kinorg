@@ -38,12 +38,21 @@
 </div>
 
 <div class="invite_user">
-	<form method="POST" action="{% url 'kinorg:invite_guest' %}">
-	    {% csrf_token %}
-	    <input type="hidden" name="list_id" value="{{ object.id }}">
-	    <input type="text" name="username" placeholder="Enter username">
-	    <button type="submit">INVITE USER</button>
-	</form>
+    <div class="invite-wrapper">
+        <form method="post" action="{% url 'kinorg:invite_guest' %}">
+            {% csrf_token %}
+            <input type="hidden" name="list_id" value="{{ object.id }}">
+            <input 
+                id="user-invite-input"
+                type="text" 
+                name="username" 
+                placeholder="Search username..."
+                autocomplete="off"
+            >
+            <button type="submit">INVITE USER</button>
+        </form>
+        <div id="user-invite-dropdown" class="typeahead-dropdown" hidden></div>
+    </div>
 </div>
 
 <div class="messages_container">
