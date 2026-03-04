@@ -22,6 +22,8 @@
             {% for list in my_lists %}
 
                 <li class="list_item">
+
+                    <a href="{% url 'kinorg:list' list.sqid  %}"><button>{{ list.title|slice:":30" }}</button></a>
                     
                     {% if list.addition_set.all|length > 0 %}
                     <ul class="list_poster_stack">
@@ -37,8 +39,6 @@
                     {% else %}
                         <img class="poster" src="{% static 'images/placeholder.jpg' %}">
                     {% endif %}
-
-                <a href="{% url 'kinorg:list' list.sqid  %}"><button>{{ list.title }}</button></a>
 
                 </li>
 
@@ -59,7 +59,7 @@
 
                 <li class="list_item">
 
-                    <a href="{% url 'kinorg:list' glist.sqid  %}"><button>{{ glist.title }}</button></a>
+                    <a href="{% url 'kinorg:list' glist.sqid  %}"><button>{{ glist.title|slice:":30" }}</button></a>
                     <div>List created by {{ glist.owner }}</div>
                 </li>
 

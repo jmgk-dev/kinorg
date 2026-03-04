@@ -225,7 +225,6 @@ p {
 
 .link {
   text-decoration: underline;
-  margin-top: 5px;
 }
 
 @media (max-width: 600px) {
