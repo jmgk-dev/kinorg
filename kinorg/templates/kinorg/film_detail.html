@@ -32,7 +32,8 @@
 
         <div class="film_content_b">
 
-            <p class="overview">{{ film.overview|slice:":100" }}<span id="dots">...</span><span id="more">{{ film.overview|slice:"100:" }}</p><button onclick="ReadMore()" id="myBtn">Read more</button>
+            <p class="overview">{{ film.overview|slice:":100" }}<span id="dots">...</span><span id="more">{{ film.overview|slice:"100:" }}</span></p>
+                <button onclick="ReadMore()" id="myBtn">Read more</button>
             
         </div>
 
@@ -47,20 +48,21 @@
 
 </div>
 
+
+{% if film_reviews %}
+
 <div class="detail_container">
 
     <div class="detail_content reviews_content">
 
         <ul class="reviews_list">
 
-            {% if film_reviews %}
             {% for review in film_reviews %}
                 <li class="review_item">
                     <p><b>{{ review.user }}</b> says:</p>
                     <p>{{ review.mini_review }}</p>
                 </li>
             {% endfor %}
-            {% endif %}
 
         </ul>
 
@@ -69,10 +71,11 @@
 
 </div>
 
+{% endif %}
+
 <div class="detail_container">
 
     {% if my_lists or guest_lists %}
-
     <div class="add_remove_buttons">
 
         {% for lst in my_lists %}
@@ -101,11 +104,13 @@
 
     {% else %}
 
-        <p>You don't have any lists yet. <a href="{% url 'kinorg:my_lists' %}">Create a list</a> to add this film!</p>
+    <p>You don't have any lists yet. <a href="{% url 'kinorg:my_lists' %}">Create a list</a> to add this film!</p>
 
     {% endif %}
 
 </div>
+
+
 
 <div class="videos_container detail_container">
 
@@ -123,12 +128,10 @@
                                style="width: 100%; min-width: 270px; max-width: 720px; border-radius: 10px; border-color: white; border-style: solid;border-width: 1px;"></a>
                         <a href="https://www.youtube.com/watch?v={{ video.key }}" target="_blank"><p class="link">{{ video.name }}</p></a>
                     </li>
+                {% empty %}
+            <p>No videos available for this film.</p>
                 {% endfor %}
             </ul>
-        
-        {% else %}
-        
-            <p>No videos available for this film.</p>
 
         {% endif %}
 
@@ -136,11 +139,14 @@
 
 </div>
 
+
+
 <div class="detail_container">
 
     <div class="detail_content cast_content">
 
         {% if film.credits.cast %}
+
             <p><b>Cast</b></p>
             
             <ul class="cast_list">
@@ -162,13 +168,14 @@
         
         {% else %}
         
-            <p>No cast information available.</p>
+        <p>No cast information available.</p>
 
         {% endif %}
 
     </div>
 
 </div>
+
 
 <div class="detail_container">
     
@@ -189,18 +196,17 @@
                     </a>
                     <p><a href="{% url 'kinorg:film_detail' similar_film.id %}"><b class="link">{{ similar_film.title }}</b></a></p>
                 </li>
+            {% empty %}
+            <li>No similar films found.</li>
             {% endfor %}
         </ul>
-    
-    {% else %}
-    
-        <p>No similar films found.</p>
+
     {% endif %}
         
     </div>
     
-
 </div>
+
 
 <script>
 

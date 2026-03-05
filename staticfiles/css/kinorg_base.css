@@ -249,7 +249,6 @@ p {
 .jmgk_link {
     background: linear-gradient(270deg, #11dfaa, #9a5ce3, #5ccae3);
     background-size: 600% 600%;
-
     -webkit-animation: AnimationName 30s ease infinite;
     -moz-animation: AnimationName 30s ease infinite;
     animation: AnimationName 30s ease infinite;
