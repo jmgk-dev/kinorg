@@ -1,23 +1,28 @@
 .login_page {
-	display: grid;
-	grid-template-rows: 60px 150px 50px;
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
 }
 
 .login_title{
-	grid-row: 1;
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
 .login_form_container {
-	grid-row: 2;
 	display: flex;
 	justify-content: center;
 }
 
+.login_form {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	width: 300px;
+}
+
 .reset_link {
-	grid-row: 3;
 	display: flex;
 	justify-content: center;
 }

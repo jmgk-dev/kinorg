@@ -14,8 +14,8 @@
 	</div>
 
 	<div class="login_form_container">
-		<div class="login_form">
-			<form method="post">
+		<div class="">
+			<form method="post" class="login_form">
 	    		{% csrf_token %}
 	    		{{ form.as_p }}
 	    		<button type="submit">Login</button>

@@ -56,7 +56,13 @@
 {% if user.is_authenticated %}
 
     <!-- Hamburger button -->
-	<button id="nav_toggle" class="nav_toggle_btn">&#9776;</button>
+	<button id="nav_toggle" class="nav_toggle_btn">
+	    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
+	        <rect y="4" width="24" height="2.5" rx="1.25"/>
+	        <rect y="11" width="24" height="2.5" rx="1.25"/>
+	        <rect y="18" width="24" height="2.5" rx="1.25"/>
+	    </svg>
+	</button>
 	
     <!-- Menu -->
     <nav id="nav_menu" style="display:none; position:fixed; top:0; right:0; width:260px; height:100vh; background:black; box-shadow:-4px 0 16px rgba(0,0,0,0.15); z-index:1000; padding:1.5rem; box-sizing:border-box;">
@@ -134,7 +140,7 @@
 
     <div class="jmgk_credit">
     	<a href="https://jmgk.dev/" target="_blank">
-    		<span>jmgk.dev</span>
+    		<button class="jmgk_link">jmgk.dev</button class="jmgk_link">
     	<a/>
 	</div>
 
