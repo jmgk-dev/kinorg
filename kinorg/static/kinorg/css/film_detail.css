@@ -205,7 +205,7 @@ p.italic {
     padding: 20px;
     border: 1px solid #888;
     border-radius: 8px;
-    width: 90%;
+    width: 85%;
     max-width: 500px;
     position: relative;
 }
@@ -260,10 +260,6 @@ p.italic {
     .detail_content, .add_remove_buttons, .review_section {
       width: 85%;
     }
-
-/*    .overview {
-        max-width: 100%;
-    }*/
 
 }
 

@@ -103,10 +103,10 @@
 
 </header>
 
+{% if user.is_authenticated %}
 <div class="links_container">
 
 	<div class="search_bar bar_item">
-		{% if user.is_authenticated %}
 		<div class="search-wrapper">
 		    <form action="{% url 'kinorg:search' %}" method="get">
 		        <input 
@@ -120,10 +120,10 @@
 		    </form>
 		    <div id="film-search-dropdown" class="typeahead-dropdown" hidden></div>
 		</div>
-		{% endif %}
 	</div>
 
 </div>
+{% endif %}
 
 <div class="page_content">
     {% block content %}{% endblock %}

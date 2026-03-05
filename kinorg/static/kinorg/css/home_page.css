@@ -2,7 +2,15 @@
   width: 100%;
 }
 
-.login_link, .my_lists_link {
+.login_link {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 40px;
+    margin-top: 30px;
+}
+
+.my_lists_link {
     display: flex;
     justify-content: center;
     align-items: center;

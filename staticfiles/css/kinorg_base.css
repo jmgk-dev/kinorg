@@ -289,6 +289,13 @@ p {
   text-decoration: underline;
 }
 
+@media (max-width: 1000px) {
+  h1 {
+    margin-left: -5px;
+  }
+
+}
+
 @media (max-width: 600px) {
 
   h3 {
