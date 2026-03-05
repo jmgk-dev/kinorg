@@ -62,6 +62,7 @@
     <nav id="nav_menu" style="display:none; position:fixed; top:0; right:0; width:260px; height:100vh; background:black; box-shadow:-4px 0 16px rgba(0,0,0,0.15); z-index:1000; padding:1.5rem; box-sizing:border-box;">
         <button id="nav_close" style="background:none; border:none; font-size:1.5rem; cursor:pointer; display:block; margin-left:auto;">✕</button>
         <ul style="list-style:none; padding:0; margin-top:1rem; display:flex; flex-direction:column; gap:1rem;">
+        	<li><b>{{ user.username }}</b></li>
             <li><a href="{% url 'kinorg:my_lists' %}">My Lists</a></li>
             <li><a href="{% url 'kinorg:create_list' %}">Create List</a></li>
             <li><a href="{% url 'kinorg:invitations' %}">Invitations</a></li>

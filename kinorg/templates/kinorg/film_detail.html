@@ -49,6 +49,28 @@
 
 <div class="detail_container">
 
+    <div class="detail_content reviews_content">
+
+        <ul class="reviews_list">
+
+            {% if film_reviews %}
+            {% for review in film_reviews %}
+                <li class="review_item">
+                    <p><b>{{ review.user }}</b> says:</p>
+                    <p>{{ review.mini_review }}</p>
+                </li>
+            {% endfor %}
+            {% endif %}
+
+        </ul>
+
+    </div>
+    
+
+</div>
+
+<div class="detail_container">
+
     {% if my_lists or guest_lists %}
 
     <div class="add_remove_buttons">

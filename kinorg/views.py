@@ -291,6 +291,8 @@ class FilmDetail(LoginRequiredMixin, TemplateView):
         my_lists = FilmList.objects.filter(owner=user)
         guest_lists = FilmList.objects.filter(guests=user)
 
+        film_reviews = WatchedFilm.objects.filter(film__id=movie_id).exclude(mini_review__isnull=True).exclude(mini_review__exact='')
+
         film_data = get_tmdb_data(f"https://api.themoviedb.org/3/movie/{movie_id}?append_to_response=credits,keywords,similar,videos&language=en-US")
 
         directors = [c for c in film_data.get('credits', {}).get('crew', []) if c['job'] == 'Director']
@@ -319,6 +321,7 @@ class FilmDetail(LoginRequiredMixin, TemplateView):
         context["guest_lists"] = guest_lists
         context["film"] = film_data
         context["watched"] = watched
+        context["film_reviews"] = film_reviews
 
         return context
 
