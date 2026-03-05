@@ -21,23 +21,45 @@
 /* Scrolling bar ----------------------------------- */
 
 #container {
-  height: 160px;
-  position: relative;
-  overflow: hidden;
-  -webkit-overflow-scrolling: touch;
-  scroll-behavior: smooth;
+    height: 160px;
+    position: relative;
+    overflow: hidden;          /* Hidden by default - CSS animation handles movement */
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+
+#container::-webkit-scrollbar {
+    display: none;
 }
 
 .photobanner {
-  white-space: nowrap;
+    position: absolute;
+    top: 0;
+    left: 0;
+    white-space: nowrap;
+    animation: bannermove 60s linear infinite;
+}
+
+.photobanner-reverse {
+    animation: bannermove-reverse 70s linear infinite;
 }
 
 .photobanner img {
-  margin: 0 0.3em;
+    margin: 0 0.3em;
 }
 
-#container:hover {
-  overflow: auto;
+@keyframes bannermove {
+    0%   { transform: translate(0, 0); }
+    100% { transform: translate(-50%, 0); }
+}
+
+@keyframes bannermove-reverse {
+    0%   { transform: translate(-50%, 0); }
+    100% { transform: translate(0, 0); }
+}
+
+#container:hover .photobanner {
+    animation-play-state: paused;
 }
 
 /* Scrolling bar END ----------------------------------- */
