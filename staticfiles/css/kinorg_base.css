@@ -167,9 +167,11 @@ select {
 }
 
 header {
-	display: flex;
-  flex-direction: row;
-  justify-content: space-between;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 10px;
 }
 
 p {
@@ -189,10 +191,20 @@ p {
 }
 
 .logo_container {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  margin-left: 5px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 0px;
+    margin: 0px;
+}
+
+.nav_toggle_btn {
+    background: none;
+    border: none;
+    font-size: 2.5rem;
+    cursor: pointer;
+    padding: 0px;
+    line-height: 1;
 }
 
 .links_container {
@@ -241,6 +253,10 @@ p {
 
   p {
     font-size: 0.8rem;
+  }
+
+  .nav_toggle_btn {
+    margin-bottom: 7px
   }
 
 }
