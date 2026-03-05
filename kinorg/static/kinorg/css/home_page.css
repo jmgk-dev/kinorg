@@ -21,10 +21,10 @@
 /* Scrolling bar ----------------------------------- */
 
 #container {
-    height: 160px;
-    position: relative;
-    overflow: hidden;          /* Hidden by default - CSS animation handles movement */
-    -webkit-overflow-scrolling: touch;
+    height: 160px; 
+    position: relative; 
+    overflow-x: scroll;
+    overflow-y: hidden;
     scrollbar-width: none;
 }
 
@@ -33,18 +33,21 @@
 }
 
 .photobanner {
-    position: absolute;
-    top: 0;
-    left: 0;
+    position: absolute; 
+    top: 0px; 
+    left: 0px; 
+    overflow: hidden; 
     white-space: nowrap;
     animation: bannermove 60s linear infinite;
+    animation-delay: -30s;
 }
 
 .photobanner-reverse {
     animation: bannermove-reverse 70s linear infinite;
+    animation-delay: -35s;
 }
 
-.photobanner img {
+.photobanner img {    
     margin: 0 0.3em;
 }
 
