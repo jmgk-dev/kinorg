@@ -330,15 +330,33 @@ def add_film(request):
 
     if request.method == "POST":
 
-        fields = [
-            'title', 'release_date', 'poster_path', 'backdrop_path',
-            'overview', 'runtime', 'cast', 'crew', 'genres', 'keywords',
-            'production_companies'
-        ]
-
-        film_data = {field: request.POST.get(field) for field in fields}
-
         film_id = request.POST.get("id")
+
+        def int_or_none(val):
+            try:
+                return int(val)
+            except (TypeError, ValueError):
+                return None
+
+        def float_or_none(val):
+            try:
+                return float(val)
+            except (TypeError, ValueError):
+                return None
+
+        film_data = {
+            'title':                request.POST.get('title'),
+            'release_date':         request.POST.get('release_date'),
+            'poster_path':          request.POST.get('poster_path'),
+            'backdrop_path':        request.POST.get('backdrop_path'),
+            'overview':             request.POST.get('overview', ''),
+            'runtime':              int_or_none(request.POST.get('runtime')),
+            'cast':                 request.POST.get('cast'),
+            'crew':                 request.POST.get('crew'),
+            'genres':               request.POST.get('genres'),
+            'keywords':             request.POST.get('keywords'),
+            'production_companies': request.POST.get('production_companies'),
+        }
 
         film_object, created = Film.objects.update_or_create(
             id=film_id,
@@ -347,7 +365,7 @@ def add_film(request):
 
         filmlist_object = FilmList.objects.get(pk=request.POST.get('list_id'))
 
-        addition_object = Addition.objects.get_or_create(
+        Addition.objects.get_or_create(
             film=film_object,
             film_list=filmlist_object,
             defaults={'added_by': request.user}
@@ -360,7 +378,6 @@ def add_film(request):
         })
 
     else:
-
         return JsonResponse({'error': 'Invalid request'}, status=400)
 
 
