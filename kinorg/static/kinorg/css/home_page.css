@@ -8,7 +8,6 @@
     align-items: center;
     text-decoration: underline;
     margin-bottom: 40px;
-    margin-top: 40px;
 }
 
 .list_header {
@@ -19,61 +18,26 @@
     font-style: italic;
 }
 
-
 /* Scrolling bar ----------------------------------- */
 
 #container {
-  height: 160px; 
-  position: relative; 
+  height: 160px;
+  position: relative;
   overflow: hidden;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
 }
 
 .photobanner {
-  position: absolute; 
-  top: 0px; 
-  left: 0px; 
-  overflow: hidden; 
   white-space: nowrap;
-  animation: bannermove 60s linear infinite;
 }
 
-.photobanner-reverse {
-  animation: bannermove-reverse 70s linear infinite;
-}
-
-.photobanner img {    
-  margin: 0 0.3em 
-}
-
-@keyframes bannermove {
-  0% {
-      transform: translate(0, 0);
-  }
-  100% {
-      transform: translate(-50%, 0);
-  }
-}
-
-@keyframes bannermove-reverse {
-  0% {
-      transform: translate(-50%, 0);
-  }
-  100% {
-      transform: translate(0, 0);
-  }
+.photobanner img {
+  margin: 0 0.3em;
 }
 
 #container:hover {
-   overflow: auto;
-}
-
-#container:hover .photobanner {
-   animation-play-state:paused;
-}
-
-#container {
-    -webkit-overflow-scrolling: touch; /* smooth momentum scrolling on iOS */
-    scroll-behavior: smooth;
+  overflow: auto;
 }
 
 /* Scrolling bar END ----------------------------------- */

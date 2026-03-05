@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
     const containers = document.querySelectorAll('#container');
+    const DRAG_SPEED = 2;
 
     containers.forEach(container => {
         let startX = 0;
@@ -7,6 +8,16 @@ document.addEventListener('DOMContentLoaded', function () {
         let scrollStart = 0;
         let isDragging = false;
         let isHorizontal = null;
+
+        // Infinite scroll: when past halfway, jump back to start
+        container.addEventListener('scroll', function () {
+            const half = container.scrollWidth / 2;
+            if (container.scrollLeft >= half) {
+                container.scrollLeft = container.scrollLeft - half;
+            } else if (container.scrollLeft <= 0) {
+                container.scrollLeft = half;
+            }
+        });
 
         container.addEventListener('touchstart', function (e) {
             isDragging = true;
@@ -25,16 +36,15 @@ document.addEventListener('DOMContentLoaded', function () {
             const diffX = e.touches[0].clientX - startX;
             const diffY = e.touches[0].clientY - startY;
 
-            // Determine direction on first move
             if (isHorizontal === null) {
                 isHorizontal = Math.abs(diffX) > Math.abs(diffY);
             }
 
             if (isHorizontal) {
-                e.preventDefault(); // Block vertical scroll only when swiping horizontally
-                container.scrollLeft = scrollStart - diffX;
+                e.preventDefault();
+                container.scrollLeft = scrollStart - (diffX * DRAG_SPEED);
             }
-        }, { passive: false }); // Must be false to allow preventDefault
+        }, { passive: false });
 
         container.addEventListener('touchend', function () {
             isDragging = false;
