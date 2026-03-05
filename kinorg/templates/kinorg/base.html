@@ -55,20 +55,19 @@
 
 {% if user.is_authenticated %}
 
-    <!-- Hamburger button -->
-	<button id="nav_toggle" class="nav_toggle_btn">
-	    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
-	        <rect y="4" width="24" height="2.5" rx="1.25"/>
-	        <rect y="11" width="24" height="2.5" rx="1.25"/>
-	        <rect y="18" width="24" height="2.5" rx="1.25"/>
-	    </svg>
-	</button>
-	
+    <!-- Hamburger / close button -->
+    <button id="nav_toggle" class="nav_toggle_btn" aria-label="Toggle menu">
+        <svg id="nav_icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
+            <rect class="bar bar-top" x="0" y="4"  width="24" height="2.5" rx="1.25"/>
+            <rect class="bar bar-mid" x="0" y="11" width="24" height="2.5" rx="1.25"/>
+            <rect class="bar bar-bot" x="0" y="18" width="24" height="2.5" rx="1.25"/>
+        </svg>
+    </button>
+    
     <!-- Menu -->
-    <nav id="nav_menu" style="display:none; position:fixed; top:0; right:0; width:260px; height:100vh; background:black; box-shadow:-4px 0 16px rgba(0,0,0,0.15); z-index:1000; padding:1.5rem; box-sizing:border-box;">
-        <button id="nav_close" style="background:none; border:none; font-size:1.5rem; cursor:pointer; display:block; margin-left:auto;">✕</button>
+    <nav id="nav_menu" style="position:fixed; top:0; right:0; width:260px; height:100vh; background:black; box-shadow:-4px 0 16px rgba(0,0,0,0.15); z-index:1000; padding:1.5rem; box-sizing:border-box;">
         <ul style="list-style:none; padding:0; margin-top:1rem; display:flex; flex-direction:column; gap:1rem;">
-        	<li><b>{{ user.username }}</b></li>
+            <li><b>{{ user.username }}</b></li>
             <li><a href="{% url 'kinorg:my_lists' %}">My Lists</a></li>
             <li><a href="{% url 'kinorg:create_list' %}">Create List</a></li>
             <li><a href="{% url 'kinorg:invitations' %}">Invitations</a></li>
@@ -82,21 +81,24 @@
     </nav>
 
     <!-- Backdrop -->
-    <div id="nav_backdrop" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:999;"></div>
+    <div id="nav_backdrop" style="position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:999;"></div>
 
     <script>
+        function openMenu() {
+            document.getElementById('nav_menu').classList.add('is-open');
+            document.getElementById('nav_backdrop').classList.add('is-open');
+            document.getElementById('nav_icon').classList.add('is-open');
+        }
+        function closeMenu() {
+            document.getElementById('nav_menu').classList.remove('is-open');
+            document.getElementById('nav_backdrop').classList.remove('is-open');
+            document.getElementById('nav_icon').classList.remove('is-open');
+        }
         document.getElementById('nav_toggle').onclick = function() {
-            document.getElementById('nav_menu').style.display = 'block';
-            document.getElementById('nav_backdrop').style.display = 'block';
+            const isOpen = document.getElementById('nav_icon').classList.contains('is-open');
+            isOpen ? closeMenu() : openMenu();
         };
-        document.getElementById('nav_close').onclick = function() {
-            document.getElementById('nav_menu').style.display = 'none';
-            document.getElementById('nav_backdrop').style.display = 'none';
-        };
-        document.getElementById('nav_backdrop').onclick = function() {
-            document.getElementById('nav_menu').style.display = 'none';
-            document.getElementById('nav_backdrop').style.display = 'none';
-        };
+        document.getElementById('nav_backdrop').onclick = closeMenu;
     </script>
 
 {% endif %}

@@ -89,9 +89,9 @@
 }
 
 * {
-	font-family: "IBM Plex Mono";
-	color: white;
-	text-decoration: none;
+  font-family: "IBM Plex Mono";
+  color: white;
+  text-decoration: none;
 }
 
 
@@ -139,7 +139,7 @@ h4 {
 }
 
 ul {
-	list-style-type: none;
+  list-style-type: none;
   padding: 0;
   margin: 0;
 }
@@ -175,12 +175,12 @@ header {
     justify-content: space-between;
     align-items: center;
     padding: 0 10px;
-    position: sticky;       /* Sticks to top as you scroll */
+    position: sticky;
     top: 0;
-    z-index: 998;           /* Below the nav menu (z-index 1000) but above content */
-    background-color: rgba(0, 0, 0, 0.8);  /* Slightly transparent black */
-    backdrop-filter: blur(6px);            /* Frosted glass blur effect */
-    -webkit-backdrop-filter: blur(6px);    /* Safari support */
+    z-index: 998;
+    background-color: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
 }
 
 p {
@@ -193,8 +193,8 @@ p {
 }
 
 .bar_item {
-	display: flex;
-	justify-content: center;
+  display: flex;
+  justify-content: center;
   align-items: center;
   gap: 5px;
 }
@@ -218,14 +218,36 @@ p {
     padding: 0 10px;
     display: flex;
     align-items: center;
+    position: relative;
+    z-index: 1001;  /* Above the nav menu (z-index 1000) */
+    -webkit-tap-highlight-color: transparent;  /* Kills grey tap flash on mobile */
 }
-
 
 .nav_toggle_btn svg {
-    width: 36px;  /* Desktop size */
+    width: 36px;
     height: 36px;
+    overflow: visible;  /* Prevents bars being clipped during rotation */
+    flex-shrink: 0;     /* Prevents button shrinking/shifting */
 }
 
+/* Hamburger -> X animation */
+.nav_toggle_btn svg .bar {
+    transform-origin: 12px 12px;  /* Rotate around the SVG centre point */
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.nav_toggle_btn svg.is-open .bar-top {
+    transform: translateY(5px) rotate(45deg);
+}
+
+.nav_toggle_btn svg.is-open .bar-mid {
+    opacity: 0;
+    transform: scaleX(0);
+}
+
+.nav_toggle_btn svg.is-open .bar-bot {
+    transform: translateY(-5px) rotate(-45deg);
+}
 
 .links_container {
   display: flex;
@@ -247,7 +269,6 @@ p {
     display: flex;
     justify-content: center;
     align-items: center;
-
     gap: 10px;
     margin-top: 20px;
 }
@@ -289,11 +310,95 @@ p {
   text-decoration: underline;
 }
 
+/* Interactive states ----------------------------------- */
+
+/* Nav menu links */
+#nav_menu a {
+    transition: opacity 0.2s ease;
+    display: inline-block;
+}
+
+#nav_menu a:hover {
+    opacity: 0.6;
+}
+
+#nav_menu a:active {
+    opacity: 0.4;
+    transform: scale(0.97);
+}
+
+/* Nav menu buttons (Log Out) */
+#nav_menu button[type="submit"] {
+    background: none;
+    border: none;
+    padding: 0;
+    transition: opacity 0.2s ease;
+}
+
+#nav_menu button[type="submit"]:hover {
+    opacity: 0.6;
+}
+
+#nav_menu button[type="submit"]:active {
+    opacity: 0.4;
+    transform: scale(0.97);
+}
+
+/* General buttons */
+button {
+    transition: filter 0.2s ease, transform 0.1s ease;
+}
+
+button:hover {
+    filter: brightness(1.2);
+}
+
+button:active {
+    filter: brightness(0.8);
+    transform: scale(0.97);
+}
+
+/* Hamburger button - override general button hover */
+.nav_toggle_btn:hover {
+    filter: none;
+    background: none;
+}
+
+.nav_toggle_btn:active {
+    filter: none;
+    background: none;
+    transform: scale(0.95);
+}
+
+/* Interactive states END ----------------------------------- */
+
+/* Nav menu fade */
+#nav_menu {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+#nav_menu.is-open {
+    opacity: 1;
+    visibility: visible;
+}
+
+#nav_backdrop {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+#nav_backdrop.is-open {
+    opacity: 1;
+    visibility: visible;
+}
+
 @media (max-width: 1000px) {
   h1 {
     margin-left: -5px;
   }
-
 }
 
 @media (max-width: 600px) {
@@ -307,11 +412,9 @@ p {
     font-size: 0.8rem;
   }
 
-.nav_toggle_btn svg {
-    width: 28px;   /* Mobile size */
-    height: 28px;
-}
+  .nav_toggle_btn svg {
+      width: 28px;
+      height: 28px;
+  }
 
 }
-
-
