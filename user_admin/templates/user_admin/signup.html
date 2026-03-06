@@ -1,0 +1,30 @@
+{% extends "kinorg/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" type="text/css" href="{% static 'user_admin/css/custom_signup.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="signup_page">
+
+    <div class="signup_title">
+        <h4>Create Account</h4>
+    </div>
+
+    <div class="signup_form_container">
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Sign Up</button>
+        </form>
+    </div>
+
+    <div class="signup_login_link">
+        <p>Already have an account? <a href="{% url 'user_admin:login' %}"><button>Log in</button></a></p>
+    </div>
+
+</div>
+
+{% endblock %}

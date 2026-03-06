@@ -9,6 +9,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.conf import settings
 
 from .admin import UserCreationForm
+from .forms import SignupForm
 
 
 class SiteLogin(LoginView):
@@ -66,5 +67,24 @@ class ResetPasswordDone(PasswordResetDoneView):
 	template_name = 'user_admin/reset_password_done.html'
 
 
+class Signup(FormView):
+    form_class = SignupForm
+    template_name = 'user_admin/signup.html'
+    success_url = reverse_lazy('kinorg:home')
 
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect('kinorg:home')
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        form.save()
+        user = authenticate(
+            self.request,
+            username=form.cleaned_data['username'],
+            password=form.cleaned_data['password1']
+        )
+        if user:
+            login(self.request, user)
+        return super().form_valid(form)
 

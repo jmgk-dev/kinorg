@@ -2,12 +2,16 @@
   width: 100%;
 }
 
-.login_link {
+.login_link, .signup_link {
     display: flex;
     justify-content: center;
     align-items: center;
     margin-bottom: 40px;
     margin-top: 30px;
+}
+
+.signup_button {
+    background: radial-gradient(circle,rgba(63, 94, 251, 1) 0%, rgba(252, 70, 107, 1) 100%);
 }
 
 .my_lists_link {
