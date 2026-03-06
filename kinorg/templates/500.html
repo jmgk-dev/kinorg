@@ -1,0 +1,9 @@
+{% extends "kinorg/base.html" %}
+
+{% block content %}
+<div class="error_page">
+    <p class="error_code">500</p>
+    <p>Something went wrong on our end. Try again in a moment.</p>
+    <a href="{% url 'kinorg:home' %}">Back to home</a>
+</div>
+{% endblock %}
