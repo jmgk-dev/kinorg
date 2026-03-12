@@ -53,7 +53,7 @@
             <form method="POST" action="{% url 'kinorg:invite_guest' %}">
                 {% csrf_token %}
                 <input type="hidden" name="list_id" value="{{ object.id }}">
-                <div style="display: flex; gap: 10px; margin: 15px 0; align-items: center;">
+                <div style="display: flex; gap: 10px; margin: 15px 0; align-items: center; flex-wrap: wrap;">
                     <input
                         type="text"
                         id="invite_username_input"
@@ -140,17 +140,23 @@
         selectedUser.style.display = 'flex';
     }
 
-    clearSelected.addEventListener('click', () => {
-        usernameInput.value = '';
-        usernameInput.style.display = '';
-        selectedUser.style.display = 'none';
-        selectedUserLabel.textContent = '';
-        usernameInput.focus();
-    });
+    if (clearSelected) {
+        clearSelected.addEventListener('click', () => {
+            usernameInput.value = '';
+            usernameInput.style.display = '';
+            selectedUser.style.display = 'none';
+            selectedUserLabel.textContent = '';
+            usernameInput.focus();
+        });
+    }
 
     if (usernameInput) {
         usernameInput.addEventListener('input', () => {
             clearTimeout(debounceTimer);
+
+            // Don't search if a user is already selected
+            if (usernameInput.style.display === 'none') return;
+
             const query = usernameInput.value.trim();
 
             if (query.length < 2) {
