@@ -110,17 +110,7 @@
 
 	<div class="search_bar bar_item">
 		<div class="search-wrapper">
-		    <form action="{% url 'kinorg:search' %}" method="get">
-		        <input 
-		            id="film-search-input"
-		            type="text" 
-		            name="query" 
-		            placeholder="Search films..."
-		            autocomplete="off"
-		        >
-		        <button type="submit">Search</button>
-		    </form>
-		    <div id="film-search-dropdown" class="typeahead-dropdown" hidden></div>
+    		{% block search %}<a href="{% url 'kinorg:search' %}"><button>Search Films</button></a>{% endblock %}
 		</div>
 	</div>
 

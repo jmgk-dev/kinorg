@@ -2,38 +2,94 @@
 {% load static %}
 
 {% block extra_css %}
-<link rel="stylesheet" type="text/css" href="{% static 'kinorg/css/content_list.css' %}">
+<link rel="stylesheet" href="{% static 'kinorg/css/search.css' %}">
 {% endblock %}
 
-{% block content %}
+{% block search %}
 
-        <div class="results_title_info">
-        <span>results for "{{query}}"</span>
+<div class="search_page">
+
+    <div class="search_input_container">
+        <input 
+            type="text" 
+            id="live_search_input" 
+            placeholder="Search films..." 
+            value="{{ query }}"
+            autocomplete="off"
+        >
     </div>
 
-    <div class="content_list_container">
+    <ul id="live_search_results" class="search_results_list">
+        {% for result in results_list %}
+        <li class="search_result_item">
+            <a href="{% if result.profile_path %}{% url 'kinorg:person_credits' result.id %}{% else %}{% url 'kinorg:film_detail' result.id %}{% endif %}">
+                {% if result.poster_path %}
+                    <img class="search_result_poster" src="{{ config_data.secure_base_url }}w92{{ result.poster_path }}">
+                {% elif result.profile_path %}
+                    <img class="search_result_poster" src="{{ config_data.secure_base_url }}w92{{ result.profile_path }}">
+                {% else %}
+                    <img class="search_result_poster" src="{% static 'images/placeholder.jpg' %}">
+                {% endif %}
+                <div class="search_result_info">
+                    <p><b>{% if result.title %}{{ result.title }}{% else %}{{ result.name }}{% endif %}</b></p>
+                    <p>{{ result.release_date|slice:":4" }}</p>
+                </div>
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
 
-        {% if results_list %}
-        <ul class="list_of_content">
+</div>
 
-            {% for result in results_list %}
-                <li class="results_item">
+{% endblock %}
 
-                        {% if result.poster_path %}
-                            <a href="{% url 'kinorg:film_detail' result.id %}"><img class="poster" src="{{config_data.secure_base_url}}w200{{result.poster_path}}"></a>
-                        {% elif result.profile_path %}
-                            <a href="{% url 'kinorg:person_credits' result.id %}"><img class="poster" src="{{config_data.secure_base_url}}w200{{result.profile_path}}"></a>
-                        {% else %}
-                            <a href="{% url 'kinorg:film_detail' result.id %}"><img class="poster" src="{% static 'images/placeholder.jpg' %}"></a>
-                        {% endif %}
+{% block extra_js %}
+<script>
+    const input = document.getElementById('live_search_input');
+    const resultsList = document.getElementById('live_search_results');
+    const baseUrl = "{{ config_data.secure_base_url }}";
+    const placeholderUrl = "{% static 'images/placeholder.jpg' %}";
 
-                </li>
-            {% endfor %}
+    let debounceTimer;
 
-        </ul>
-        {% endif %}
+    input.addEventListener('input', () => {
+        clearTimeout(debounceTimer);
+        const query = input.value.trim();
 
+        if (query.length < 2) {
+            resultsList.innerHTML = '';
+            return;
+        }
 
-    </div>
+        debounceTimer = setTimeout(() => {
+            fetch(`/film-autocomplete/?q=${encodeURIComponent(query)}`)
+                .then(res => res.json())
+                .then(data => {
+                    resultsList.innerHTML = '';
+                    data.results.forEach(film => {
+                        const poster = film.poster_path
+                            ? `${baseUrl}w92${film.poster_path}`
+                            : placeholderUrl;
 
+                        const li = document.createElement('li');
+                        li.className = 'search_result_item';
+                        li.innerHTML = `
+                            <a href="/film-detail/${film.id}">
+                                <img class="search_result_poster" src="${poster}">
+                                <div class="search_result_info">
+                                    <p><b>${film.title}</b></p>
+                                    <p>${film.year}</p>
+                                </div>
+                            </a>
+                        `;
+                        resultsList.appendChild(li);
+                    });
+                });
+        }, 300);
+    });
+
+    if (input.value.trim().length >= 2) {
+    input.dispatchEvent(new Event('input'));
+    }
+</script>
 {% endblock %}

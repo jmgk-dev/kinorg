@@ -104,9 +104,10 @@ def film_autocomplete(request):
         {
             'id': film['id'],
             'title': film['title'],
-            'year': film.get('release_date', '')[:4]
+            'year': film.get('release_date', '')[:4],
+            'poster_path': film.get('poster_path') or '',
         }
-        for film in data.get('results', [])[:6]
+        for film in data.get('results', [])[:10]
     ]
     
     return JsonResponse({'results': results})
@@ -143,45 +144,14 @@ class Search(LoginRequiredMixin, TemplateView):
     template_name = "kinorg/search.html"
 
     def get(self, request, *args, **kwargs):
-        # If no query is provided, redirect to home
-        if not request.GET.get('query'):
-            return redirect('kinorg:home')
-
+        # Remove the redirect — blank search page is fine now
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
-        query = self.request.GET.get('query').strip()
-
-        # Only treat as year if it's at the END of the query, separated by a space
-        # e.g. "Tetsuo 1989" → title="Tetsuo", year="1989"
-        # but "2046" or "1984" → treated as plain title search
-        year_suffix_match = re.search(r'^(.+?)\s+(19\d{2}|20\d{2})$', query)
-
-        if year_suffix_match:
-            title = year_suffix_match.group(1).strip()
-            year = year_suffix_match.group(2)
-            search_url = (
-                f"https://api.themoviedb.org/3/search/movie"
-                f"?query={title}&primary_release_year={year}"
-                f"&include_adult=false&language=en-US&page=1"
-            )
-            search_data = get_tmdb_data(search_url)
-            ordered_results = order_by_popularity(search_data.get("results", []))
-        else:
-            # Plain text search — use multi but filter to movies and people only
-            search_url = (
-                f"https://api.themoviedb.org/3/search/multi"
-                f"?query={query}&include_adult=false&language=en-US&page=1"
-            )
-            search_data = get_tmdb_data(search_url)
-            filtered = films_and_people(search_data)
-            ordered_results = order_by_popularity(filtered)
-
+        query = self.request.GET.get('query', '').strip()
         context["query"] = query
-        context["results_list"] = ordered_results
-
+        context["results_list"] = []
         return context
 
 
@@ -296,11 +266,11 @@ class FilmDetail(LoginRequiredMixin, TemplateView):
         context["directors"] = directors
 
         # Convert complex fields to JSON strings for the add_film form
-        film_data['cast_json'] = json.dumps(film_data['credits']['cast'])
-        film_data['crew_json'] = json.dumps(film_data['credits']['crew'])
-        film_data['genres_json'] = json.dumps(film_data['genres'])
-        film_data['keywords_json'] = json.dumps(film_data['keywords']['keywords'])
-        film_data['production_companies_json'] = json.dumps(film_data['production_companies'])
+        film_data['cast_json'] = json.dumps(film_data.get('credits', {}).get('cast', []))
+        film_data['crew_json'] = json.dumps(film_data.get('credits', {}).get('crew', []))
+        film_data['genres_json'] = json.dumps(film_data.get('genres', []))
+        film_data['keywords_json'] = json.dumps(film_data.get('keywords', {}).get('keywords', []))
+        film_data['production_companies_json'] = json.dumps(film_data.get('production_companies', []))
 
         for lst in my_lists:
             lst.contains_film = lst.films.filter(id=movie_id).exists()
