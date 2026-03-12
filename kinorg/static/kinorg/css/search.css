@@ -6,8 +6,8 @@
 }
 
 .search_input_container {
-    width: 100%;
-    max-width: 600px;
+    width: 720px;
+    max-width: 100%;
     margin-bottom: 20px;
 }
 
@@ -19,8 +19,8 @@
 }
 
 .search_results_list {
-    width: 100%;
-    max-width: 600px;
+    width: 720px;
+    max-width: 100%;
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -54,4 +54,10 @@
     display: flex;
     flex-direction: column;
     gap: 4px;
+}
+
+@media (max-width: 600px) {
+    .search_page {
+        padding: 10px;
+    }
 }
