@@ -33,10 +33,12 @@ def get_tmdb_data(url):
 
 
 def order_by_popularity(search_results):
-
-    ordered_results = sorted(search_results, key=lambda i: i['popularity'], reverse=True)
-
-    return ordered_results
+    # Movies first, then people, ordered by popularity within each group
+    movies = sorted([r for r in search_results if r.get('media_type') == 'movie' or 'release_date' in r], 
+                    key=lambda i: i['popularity'], reverse=True)
+    people = sorted([r for r in search_results if r.get('media_type') == 'person'], 
+                    key=lambda i: i['popularity'], reverse=True)
+    return movies + people
 
 
 def films_and_people(search_data):
@@ -149,38 +151,33 @@ class Search(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        user = self.request.user
 
-        # Search based on query content -------------------------------------
         query = self.request.GET.get('query').strip()
 
-        year_match = re.search(r'\b(19\d{2}|20\d{2})\b', query)
+        # Only treat as year if it's at the END of the query, separated by a space
+        # e.g. "Tetsuo 1989" → title="Tetsuo", year="1989"
+        # but "2046" or "1984" → treated as plain title search
+        year_suffix_match = re.search(r'^(.+?)\s+(19\d{2}|20\d{2})$', query)
 
-        # if there's a year in the query
-        if year_match:
-            year = year_match.group(1)
-            title = query.replace(year, '').strip()
-
-            # if there's also text
-            if title:
-                search_url = f"https://api.themoviedb.org/3/search/movie?query={title}&include_adult=false&language=en-US&primary_release_year={year}&page=1"
-                search_data = get_tmdb_data(search_url)
-                ordered_results = order_by_popularity(search_data["results"])
-
-            # if there's just a year
-            else:
-                search_url = f"https://api.themoviedb.org/3/search/multi?query={year}&include_adult=false&language=en-US&page=1"
-                search_data = get_tmdb_data(search_url)
-                filtered_films = films_and_people(search_data)
-                ordered_results = order_by_popularity(filtered_films)
-
-        #if it's just text
-        else:
-            search_url = f"https://api.themoviedb.org/3/search/multi?query={query}&include_adult=false&language=en-US&page=1"
+        if year_suffix_match:
+            title = year_suffix_match.group(1).strip()
+            year = year_suffix_match.group(2)
+            search_url = (
+                f"https://api.themoviedb.org/3/search/movie"
+                f"?query={title}&primary_release_year={year}"
+                f"&include_adult=false&language=en-US&page=1"
+            )
             search_data = get_tmdb_data(search_url)
-            filtered_films = films_and_people(search_data)
-            ordered_results = order_by_popularity(filtered_films)
-        # -------------------------------------------------------------------
+            ordered_results = order_by_popularity(search_data.get("results", []))
+        else:
+            # Plain text search — use multi but filter to movies and people only
+            search_url = (
+                f"https://api.themoviedb.org/3/search/multi"
+                f"?query={query}&include_adult=false&language=en-US&page=1"
+            )
+            search_data = get_tmdb_data(search_url)
+            filtered = films_and_people(search_data)
+            ordered_results = order_by_popularity(filtered)
 
         context["query"] = query
         context["results_list"] = ordered_results
