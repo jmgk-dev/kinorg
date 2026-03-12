@@ -15,6 +15,7 @@
 		{% if user.is_authenticated %}
 			<!-- <div class="my_lists_link"><a href="{% url 'kinorg:my_lists' %}"><span>My Lists</span></a></div> -->
 		{% else %}
+			<div class="blurb"><p>Collaborative film watchlists</p></div>
 			<div  class="login_link"><a href="{% url 'user_admin:login' %}"><button>Login</button></a></div>
 			<div  class="signup_link"><a href="{% url 'user_admin:signup' %}"><button class="signup_button">Signup</button></a></div>
 		{% endif %}

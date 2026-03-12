@@ -29,6 +29,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 INSTALLED_APPS = [
     'kinorg.apps.KinorgConfig',
     'user_admin.apps.UserAdminConfig',
+    'django_q',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -130,3 +131,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Custom user model
 AUTH_USER_MODEL = "user_admin.SiteUser"
+
+
+Q_CLUSTER = {
+    'name': 'kinorg',
+    'workers': 2,
+    'timeout': 600,       # 10 minutes max per task
+    'retry': 700,         # retry after 11m40s — must be larger than timeout
+    'max_attempts': 2,    # try twice before giving up
+    'orm': 'default',     # use your existing PostgreSQL DB
+}
