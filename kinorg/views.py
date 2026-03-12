@@ -231,14 +231,19 @@ class ListDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # Check for success or error messages in session
         if 'invitation_sent' in self.request.session:
             messages.success(self.request, "Invitation sent successfully!")
-            self.request.session.pop('invitation_sent') 
+            self.request.session.pop('invitation_sent')
 
         if 'invitation_error' in self.request.session:
-            messages.error(self.request, self.request.session['invitation_error']) 
+            messages.error(self.request, self.request.session['invitation_error'])
             self.request.session.pop('invitation_error')
+
+        invitations = Invitation.objects.filter(
+            film_list=self.get_object()
+        ).select_related('to_user')
+
+        context['invitations'] = invitations
 
         return context
 

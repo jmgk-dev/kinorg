@@ -2,66 +2,152 @@
 {% load static %}
 
 {% block extra_css %}
-<link rel="stylesheet" type="text/css" href="{% static 'kinorg/css/film_list.css' %}">
-<link rel="stylesheet" type="text/css" href="{% static 'kinorg/css/content_list.css' %}">
+<link rel="stylesheet" href="{% static 'kinorg/css/film_list.css' %}">
+<link rel="stylesheet" href="{% static 'kinorg/css/content_list.css' %}">
+<link rel="stylesheet" href="{% static 'kinorg/css/film_detail.css' %}">
 {% endblock %}
 
 {% block content %}
 
-	
-<div class="list_title">
-	<span>{{ object.title }}</span>
-</div>
-
-<div class="content_list_container">
-
-<ul class="list_of_content">
-
-	{% for addition in object.addition_set.all %}
-	<li class="results_item">
-
-		<a href="{% url 'kinorg:film_detail' addition.film.id %}">
-
-    		{% if addition.film.poster_path != 'None' %}
-    		<img class="poster" src="{{config_data.secure_base_url}}w200{{addition.film.poster_path}}">
-    		{% else %}
-    		<img class="poster" src="{% static 'images/placeholder.jpg' %}">
-    		{% endif %}
-
-		</a>
-
-	</li>
-	{% endfor %}
-
-</ul>
-
-</div>
-
-<div class="invite_user">
-    <div class="invite-wrapper">
-        <form method="post" action="{% url 'kinorg:invite_guest' %}">
-            {% csrf_token %}
-            <input type="hidden" name="list_id" value="{{ object.id }}">
-            <input 
-                id="user-invite-input"
-                type="text" 
-                name="username" 
-                placeholder="Search username..."
-                autocomplete="off"
-            >
-            <button type="submit">INVITE USER</button>
-        </form>
-        <div id="user-invite-dropdown" class="typeahead-dropdown" hidden></div>
+    <div class="list_title">
+        <h4>{{ object.title }}</h4>
     </div>
-</div>
 
-<div class="messages_container">
-{% if messages %}
-{% for message in messages %}
- 	<span {% if message.tags %} class="{{ message.tags }}" {% endif %} >{{ message }}</span>
-{% endfor %}
-{% endif %}
-</div>
+    {% if object.owner == request.user %}
+    <div class="invite_user">
+        <button id="invite_modal_btn">Invite User</button>
+    </div>
+    {% endif %}
 
+    <div class="content_list_container">
+        <ul class="list_of_content">
+            {% for addition in object.addition_set.all %}
+            <li class="results_item">
+                <a href="{% url 'kinorg:film_detail' addition.film.id %}">
+                    {% if addition.film.poster_path != 'None' %}
+                    <img class="poster" src="{{ config_data.secure_base_url }}w200{{ addition.film.poster_path }}">
+                    {% else %}
+                    <img class="poster" src="{% static 'images/placeholder.jpg' %}">
+                    {% endif %}
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
 
+    {% if messages %}
+    <div class="messages_container">
+        {% for message in messages %}
+        <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if object.owner == request.user %}
+    <div id="invite_modal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="invite_modal_close">&times;</span>
+
+            <h4>Invite a user</h4>
+
+            <form method="POST" action="{% url 'kinorg:invite_guest' %}">
+                {% csrf_token %}
+                <input type="hidden" name="list_id" value="{{ object.id }}">
+                <div style="display: flex; gap: 10px; margin: 15px 0;">
+                    <input
+                        type="text"
+                        id="invite_username_input"
+                        name="username"
+                        placeholder="Search username..."
+                        autocomplete="off"
+                    >
+                    <button type="submit">Invite</button>
+                </div>
+                <ul id="user_autocomplete_results" style="margin-bottom: 15px;"></ul>
+            </form>
+
+            {% if invitations %}
+            <div style="margin-top: 20px;">
+                <p><b>Invited users</b></p>
+                <ul style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">
+                    {% for invite in invitations %}
+                    <li style="display: flex; justify-content: space-between; align-items: center; border: 1px solid white; border-radius: 8px; padding: 8px;">
+                        <span>{{ invite.to_user.username }}</span>
+                        <span>
+                            {% if invite.accepted %}✓ Accepted
+                            {% elif invite.declined %}✗ Declined
+                            {% else %}Pending
+                            {% endif %}
+                        </span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+    {% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const inviteModal = document.getElementById('invite_modal');
+    const inviteOpenBtn = document.getElementById('invite_modal_btn');
+    const inviteCloseBtn = document.getElementById('invite_modal_close');
+
+    if (inviteOpenBtn) {
+        inviteOpenBtn.addEventListener('click', () => {
+            inviteModal.style.display = 'block';
+        });
+    }
+
+    if (inviteCloseBtn) {
+        inviteCloseBtn.addEventListener('click', () => {
+            inviteModal.style.display = 'none';
+        });
+    }
+
+    window.addEventListener('click', (e) => {
+        if (e.target === inviteModal) {
+            inviteModal.style.display = 'none';
+        }
+    });
+
+    // Username autocomplete
+    const usernameInput = document.getElementById('invite_username_input');
+    const autocompleteResults = document.getElementById('user_autocomplete_results');
+    let debounceTimer;
+
+    if (usernameInput) {
+        usernameInput.addEventListener('input', () => {
+            clearTimeout(debounceTimer);
+            const query = usernameInput.value.trim();
+
+            if (query.length < 2) {
+                autocompleteResults.innerHTML = '';
+                return;
+            }
+
+            debounceTimer = setTimeout(() => {
+                fetch(`/user-autocomplete/?q=${encodeURIComponent(query)}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        autocompleteResults.innerHTML = '';
+                        data.results.forEach(user => {
+                            const li = document.createElement('li');
+                            li.textContent = user.username;
+                            li.style.cssText = 'cursor: pointer; padding: 6px; border-radius: 6px; border: 1px solid white; margin-bottom: 4px;';
+                            li.addEventListener('click', () => {
+                                usernameInput.value = user.username;
+                                autocompleteResults.innerHTML = '';
+                            });
+                            autocompleteResults.appendChild(li);
+                        });
+                    });
+            }, 300);
+        });
+    }
+</script>
 {% endblock %}
