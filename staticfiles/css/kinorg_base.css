@@ -378,6 +378,14 @@ button:active {
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.25s ease, visibility 0.25s ease;
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.95);
+    padding: 60px 30px 30px 30px;
+    z-index: 1000;
+    min-width: 200px;
 }
 
 #nav_menu.is-open {

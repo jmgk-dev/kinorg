@@ -95,23 +95,49 @@ def film_autocomplete(request):
     query = request.GET.get('q', '').strip()
     if len(query) < 2:
         return JsonResponse({'results': []})
-    
-    data = get_tmdb_data(
-        f"https://api.themoviedb.org/3/search/movie?query={query}&include_adult=false&language=en-US&page=1"
-    )
-    
-    results = [
-        {
-            'id': film['id'],
-            'title': film['title'],
-            'year': film.get('release_date', '')[:4],
-            'poster_path': film.get('poster_path') or '',
-        }
-        for film in data.get('results', [])[:10]
-    ]
-    
-    return JsonResponse({'results': results})
 
+    filter_type = request.GET.get('filter', 'all')  # 'all', 'films', 'people'
+
+    data = get_tmdb_data(
+        f"https://api.themoviedb.org/3/search/multi?query={query}&include_adult=false&language=en-US&page=1"
+    )
+
+    raw = data.get('results', [])
+
+    # Keep only movies and people
+    raw = [r for r in raw if r.get('media_type') in ('movie', 'person')]
+
+    # Apply filter
+    if filter_type == 'films':
+        raw = [r for r in raw if r.get('media_type') == 'movie']
+    elif filter_type == 'people':
+        raw = [r for r in raw if r.get('media_type') == 'person']
+
+    # Sort by popularity descending so Lynch/Cameron surface first
+    raw = sorted(raw, key=lambda r: r.get('popularity', 0), reverse=True)
+
+    results = []
+    for r in raw[:10]:
+        if r.get('media_type') == 'movie':
+            results.append({
+                'id': r['id'],
+                'title': r.get('title', ''),
+                'year': r.get('release_date', '')[:4],
+                'poster_path': r.get('poster_path') or '',
+                'media_type': 'movie',
+                'profile_path': '',
+            })
+        elif r.get('media_type') == 'person':
+            results.append({
+                'id': r['id'],
+                'title': r.get('name', ''),
+                'year': '',
+                'poster_path': '',
+                'media_type': 'person',
+                'profile_path': r.get('profile_path') or '',
+            })
+
+    return JsonResponse({'results': results})
 
 def user_autocomplete(request):
     query = request.GET.get('q', '').strip()

@@ -10,13 +10,19 @@
 <div class="search_page">
 
     <div class="search_input_container">
-        <input 
-            type="text" 
-            id="live_search_input" 
-            placeholder="Search films..." 
+        <input
+            type="text"
+            id="live_search_input"
+            placeholder="Search films and people..."
             value="{{ query }}"
             autocomplete="off"
         >
+    </div>
+
+    <div class="search_filter_btns">
+        <button class="filter_btn active" data-filter="all">All</button>
+        <button class="filter_btn" data-filter="films">Films</button>
+        <button class="filter_btn" data-filter="people">People</button>
     </div>
 
     <ul id="live_search_results" class="search_results_list">
@@ -51,34 +57,49 @@
     const placeholderUrl = "{% static 'images/placeholder.jpg' %}";
 
     let debounceTimer;
+    let activeFilter = 'all';
 
-    input.addEventListener('input', () => {
+    // Filter button toggle
+    document.querySelectorAll('.filter_btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.filter_btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            activeFilter = btn.dataset.filter;
+            // Re-run search with new filter
+            if (input.value.trim().length >= 2) {
+                runSearch(input.value.trim());
+            }
+        });
+    });
+
+    function runSearch(query) {
         clearTimeout(debounceTimer);
-        const query = input.value.trim();
-
-        if (query.length < 2) {
-            resultsList.innerHTML = '';
-            return;
-        }
-
         debounceTimer = setTimeout(() => {
-            fetch(`/film-autocomplete/?q=${encodeURIComponent(query)}`)
+            fetch(`/film-autocomplete/?q=${encodeURIComponent(query)}&filter=${activeFilter}`)
                 .then(res => res.json())
                 .then(data => {
                     resultsList.innerHTML = '';
-                    data.results.forEach(film => {
-                        const poster = film.poster_path
-                            ? `${baseUrl}w92${film.poster_path}`
-                            : placeholderUrl;
+                    data.results.forEach(result => {
+                        const poster = result.poster_path
+                            ? `${baseUrl}w92${result.poster_path}`
+                            : result.profile_path
+                                ? `${baseUrl}w92${result.profile_path}`
+                                : placeholderUrl;
+
+                        const href = result.media_type === 'person'
+                            ? `/person-credits/${result.id}`
+                            : `/film-detail/${result.id}`;
+
+                        const year = result.year ? `<p>${result.year}</p>` : '';
 
                         const li = document.createElement('li');
                         li.className = 'search_result_item';
                         li.innerHTML = `
-                            <a href="/film-detail/${film.id}">
+                            <a href="${href}">
                                 <img class="search_result_poster" src="${poster}">
                                 <div class="search_result_info">
-                                    <p><b>${film.title}</b></p>
-                                    <p>${film.year}</p>
+                                    <p><b>${result.title}</b></p>
+                                    ${year}
                                 </div>
                             </a>
                         `;
@@ -86,10 +107,19 @@
                     });
                 });
         }, 300);
+    }
+
+    input.addEventListener('input', () => {
+        const query = input.value.trim();
+        if (query.length < 2) {
+            resultsList.innerHTML = '';
+            return;
+        }
+        runSearch(query);
     });
 
     if (input.value.trim().length >= 2) {
-    input.dispatchEvent(new Event('input'));
+        runSearch(input.value.trim());
     }
 </script>
 {% endblock %}

@@ -17,7 +17,17 @@
 		<div class="">
 			<form method="post" class="login_form">
 	    		{% csrf_token %}
-	    		{{ form.as_p }}
+	            {% for field in form %}
+	            <div class="form_field">
+	                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+	                {{ field }}
+	                {% if field.errors %}
+	                    {% for error in field.errors %}
+	                    <p class="field_error">{{ error }}</p>
+	                    {% endfor %}
+	                {% endif %}
+	            </div>
+	            {% endfor %}
 	    		<button type="submit">Login</button>
 			</form>
 		</div>
