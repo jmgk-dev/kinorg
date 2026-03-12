@@ -10,8 +10,19 @@
     margin-top: 30px;
 }
 
+.blurb_text {
+    font-size: 20px;
+    text-align: center;
+    max-width: 600px;
+}
+
+.login_button {
+    font-size: 18px;
+}
+
 .signup_button {
     background: radial-gradient(circle,rgba(63, 94, 251, 1) 0%, rgba(252, 70, 107, 1) 100%);
+    font-size: 18px;
 }
 
 .my_lists_link {
