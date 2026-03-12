@@ -139,6 +139,7 @@ def film_autocomplete(request):
 
     return JsonResponse({'results': results})
 
+
 def user_autocomplete(request):
     query = request.GET.get('q', '').strip()
     if len(query) < 2:
