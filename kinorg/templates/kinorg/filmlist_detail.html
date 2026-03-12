@@ -53,7 +53,7 @@
             <form method="POST" action="{% url 'kinorg:invite_guest' %}">
                 {% csrf_token %}
                 <input type="hidden" name="list_id" value="{{ object.id }}">
-                <div style="display: flex; gap: 10px; margin: 15px 0;">
+                <div style="display: flex; gap: 10px; margin: 15px 0; align-items: center;">
                     <input
                         type="text"
                         id="invite_username_input"
@@ -61,6 +61,11 @@
                         placeholder="Search username..."
                         autocomplete="off"
                     >
+                    <!-- Selected user chip — hidden until a user is picked -->
+                    <div id="selected_user" style="display: none; align-items: center; gap: 8px; background: rebeccapurple; border: 1px solid white; border-radius: 10px; padding: 5px 10px;">
+                        <span id="selected_user_label"></span>
+                        <span id="clear_selected" style="cursor: pointer; opacity: 0.7; font-size: 1.1rem;">&times;</span>
+                    </div>
                     <button type="submit">Invite</button>
                 </div>
                 <ul id="user_autocomplete_results" style="margin-bottom: 15px;"></ul>
@@ -93,6 +98,11 @@
 
 {% block extra_js %}
 <script>
+    // Build a set of already-invited usernames from Django context
+    const alreadyInvited = new Set([
+        {% for invite in invitations %}"{{ invite.to_user.username }}"{% if not forloop.last %},{% endif %}{% endfor %}
+    ]);
+
     const inviteModal = document.getElementById('invite_modal');
     const inviteOpenBtn = document.getElementById('invite_modal_btn');
     const inviteCloseBtn = document.getElementById('invite_modal_close');
@@ -115,10 +125,28 @@
         }
     });
 
-    // Username autocomplete
     const usernameInput = document.getElementById('invite_username_input');
     const autocompleteResults = document.getElementById('user_autocomplete_results');
+    const selectedUser = document.getElementById('selected_user');
+    const selectedUserLabel = document.getElementById('selected_user_label');
+    const clearSelected = document.getElementById('clear_selected');
     let debounceTimer;
+
+    function selectUser(username) {
+        usernameInput.value = username;
+        usernameInput.style.display = 'none';
+        autocompleteResults.innerHTML = '';
+        selectedUserLabel.textContent = username;
+        selectedUser.style.display = 'flex';
+    }
+
+    clearSelected.addEventListener('click', () => {
+        usernameInput.value = '';
+        usernameInput.style.display = '';
+        selectedUser.style.display = 'none';
+        selectedUserLabel.textContent = '';
+        usernameInput.focus();
+    });
 
     if (usernameInput) {
         usernameInput.addEventListener('input', () => {
@@ -136,13 +164,20 @@
                     .then(data => {
                         autocompleteResults.innerHTML = '';
                         data.results.forEach(user => {
+                            const isInvited = alreadyInvited.has(user.username);
                             const li = document.createElement('li');
-                            li.textContent = user.username;
-                            li.style.cssText = 'cursor: pointer; padding: 6px; border-radius: 6px; border: 1px solid white; margin-bottom: 4px;';
-                            li.addEventListener('click', () => {
-                                usernameInput.value = user.username;
-                                autocompleteResults.innerHTML = '';
-                            });
+                            li.textContent = user.username + (isInvited ? ' (already invited)' : '');
+                            li.style.cssText = `
+                                padding: 6px;
+                                border-radius: 6px;
+                                border: 1px solid white;
+                                margin-bottom: 4px;
+                                opacity: ${isInvited ? '0.4' : '1'};
+                                cursor: ${isInvited ? 'default' : 'pointer'};
+                            `;
+                            if (!isInvited) {
+                                li.addEventListener('click', () => selectUser(user.username));
+                            }
                             autocompleteResults.appendChild(li);
                         });
                     });
