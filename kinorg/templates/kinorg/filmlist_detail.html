@@ -98,7 +98,6 @@
 
 {% block extra_js %}
 <script>
-    // Build a set of already-invited usernames from Django context
     const alreadyInvited = new Set([
         {% for invite in invitations %}"{{ invite.to_user.username }}"{% if not forloop.last %},{% endif %}{% endfor %}
     ]);
@@ -112,13 +111,11 @@
             inviteModal.style.display = 'block';
         });
     }
-
     if (inviteCloseBtn) {
         inviteCloseBtn.addEventListener('click', () => {
             inviteModal.style.display = 'none';
         });
     }
-
     window.addEventListener('click', (e) => {
         if (e.target === inviteModal) {
             inviteModal.style.display = 'none';
@@ -131,8 +128,11 @@
     const selectedUserLabel = document.getElementById('selected_user_label');
     const clearSelected = document.getElementById('clear_selected');
     let debounceTimer;
+    let userSelected = false;   // ← track selection state separately
 
     function selectUser(username) {
+        clearTimeout(debounceTimer);        // ← cancel any pending fetch immediately
+        userSelected = true;
         usernameInput.value = username;
         usernameInput.style.display = 'none';
         autocompleteResults.innerHTML = '';
@@ -142,6 +142,7 @@
 
     if (clearSelected) {
         clearSelected.addEventListener('click', () => {
+            userSelected = false;
             usernameInput.value = '';
             usernameInput.style.display = '';
             selectedUser.style.display = 'none';
@@ -154,8 +155,7 @@
         usernameInput.addEventListener('input', () => {
             clearTimeout(debounceTimer);
 
-            // Don't search if a user is already selected
-            if (usernameInput.style.display === 'none') return;
+            if (userSelected) return;   // ← belt-and-braces guard
 
             const query = usernameInput.value.trim();
 
@@ -165,9 +165,11 @@
             }
 
             debounceTimer = setTimeout(() => {
+                // ← include list_id so server excludes already-invited users
                 fetch(`/user-autocomplete/?q=${encodeURIComponent(query)}&list_id={{ object.id }}`)
                     .then(res => res.json())
                     .then(data => {
+                        if (userSelected) return;   // ← discard if user was picked while fetching
                         autocompleteResults.innerHTML = '';
                         data.results.forEach(user => {
                             const isInvited = alreadyInvited.has(user.username);
