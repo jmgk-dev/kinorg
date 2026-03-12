@@ -165,7 +165,7 @@
             }
 
             debounceTimer = setTimeout(() => {
-                fetch(`/user-autocomplete/?q=${encodeURIComponent(query)}`)
+                fetch(`/user-autocomplete/?q=${encodeURIComponent(query)}&list_id={{ object.id }}`)
                     .then(res => res.json())
                     .then(data => {
                         autocompleteResults.innerHTML = '';

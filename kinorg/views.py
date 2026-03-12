@@ -117,14 +117,25 @@ def user_autocomplete(request):
     query = request.GET.get('q', '').strip()
     if len(query) < 2:
         return JsonResponse({'results': []})
-    
+
+    list_id = request.GET.get('list_id')
+
     users = get_user_model()
-    results = users.objects.filter(
+    qs = users.objects.filter(
         username__icontains=query
     ).exclude(
         id=request.user.id
-    ).values('username')[:8]
-    
+    )
+
+    # Exclude already-invited users if list_id is provided
+    if list_id:
+        already_invited_ids = Invitation.objects.filter(
+            film_list_id=list_id
+        ).values_list('to_user_id', flat=True)
+        qs = qs.exclude(id__in=already_invited_ids)
+
+    results = qs.values('username')[:8]
+
     return JsonResponse({'results': list(results)})
 
 
