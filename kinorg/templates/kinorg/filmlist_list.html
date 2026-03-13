@@ -29,7 +29,7 @@
                     <ul class="list_poster_stack">
                         {% for addition in list.addition_set.all %}
                             <li class="stack_item">
-                                <a href="{% url 'kinorg:film_detail' addition.film.id %}">
+                                <a class="poster_link" href="{% url 'kinorg:film_detail' addition.film.id %}" data-film-id="{{ addition.film.id }}" data-film-title="{{ addition.film.title }}" data-poster-path="{{ addition.film.poster_path }}" data-media-type="movie">
                                 <img class="poster" src="{{config_data.secure_base_url}}w200{{addition.film.poster_path}}">
                                 </a>
                             <li>

@@ -234,8 +234,8 @@ class MyLists(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         user = self.request.user
 
-        my_lists = FilmList.objects.filter(owner=user)
-        guest_lists = FilmList.objects.filter(guests=user)
+        my_lists = FilmList.objects.filter(owner=user).order_by('-id')
+        guest_lists = FilmList.objects.filter(guests=user).order_by('-id')
         invitations = Invitation.objects.filter(to_user=user).exclude(accepted=True)
 
         context["my_lists"] = my_lists
@@ -285,8 +285,8 @@ class FilmDetail(LoginRequiredMixin, TemplateView):
         user = self.request.user
         movie_id = self.kwargs["id"]
 
-        my_lists = FilmList.objects.filter(owner=user)
-        guest_lists = FilmList.objects.filter(guests=user)
+        my_lists = FilmList.objects.filter(owner=user).order_by('-id')
+        guest_lists = FilmList.objects.filter(guests=user).order_by('-id')
 
         film_reviews = WatchedFilm.objects.filter(film__id=movie_id).exclude(mini_review__isnull=True).exclude(mini_review__exact='')
 
@@ -634,5 +634,98 @@ def decline_invite(request):
         return redirect("kinorg:my_lists")
     
  
+def film_lists_for_film(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Not authenticated'}, status=401)
+
+    film_id = request.GET.get('film_id')
+    if not film_id:
+        return JsonResponse({'error': 'Missing film_id'}, status=400)
+
+    my_lists = FilmList.objects.filter(owner=request.user).order_by('-id')
+    guest_lists = FilmList.objects.filter(guests=request.user).order_by('-id')
+
+    def serialize(lst):
+        return {
+            'id': lst.id,
+            'title': lst.title,
+            'sqid': lst.sqid,
+            'contains_film': lst.films.filter(id=film_id).exists(),
+        }
+
+    return JsonResponse({
+        'my_lists': [serialize(lst) for lst in my_lists],
+        'guest_lists': [serialize(lst) for lst in guest_lists],
+    })
+
+
+def add_film_by_tmdb_id(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Invalid request'}, status=400)
+
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Not authenticated'}, status=401)
+
+    film_id = request.POST.get('film_id')
+    list_id = request.POST.get('list_id')
+
+    try:
+        filmlist_object = FilmList.objects.get(pk=list_id)
+        if filmlist_object.owner != request.user and request.user not in filmlist_object.guests.all():
+            return JsonResponse({'error': 'Permission denied'}, status=403)
+
+        film_data = get_tmdb_data(
+            f"https://api.themoviedb.org/3/movie/{film_id}?append_to_response=credits,keywords&language=en-US"
+        )
+
+        film_object, _ = Film.objects.update_or_create(
+            id=film_id,
+            defaults={
+                'title': film_data.get('title', ''),
+                'release_date': film_data.get('release_date') or '1900-01-01',
+                'poster_path': film_data.get('poster_path') or '',
+                'backdrop_path': film_data.get('backdrop_path') or '',
+                'overview': film_data.get('overview', ''),
+                'runtime': film_data.get('runtime'),
+                'genres': film_data.get('genres', []),
+                'cast': film_data.get('credits', {}).get('cast', []),
+                'crew': film_data.get('credits', {}).get('crew', []),
+                'keywords': film_data.get('keywords', {}).get('keywords', []),
+                'production_companies': film_data.get('production_companies', []),
+            }
+        )
+
+        Addition.objects.get_or_create(
+            film=film_object,
+            film_list=filmlist_object,
+            defaults={'added_by': request.user}
+        )
+
+        return JsonResponse({'success': True})
+
+    except FilmList.DoesNotExist:
+        return JsonResponse({'error': 'List not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+def remove_film_ajax(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Invalid request'}, status=400)
+
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Not authenticated'}, status=401)
+
+    try:
+        film_list = FilmList.objects.get(pk=request.POST.get('list_id'))
+        if film_list.owner != request.user and request.user not in film_list.guests.all():
+            return JsonResponse({'error': 'Permission denied'}, status=403)
+        film = Film.objects.get(id=request.POST.get('film_id'))
+        film_list.films.remove(film)
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
 def no_access(request):
     return render(request, "kinorg/no_access.html")

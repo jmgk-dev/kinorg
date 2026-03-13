@@ -37,10 +37,15 @@ function runSearch(query) {
 
                     const year = result.year ? `<p>${result.year}</p>` : '';
 
+                    const isFilm = result.media_type === 'movie';
+                    const posterAttr = isFilm
+                        ? `class="poster_link" data-film-id="${result.id}" data-film-title="${result.title.replace(/"/g, '&quot;')}" data-poster-path="${result.poster_path}" data-media-type="movie"`
+                        : '';
+
                     const li = document.createElement('li');
                     li.className = 'search_result_item';
                     li.innerHTML = `
-                        <a href="${href}">
+                        <a href="${href}" ${posterAttr}>
                             <img class="search_result_poster" src="${poster}">
                             <div class="search_result_info">
                                 <p><b>${result.title}</b></p>
