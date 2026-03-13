@@ -14,9 +14,7 @@ p.italic {
   gap: 20px;
   justify-content: center;
   max-width: 720px;
-  border-color: white;
-  border-style: solid;
-  border-width: 1px;
+  border: 1px solid white;
   border-radius: 10px;
   padding: 15px;
 }
@@ -24,6 +22,55 @@ p.italic {
 .similar_content, .cast_content {
     flex-direction: column;
     gap: 0px;
+}
+
+.watch_providers_content {
+    flex-direction: column;
+    gap: 14px;
+    width: 100%;
+}
+
+.providers_region {
+    opacity: 0.6;
+    font-size: 13px;
+}
+
+.providers_group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.providers_label {
+    font-size: 12px;
+    opacity: 0.6;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.providers_list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.provider_item {
+    list-style: none;
+}
+
+.provider_logo {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.2);
+    display: block;
+}
+
+.justwatch_link {
+    font-size: 13px;
+    opacity: 0.7;
+    margin-top: 4px;
 }
 
 .film_content_container {
@@ -39,9 +86,7 @@ p.italic {
 
 .detail_poster {
   height: 300px;
-  border-color: white;
-  border-style: solid;
-  border-width: 1px;
+  border: 1px solid white;
   margin-top: 0px;
   border-radius: 5px;
 }
@@ -55,7 +100,7 @@ p.italic {
   max-width: 500px;
 }
 
-#more {display: none;}
+#more { display: none; }
 
 .add_remove_buttons {
   display: flex;
@@ -63,9 +108,7 @@ p.italic {
   gap: 20px;
   align-items: flex-start;
   align-self: center;
-  border-color: white;
-  border-style: solid;
-  border-width: 1px;
+  border: 1px solid white;
   border-radius: 10px;
   width: 100%;
   max-width: 722px;
@@ -79,10 +122,9 @@ p.italic {
   align-items: center;
 }
 
-/* Toggle button - fixed size, transitions between add/remove states */
 .add_button,
 .remove_button {
-  width: 120px;               /* Fixed width so it never shifts layout */
+  width: 120px;
   text-align: center;
   border-radius: 10px;
   border: 1px solid white;
@@ -118,7 +160,6 @@ p.italic {
   filter: brightness(0.8);
 }
 
-/* Button loading state */
 .btn-loading {
     opacity: 0.6;
     cursor: not-allowed;
@@ -136,22 +177,8 @@ p.italic {
     to   { transform: rotate(360deg); }
 }
 
-/* ------------------- */
-
-.cast_list {
-    display: flex;
-    flex-direction: row;
-    gap: 20px;
-    overflow: scroll;
-}
-
-.video_list {
-    display: flex;
-    flex-direction: row;
-    gap: 20px;
-    overflow: scroll;
-}
-
+.cast_list,
+.video_list,
 .similar_list {
     display: flex;
     flex-direction: row;
@@ -173,27 +200,25 @@ p.italic {
 }
 
 .review_item {
-    border-color: white;
-    border-style: solid;
-    border-width: 1px;
+    border: 1px solid white;
     border-radius: 10px;
     padding: 10px;
 }
 
-/* REVIEW SECTION ------------------------------------- */
+/* Review section */
 
 .review_section {
     width: 100%;
     max-width: 722px;
-    border-color: white;
-    border-style: solid;
-    border-width: 1px;
+    border: 1px solid white;
     border-radius: 10px;
     padding: 15px;
 }
 
 .review_display {
-  margin-bottom: 50px;
+    display: flex;
+    flex-direction: column;
+  gap: 15px;
 }
 
 .star-rating {
@@ -219,14 +244,8 @@ p.italic {
     color: #ffc107;
 }
 
-/* Display stars */
 .review_display .star {
     font-size: 1.5rem;
-    color: #ddd;
-}
-
-.review_display .star.filled {
-    color: #ffc107;
 }
 
 .mini_review {
@@ -238,7 +257,8 @@ p.italic {
     border-radius: 4px;
 }
 
-/* Modal styles */
+/* Modal */
+
 .modal {
     display: none;
     position: fixed;
@@ -303,10 +323,6 @@ p.italic {
 
     .detail_poster {
       height: 180px;
-      border-color: white;
-      border-style: solid;
-      border-width: 1px;
-      margin-top: 0px;
     }
 
     .detail_content, .add_remove_buttons, .review_section {

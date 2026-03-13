@@ -1,99 +1,8 @@
-.ibm-plex-mono-thin {
-  font-family: "IBM Plex Mono", serif;
-  font-weight: 100;
-  font-style: normal;
-}
-
-.ibm-plex-mono-extralight {
-  font-family: "IBM Plex Mono", serif;
-  font-weight: 200;
-  font-style: normal;
-}
-
-.ibm-plex-mono-light {
-  font-family: "IBM Plex Mono", serif;
-  font-weight: 300;
-  font-style: normal;
-}
-
-.ibm-plex-mono-regular {
-  font-family: "IBM Plex Mono", serif;
-  font-weight: 400;
-  font-style: normal;
-}
-
-.ibm-plex-mono-medium {
-  font-family: "IBM Plex Mono", serif;
-  font-weight: 500;
-  font-style: normal;
-}
-
-.ibm-plex-mono-semibold {
-  font-family: "IBM Plex Mono", serif;
-  font-weight: 600;
-  font-style: normal;
-}
-
-.ibm-plex-mono-bold {
-  font-family: "IBM Plex Mono", serif;
-  font-weight: 700;
-  font-style: normal;
-}
-
-.ibm-plex-mono-thin-italic {
-  font-family: "IBM Plex Mono", serif;
-  font-weight: 100;
-  font-style: italic;
-}
-
-.ibm-plex-mono-extralight-italic {
-  font-family: "IBM Plex Mono", serif;
-  font-weight: 200;
-  font-style: italic;
-}
-
-.ibm-plex-mono-light-italic {
-  font-family: "IBM Plex Mono", serif;
-  font-weight: 300;
-  font-style: italic;
-}
-
-.ibm-plex-mono-regular-italic {
-  font-family: "IBM Plex Mono", serif;
-  font-weight: 400;
-  font-style: italic;
-}
-
-.ibm-plex-mono-medium-italic {
-  font-family: "IBM Plex Mono", serif;
-  font-weight: 500;
-  font-style: italic;
-}
-
-.ibm-plex-mono-semibold-italic {
-  font-family: "IBM Plex Mono", serif;
-  font-weight: 600;
-  font-style: italic;
-}
-
-.ibm-plex-mono-bold-italic {
-  font-family: "IBM Plex Mono", serif;
-  font-weight: 700;
-  font-style: italic;
-}
-
-.bbh-bartle-regular {
-  font-family: "BBH Bartle", sans-serif;
-  font-weight: 400;
-  font-style: normal;
-}
-
 * {
   font-family: "Roboto Mono", monospace;
   color: white;
   text-decoration: none;
 }
-
 
 body {
     background-color: black;
@@ -105,8 +14,6 @@ body {
 
 h1 {
   font-family: "BBH Bartle";
-  color: white;
-  text-decoration: none;
   font-size: 13.5vw;
   margin-bottom: 0px;
   margin-top: -2.5vw;
@@ -115,8 +22,6 @@ h1 {
 
 h2 {
   font-family: "BBH Bartle";
-  color: white;
-  text-decoration: none;
   font-size: 3vw;
   margin-bottom: 0px;
   margin-top: -0.5vw;
@@ -125,8 +30,6 @@ h2 {
 
 h3 {
   font-family: "BBH Bartle";
-  color: white;
-  text-decoration: none;
   font-size: 3rem;
   margin-bottom: 0px;
   margin-top: 10px;
@@ -135,7 +38,7 @@ h3 {
 
 h4 {
   margin: 0px;
-  margin-bottom: 5px;
+  margin-bottom: 10px;
 }
 
 ul {
@@ -147,20 +50,25 @@ ul {
 button {
   background-color: rebeccapurple;
   cursor: pointer;
-  border-radius: 5px;
-  border-color: white;
-  border-style: solid;
-  border-width: 1px;
+  border: 1px solid white;
   border-radius: 10px;
   padding: 5px;
+  transition: filter 0.2s ease, transform 0.1s ease;
+}
+
+button:hover {
+    filter: brightness(1.2);
+}
+
+button:active {
+    filter: brightness(0.8);
+    transform: scale(0.97);
 }
 
 input {
   background-color: white;
   color: black;
-  border-color: white;
-  border-style: solid;
-  border-width: 1px;
+  border: 1px solid white;
   border-radius: 10px;
   padding: 5px;
 }
@@ -187,6 +95,31 @@ header {
 p {
   margin: 5px;
   margin-left: 0px;
+}
+
+.star {
+    font-size: 1.2rem;
+    color: #555;
+}
+
+.star.filled {
+    color: #ffc107;
+}
+
+.login_button {
+    font-size: 13px;
+    padding: 4px 10px;
+    opacity: 0.75;
+}
+
+.about_header_link {
+    font-size: 14px;
+    opacity: 0.8;
+    padding: 6px 10px;
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
 .page_content {
@@ -220,20 +153,19 @@ p {
     display: flex;
     align-items: center;
     position: relative;
-    z-index: 1001;  /* Above the nav menu (z-index 1000) */
-    -webkit-tap-highlight-color: transparent;  /* Kills grey tap flash on mobile */
+    z-index: 1001;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .nav_toggle_btn svg {
     width: 36px;
     height: 36px;
-    overflow: visible;  /* Prevents bars being clipped during rotation */
-    flex-shrink: 0;     /* Prevents button shrinking/shifting */
+    overflow: visible;
+    flex-shrink: 0;
 }
 
-/* Hamburger -> X animation */
 .nav_toggle_btn svg .bar {
-    transform-origin: 12px 12px;  /* Rotate around the SVG centre point */
+    transform-origin: 12px 12px;
     transition: transform 0.3s ease, opacity 0.3s ease;
 }
 
@@ -260,9 +192,7 @@ p {
 .poster {
   width: 95px;
   height: 142.5px;
-  border-color: white;
-  border-style: solid;
-  border-width: 1px;
+  border: 1px solid white;
   border-radius: 5px;
 }
 
@@ -311,9 +241,8 @@ p {
   text-decoration: underline;
 }
 
-/* Interactive states ----------------------------------- */
-
 /* Nav menu links */
+
 #nav_menu a {
     transition: opacity 0.2s ease;
     display: inline-block;
@@ -328,7 +257,8 @@ p {
     transform: scale(0.97);
 }
 
-/* Nav menu buttons (Log Out) */
+/* Nav menu logout button */
+
 #nav_menu button[type="submit"] {
     background: none;
     border: none;
@@ -345,21 +275,8 @@ p {
     transform: scale(0.97);
 }
 
-/* General buttons */
-button {
-    transition: filter 0.2s ease, transform 0.1s ease;
-}
+/* Hamburger button - overrides general button hover */
 
-button:hover {
-    filter: brightness(1.2);
-}
-
-button:active {
-    filter: brightness(0.8);
-    transform: scale(0.97);
-}
-
-/* Hamburger button - override general button hover */
 .nav_toggle_btn:hover {
     filter: none;
     background: none;
@@ -371,9 +288,8 @@ button:active {
     transform: scale(0.95);
 }
 
-/* Interactive states END ----------------------------------- */
+/* Nav menu */
 
-/* Nav menu fade */
 #nav_menu {
     opacity: 0;
     visibility: hidden;
@@ -381,11 +297,13 @@ button:active {
     position: fixed;
     top: 0;
     right: 0;
+    width: 260px;
     height: 100vh;
     background-color: rgba(0, 0, 0, 0.95);
+    box-shadow: -4px 0 16px rgba(0,0,0,0.15);
     padding: 60px 30px 30px 30px;
+    box-sizing: border-box;
     z-index: 1000;
-    min-width: 200px;
 }
 
 #nav_menu.is-open {
@@ -393,10 +311,21 @@ button:active {
     visibility: visible;
 }
 
+#nav_menu ul {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
 #nav_backdrop {
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.25s ease, visibility 0.25s ease;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 999;
 }
 
 #nav_backdrop.is-open {
@@ -411,7 +340,6 @@ button:active {
 }
 
 @media (max-width: 600px) {
-
   h3 {
       font-size: 2rem;
       margin-top: 0px;
@@ -425,5 +353,4 @@ button:active {
       width: 28px;
       height: 28px;
   }
-
 }

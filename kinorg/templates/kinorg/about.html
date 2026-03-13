@@ -1,0 +1,53 @@
+{% extends "kinorg/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" type="text/css" href="{% static 'kinorg/css/about.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="about_container">
+
+    <h4 class="about_title">About Kinorg</h4>
+
+    <div class="about_section">
+        <p>Kinorg is a place to keep track of films you want to watch — together.</p>
+        <p>
+            If you've ever tried to organise a film night with friends, you'll know the problem:
+            everyone has films they want to see, but there's no easy way to pool them into a shared list.
+            Kinorg fills that gap.
+        </p>
+    </div>
+
+    <div class="about_section">
+        <h4>How it works</h4>
+        <ol class="about_steps">
+            <li><strong>Create a list</strong> — give it a name, it's yours.</li>
+            <li><strong>Search for films</strong> — add anything you want to watch.</li>
+            <li><strong>Invite friends</strong> — they can add and remove films too.</li>
+        </ol>
+        <p>That's it. No fuss.</p>
+    </div>
+
+    <div class="about_section">
+        <p>
+            Whether it's a group movie night, a shared bucket list, or just keeping tabs on what
+            your friends are into — Kinorg keeps it in one place.
+        </p>
+    </div>
+
+    {% if not user.is_authenticated %}
+    <div class="about_cta">
+        <a href="{% url 'user_admin:signup' %}"><button class="signup_button">Get started</button></a>
+        <a href="{% url 'user_admin:login' %}"><button class="login_button">Log In</button></a>
+    </div>
+    {% else %}
+    <div class="about_cta">
+        <a href="{% url 'kinorg:create_list' %}"><button>Create a list</button></a>
+    </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}

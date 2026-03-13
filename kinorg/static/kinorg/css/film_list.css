@@ -17,8 +17,96 @@
     margin-top: 5px;
 }
 
-.footer_links {
+.invite_form_row {
     display: flex;
-    justify-content: center;
-    gap: 50px;
+    gap: 10px;
+    margin: 15px 0;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+#selected_user {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    background: rebeccapurple;
+    border: 1px solid white;
+    border-radius: 10px;
+    padding: 5px 10px;
+}
+
+#clear_selected {
+    cursor: pointer;
+    opacity: 0.7;
+    font-size: 1.1rem;
+}
+
+#user_autocomplete_results {
+    margin-bottom: 15px;
+}
+
+.invited_users_section {
+    margin-top: 20px;
+}
+
+.invited_users_list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.invited_user_item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid white;
+    border-radius: 8px;
+    padding: 8px;
+}
+
+.autocomplete-item {
+    padding: 6px;
+    border-radius: 6px;
+    border: 1px solid white;
+    margin-bottom: 4px;
+    cursor: pointer;
+}
+
+.autocomplete-item.is-invited {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.invited_user_status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.cancel_invite_btn,
+.remove_guest_btn {
+    background: none;
+    border: 1px solid red;
+    color: red;
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: 6px;
+}
+
+.invite_message {
+    margin-bottom: 10px;
+    padding: 8px;
+    border-radius: 6px;
+    display: none;
+}
+
+.invite_message.invite_success {
+    display: block;
+    border: 1px solid green;
+}
+
+.invite_message.invite_error {
+    display: block;
+    border: 1px solid red;
 }

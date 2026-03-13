@@ -1,0 +1,26 @@
+.about_container {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+.about_title {
+    margin-bottom: 30px;
+}
+
+.about_section {
+    margin-bottom: 30px;
+    line-height: 1.7;
+}
+
+.about_steps {
+    margin: 16px 0 16px 20px;
+    line-height: 2;
+}
+
+.about_cta {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 40px;
+}

@@ -49,18 +49,77 @@
 </div>
 
 
+{% if watch_providers %}
+<div class="detail_container">
+    <div class="detail_content watch_providers_content">
+        <p><b>Where to Watch</b> <span class="providers_region">(UK)</span></p>
+
+        {% if watch_providers.flatrate %}
+        <div class="providers_group">
+            <p class="providers_label">Stream</p>
+            <ul class="providers_list">
+                {% for provider in watch_providers.flatrate %}
+                <li class="provider_item" title="{{ provider.provider_name }}">
+                    <img class="provider_logo" src="{{ config_data.secure_base_url }}w92{{ provider.logo_path }}" alt="{{ provider.provider_name }}">
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        {% if watch_providers.rent %}
+        <div class="providers_group">
+            <p class="providers_label">Rent</p>
+            <ul class="providers_list">
+                {% for provider in watch_providers.rent %}
+                <li class="provider_item" title="{{ provider.provider_name }}">
+                    <img class="provider_logo" src="{{ config_data.secure_base_url }}w92{{ provider.logo_path }}" alt="{{ provider.provider_name }}">
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        {% if watch_providers.buy %}
+        <div class="providers_group">
+            <p class="providers_label">Buy</p>
+            <ul class="providers_list">
+                {% for provider in watch_providers.buy %}
+                <li class="provider_item" title="{{ provider.provider_name }}">
+                    <img class="provider_logo" src="{{ config_data.secure_base_url }}w92{{ provider.logo_path }}" alt="{{ provider.provider_name }}">
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <a href="{{ justwatch_url }}" target="_blank" class="link justwatch_link">Find on JustWatch →</a>
+    </div>
+</div>
+{% endif %}
+
+
 {% if film_reviews %}
 
 <div class="detail_container">
 
     <div class="detail_content reviews_content">
 
+        <h4><b>Reviews</b></h4>
+
         <ul class="reviews_list">
 
             {% for review in film_reviews %}
                 <li class="review_item">
-                    <p><b>{{ review.user }}</b> says:</p>
-                    <p>{{ review.mini_review }}</p>
+                    <p><b>{{ review.user }}</b></p>
+                    {% if review.stars %}
+                    <div class="rating review_stars">
+                        {% for i in "12345" %}
+                            <span class="star {% if i|add:0 <= review.stars %}filled{% endif %}">★</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    <p>"{{ review.mini_review }}"</p>
                 </li>
             {% endfor %}
 
@@ -208,105 +267,6 @@
 </div>
 
 
-<script>
+<script src="{% static 'kinorg/js/film_detail.js' %}"></script>
 
-function toggleFilm(button) {
-    // 1. Get the form that contains this button
-    const form = button.closest('form');
-    
-    // 2. Get the URL from the button's data-url attribute
-    const url = button.getAttribute('data-url');
-    
-    // 3. Get the target div ID
-    const targetId = button.getAttribute('data-target');
-    
-    // 4. Collect all the form data
-    const formData = new FormData(form);
-    
-    // 5. Send the data to the server
-    fetch(url, {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'  // Optional: helps Django detect AJAX requests
-        }
-    })
-    .then(response => response.text())  // Get the HTML response as text
-    .then(html => {
-        // 6. Replace the entire toggle div with the new HTML
-        const targetDiv = document.getElementById(targetId);
-        targetDiv.outerHTML = html;
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Something went wrong. Please try again.');
-    });
-}
-
-function ReadMore() {
-  var dots = document.getElementById("dots");
-  var moreText = document.getElementById("more");
-  var btnText = document.getElementById("myBtn");
-
-  if (dots.style.display === "none") {
-    dots.style.display = "inline";
-    btnText.innerHTML = "Read more";
-    moreText.style.display = "none";
-  } else {
-    dots.style.display = "none";
-    btnText.innerHTML = "Read less";
-    moreText.style.display = "inline";
-  }
-}
-
-function openReviewModal() {
-    document.getElementById('review-modal').style.display = 'block';
-}
-
-function closeReviewModal() {
-    document.getElementById('review-modal').style.display = 'none';
-}
-
-// Close modal if user clicks outside of it
-window.onclick = function(event) {
-    const modal = document.getElementById('review-modal');
-    if (event.target == modal) {
-        closeReviewModal();
-    }
-}
-
-function toggleFilm(button) {
-    const form = button.closest('form');
-    const url = button.getAttribute('data-url');
-    const targetId = button.getAttribute('data-target');
-    const formData = new FormData(form);
-
-    // Show loading state
-    const originalText = button.innerText;
-    button.innerText = '';
-    button.classList.add('btn-loading');
-
-    fetch(url, {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'
-        }
-    })
-    .then(response => response.text())
-    .then(html => {
-        const targetDiv = document.getElementById(targetId);
-        targetDiv.outerHTML = html;
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        // Restore button if something went wrong
-        button.innerText = originalText;
-        button.classList.remove('btn-loading');
-        alert('Something went wrong. Please try again.');
-    });
-}
-
-</script>
-	
 {% endblock %}

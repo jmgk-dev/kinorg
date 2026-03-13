@@ -35,14 +35,6 @@
         </ul>
     </div>
 
-    {% if messages %}
-    <div class="messages_container">
-        {% for message in messages %}
-        <p>{{ message }}</p>
-        {% endfor %}
-    </div>
-    {% endif %}
-
     {% if object.owner == request.user %}
     <div id="invite_modal" class="modal">
         <div class="modal-content">
@@ -50,10 +42,12 @@
 
             <h4>Invite a user</h4>
 
+            <div id="invite_message"></div>
+
             <form method="POST" action="{% url 'kinorg:invite_guest' %}">
                 {% csrf_token %}
                 <input type="hidden" name="list_id" value="{{ object.id }}">
-                <div style="display: flex; gap: 10px; margin: 15px 0; align-items: center; flex-wrap: wrap;">
+                <div class="invite_form_row">
                     <input
                         type="text"
                         id="invite_username_input"
@@ -62,26 +56,31 @@
                         autocomplete="off"
                     >
                     <!-- Selected user chip — hidden until a user is picked -->
-                    <div id="selected_user" style="display: none; align-items: center; gap: 8px; background: rebeccapurple; border: 1px solid white; border-radius: 10px; padding: 5px 10px;">
+                    <div id="selected_user">
                         <span id="selected_user_label"></span>
-                        <span id="clear_selected" style="cursor: pointer; opacity: 0.7; font-size: 1.1rem;">&times;</span>
+                        <span id="clear_selected">&times;</span>
                     </div>
                     <button type="submit">Invite</button>
                 </div>
-                <ul id="user_autocomplete_results" style="margin-bottom: 15px;"></ul>
+                <ul id="user_autocomplete_results" data-invited='[{% for invite in invitations %}"{{ invite.to_user.username }}"{% if not forloop.last %},{% endif %}{% endfor %}]'></ul>
             </form>
 
             {% if invitations %}
-            <div style="margin-top: 20px;">
+            <div class="invited_users_section">
                 <p><b>Invited users</b></p>
-                <ul style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">
+                <ul class="invited_users_list">
                     {% for invite in invitations %}
-                    <li style="display: flex; justify-content: space-between; align-items: center; border: 1px solid white; border-radius: 8px; padding: 8px;">
+                    <li class="invited_user_item" data-invitation-id="{{ invite.id }}">
                         <span>{{ invite.to_user.username }}</span>
-                        <span>
-                            {% if invite.accepted %}✓ Accepted
-                            {% elif invite.declined %}✗ Declined
-                            {% else %}Pending
+                        <span class="invited_user_status">
+                            {% if invite.accepted %}
+                                ✓ Accepted
+                                <button class="remove_guest_btn" data-user-id="{{ invite.to_user.id }}">Remove</button>
+                            {% elif invite.declined %}
+                                ✗ Declined
+                            {% else %}
+                                Pending
+                                <button class="cancel_invite_btn" data-invitation-id="{{ invite.id }}" data-username="{{ invite.to_user.username }}">Cancel</button>
                             {% endif %}
                         </span>
                     </li>
@@ -97,100 +96,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
-    const alreadyInvited = new Set([
-        {% for invite in invitations %}"{{ invite.to_user.username }}"{% if not forloop.last %},{% endif %}{% endfor %}
-    ]);
-
-    const inviteModal = document.getElementById('invite_modal');
-    const inviteOpenBtn = document.getElementById('invite_modal_btn');
-    const inviteCloseBtn = document.getElementById('invite_modal_close');
-
-    if (inviteOpenBtn) {
-        inviteOpenBtn.addEventListener('click', () => {
-            inviteModal.style.display = 'block';
-        });
-    }
-    if (inviteCloseBtn) {
-        inviteCloseBtn.addEventListener('click', () => {
-            inviteModal.style.display = 'none';
-        });
-    }
-    window.addEventListener('click', (e) => {
-        if (e.target === inviteModal) {
-            inviteModal.style.display = 'none';
-        }
-    });
-
-    const usernameInput = document.getElementById('invite_username_input');
-    const autocompleteResults = document.getElementById('user_autocomplete_results');
-    const selectedUser = document.getElementById('selected_user');
-    const selectedUserLabel = document.getElementById('selected_user_label');
-    const clearSelected = document.getElementById('clear_selected');
-    let debounceTimer;
-    let userSelected = false;   // ← track selection state separately
-
-    function selectUser(username) {
-        clearTimeout(debounceTimer);        // ← cancel any pending fetch immediately
-        userSelected = true;
-        usernameInput.value = username;
-        usernameInput.style.display = 'none';
-        autocompleteResults.innerHTML = '';
-        selectedUserLabel.textContent = username;
-        selectedUser.style.display = 'flex';
-    }
-
-    if (clearSelected) {
-        clearSelected.addEventListener('click', () => {
-            userSelected = false;
-            usernameInput.value = '';
-            usernameInput.style.display = '';
-            selectedUser.style.display = 'none';
-            selectedUserLabel.textContent = '';
-            usernameInput.focus();
-        });
-    }
-
-    if (usernameInput) {
-        usernameInput.addEventListener('input', () => {
-            clearTimeout(debounceTimer);
-
-            if (userSelected) return;   // ← belt-and-braces guard
-
-            const query = usernameInput.value.trim();
-
-            if (query.length < 2) {
-                autocompleteResults.innerHTML = '';
-                return;
-            }
-
-            debounceTimer = setTimeout(() => {
-                // ← include list_id so server excludes already-invited users
-                fetch(`/user-autocomplete/?q=${encodeURIComponent(query)}&list_id={{ object.id }}`)
-                    .then(res => res.json())
-                    .then(data => {
-                        if (userSelected) return;   // ← discard if user was picked while fetching
-                        autocompleteResults.innerHTML = '';
-                        data.results.forEach(user => {
-                            const isInvited = alreadyInvited.has(user.username);
-                            const li = document.createElement('li');
-                            li.textContent = user.username + (isInvited ? ' (already invited)' : '');
-                            li.style.cssText = `
-                                padding: 6px;
-                                border-radius: 6px;
-                                border: 1px solid white;
-                                margin-bottom: 4px;
-                                opacity: ${isInvited ? '0.4' : '1'};
-                                cursor: ${isInvited ? 'default' : 'pointer'};
-                            `;
-                            if (!isInvited) {
-                                li.addEventListener('click', () => selectUser(user.username));
-                            }
-                            autocompleteResults.appendChild(li);
-                        });
-                    });
-            }, 300);
-        });
-    }
-</script>
+<script src="{% static 'kinorg/js/filmlist_detail.js' %}"></script>
 {% endblock %}

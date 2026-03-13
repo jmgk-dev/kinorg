@@ -1,12 +1,11 @@
 import os
-
 import re
 import requests
 import json
+from urllib.parse import quote
 
 from django.shortcuts import render, redirect
 from django.conf import settings
-from django.contrib import messages
 from django.http import HttpResponse, JsonResponse
 
 from django.contrib.auth import get_user_model
@@ -174,6 +173,24 @@ class Home(ListView):
     model = Film
     template_name = "kinorg/home.html"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.user.is_authenticated:
+            context['has_lists'] = FilmList.objects.filter(owner=self.request.user).exists()
+            context['recent_reviews'] = (
+                WatchedFilm.objects
+                .exclude(mini_review__isnull=True)
+                .exclude(mini_review__exact='')
+                .select_related('user', 'film')
+                [:10]
+            )
+        return context
+
+
+class About(TemplateView):
+
+    template_name = "kinorg/about.html"
+
 
 class Search(LoginRequiredMixin, TemplateView):
 
@@ -190,28 +207,6 @@ class Search(LoginRequiredMixin, TemplateView):
         query = self.request.GET.get('query', '').strip()
         context["query"] = query
         context["results_list"] = []
-        return context
-
-
-class SearchUser(LoginRequiredMixin, TemplateView):
-
-    login_url = "user_admin:login"
-
-    template_name = "kinorg/user_search.html"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        users = get_user_model()
-
-        query = self.request.GET.get('query')
-
-        if query:
-            user_results = users.objects.filter(username__icontains=username_query)
-        user_results = users.objects.all()
-
-        context["user_results"] = user_results
-
         return context
 
 
@@ -269,14 +264,6 @@ class ListDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        if 'invitation_sent' in self.request.session:
-            messages.success(self.request, "Invitation sent successfully!")
-            self.request.session.pop('invitation_sent')
-
-        if 'invitation_error' in self.request.session:
-            messages.error(self.request, self.request.session['invitation_error'])
-            self.request.session.pop('invitation_error')
-
         invitations = Invitation.objects.filter(
             film_list=self.get_object()
         ).select_related('to_user')
@@ -304,6 +291,11 @@ class FilmDetail(LoginRequiredMixin, TemplateView):
         film_reviews = WatchedFilm.objects.filter(film__id=movie_id).exclude(mini_review__isnull=True).exclude(mini_review__exact='')
 
         film_data = get_tmdb_data(f"https://api.themoviedb.org/3/movie/{movie_id}?append_to_response=credits,keywords,similar,videos&language=en-US")
+
+        providers_data = get_tmdb_data(f"https://api.themoviedb.org/3/movie/{movie_id}/watch/providers")
+        gb_providers = providers_data.get('results', {}).get('GB', {})
+        context['watch_providers'] = gb_providers
+        context['justwatch_url'] = f"https://www.justwatch.com/uk/search?q={quote(film_data.get('title', ''))}"
 
         directors = [c for c in film_data.get('credits', {}).get('crew', []) if c['job'] == 'Director']
         context["directors"] = directors
@@ -542,23 +534,51 @@ def invite_guest(request):
         try:
             to_user = users.objects.get(username=to_username)
         except users.DoesNotExist:
-            request.session['invitation_error'] = "The user '{}' does not exist.".format(to_username)
-            return redirect('kinorg:list', list_object.sqid)
+            return JsonResponse({'success': False, 'message': f"The user '{to_username}' does not exist."})
 
         try:
             send_invitation(list_object, to_user, from_user)
-            request.session['invitation_sent'] = True
-            return redirect('kinorg:list', list_object.sqid)
+            invitation = Invitation.objects.get(film_list=list_object, to_user=to_user)
+            return JsonResponse({'success': True, 'message': 'Invitation sent!', 'username': to_username, 'invitation_id': invitation.id})
         except PermissionError as error:
-            request.session['invitation_error'] = str(error)
-            return redirect('kinorg:list', list_object.sqid)
+            return JsonResponse({'success': False, 'message': str(error)})
         except Exception as e:
-            request.session['invitation_error'] = f"An unexpected error occurred: {str(e)}"
-            return redirect('kinorg:list', list_object.sqid) 
+            return JsonResponse({'success': False, 'message': f"An unexpected error occurred: {str(e)}"})
 
     else:
 
         return redirect("kinorg:my_lists")
+
+
+def cancel_invite(request):
+
+    if request.method == "POST":
+        try:
+            invitation = Invitation.objects.get(
+                pk=request.POST.get("invitation_id"),
+                film_list__owner=request.user,
+            )
+            invitation.delete()
+            return JsonResponse({'success': True})
+        except Invitation.DoesNotExist:
+            return JsonResponse({'success': False, 'message': 'Invitation not found.'})
+
+    return JsonResponse({'success': False, 'message': 'Invalid request.'})
+
+
+def remove_guest(request):
+
+    if request.method == "POST":
+        try:
+            film_list = FilmList.objects.get(pk=request.POST.get("list_id"), owner=request.user)
+            user = get_user_model().objects.get(pk=request.POST.get("user_id"))
+            film_list.guests.remove(user)
+            Invitation.objects.filter(film_list=film_list, to_user=user).delete()
+            return JsonResponse({'success': True})
+        except (FilmList.DoesNotExist, get_user_model().DoesNotExist):
+            return JsonResponse({'success': False, 'message': 'Not found.'})
+
+    return JsonResponse({'success': False, 'message': 'Invalid request.'})
 
 
 def invite_result(request):
