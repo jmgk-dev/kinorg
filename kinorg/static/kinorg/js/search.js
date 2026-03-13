@@ -62,6 +62,7 @@ function runSearch(query) {
 input.addEventListener('input', () => {
     const query = input.value.trim();
     if (query.length < 2) {
+        clearTimeout(debounceTimer);
         resultsList.innerHTML = '';
         return;
     }
