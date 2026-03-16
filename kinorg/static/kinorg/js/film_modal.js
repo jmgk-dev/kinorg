@@ -55,7 +55,8 @@ if (modal) {
         const inList = btn.dataset.inList === 'true';
 
         btn.disabled = true;
-        btn.textContent = '...';
+        btn.textContent = '';
+        btn.classList.add('btn-loading');
 
         const url = inList ? '/remove-film-ajax/' : '/add-film-by-id/';
         const body = new URLSearchParams({ list_id: listId, film_id: filmId });
@@ -72,11 +73,15 @@ if (modal) {
                 btn.dataset.inList = nowInList;
                 btn.className = `film_modal_toggle_btn ${nowInList ? 'remove_button' : 'add_button'}`;
                 btn.textContent = nowInList ? 'Remove' : 'Add';
+            } else {
+                btn.classList.remove('btn-loading');
+                btn.textContent = inList ? 'Remove' : 'Add';
             }
             btn.disabled = false;
         })
         .catch(() => {
             btn.disabled = false;
+            btn.classList.remove('btn-loading');
             btn.textContent = inList ? 'Remove' : 'Add';
         });
     });
