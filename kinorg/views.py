@@ -97,14 +97,23 @@ def film_autocomplete(request):
 
     filter_type = request.GET.get('filter', 'all')  # 'all', 'films', 'people'
 
-    data = get_tmdb_data(
-        f"https://api.themoviedb.org/3/search/multi?query={query}&include_adult=false&language=en-US&page=1"
-    )
+    # Parse year from query e.g. "stalker 1979"
+    year_match = re.search(r'\b(19\d{2}|20[0-2]\d)\b', query)
+    year = year_match.group(1) if year_match else None
+    clean_query = re.sub(r'\b(19\d{2}|20[0-2]\d)\b', '', query).strip() if year else query
 
-    raw = data.get('results', [])
-
-    # Keep only movies and people
-    raw = [r for r in raw if r.get('media_type') in ('movie', 'person')]
+    if year and filter_type != 'people':
+        # Use search/movie with year for much better targeted results
+        data = get_tmdb_data(
+            f"https://api.themoviedb.org/3/search/movie?query={clean_query}&year={year}&include_adult=false&language=en-US&page=1"
+        )
+        raw = [dict(r, media_type='movie') for r in data.get('results', [])]
+    else:
+        data = get_tmdb_data(
+            f"https://api.themoviedb.org/3/search/multi?query={query}&include_adult=false&language=en-US&page=1"
+        )
+        raw = data.get('results', [])
+        raw = [r for r in raw if r.get('media_type') in ('movie', 'person')]
 
     # Apply filter
     if filter_type == 'films':
@@ -112,8 +121,12 @@ def film_autocomplete(request):
     elif filter_type == 'people':
         raw = [r for r in raw if r.get('media_type') == 'person']
 
-    # Sort by popularity descending so Lynch/Cameron surface first
-    raw = sorted(raw, key=lambda r: r.get('popularity', 0), reverse=True)
+    # Exact title matches first, then by popularity (avoids burying older/less popular films)
+    query_lower = clean_query.lower()
+    def sort_key(r):
+        title = (r.get('title') or r.get('name') or '').lower()
+        return (title != query_lower, -r.get('popularity', 0))
+    raw = sorted(raw, key=sort_key)
 
     results = []
     for r in raw[:10]:

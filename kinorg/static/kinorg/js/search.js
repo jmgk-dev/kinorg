@@ -5,6 +5,7 @@ const placeholderUrl = resultsList.dataset.placeholderUrl;
 
 let debounceTimer;
 let activeFilter = 'all';
+let currentController = null;
 
 document.querySelectorAll('.filter_btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -20,7 +21,9 @@ document.querySelectorAll('.filter_btn').forEach(btn => {
 function runSearch(query) {
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(() => {
-        fetch(`/film-autocomplete/?q=${encodeURIComponent(query)}&filter=${activeFilter}`)
+        if (currentController) currentController.abort();
+        currentController = new AbortController();
+        fetch(`/film-autocomplete/?q=${encodeURIComponent(query)}&filter=${activeFilter}`, { signal: currentController.signal })
             .then(res => res.json())
             .then(data => {
                 resultsList.innerHTML = '';
@@ -55,7 +58,8 @@ function runSearch(query) {
                     `;
                     resultsList.appendChild(li);
                 });
-            });
+            })
+            .catch(err => { if (err.name !== 'AbortError') console.error(err); });
     }, 300);
 }
 
@@ -63,6 +67,7 @@ input.addEventListener('input', () => {
     const query = input.value.trim();
     if (query.length < 2) {
         clearTimeout(debounceTimer);
+        if (currentController) { currentController.abort(); currentController = null; }
         resultsList.innerHTML = '';
         return;
     }
