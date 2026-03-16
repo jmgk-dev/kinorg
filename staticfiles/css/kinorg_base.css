@@ -418,10 +418,20 @@ p {
 }
 
 .film_modal_list_name {
-    flex: 1;
+    background-color: rebeccapurple;
+    border: 1px solid white;
+    border-radius: 10px;
+    padding: 5px 10px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    flex: 1;
+    text-align: center;
+    transition: filter 0.2s ease;
+}
+
+.film_modal_list_name:hover {
+    filter: brightness(1.2);
 }
 
 .film_modal_no_lists {
@@ -430,8 +440,18 @@ p {
 }
 
 .film_modal_new_list {
-    font-size: 0.85rem;
-    opacity: 0.7;
+    display: block;
+    text-align: center;
+    background-color: #11998e;
+    border: 1px solid white;
+    border-radius: 10px;
+    padding: 6px 12px;
+    font-size: 0.9rem;
+    transition: filter 0.2s ease;
+}
+
+.film_modal_new_list:hover {
+    filter: brightness(1.2);
 }
 
 .btn-loading {

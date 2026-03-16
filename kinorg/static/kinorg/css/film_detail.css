@@ -106,7 +106,7 @@ p.italic {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  align-items: flex-start;
+  align-items: stretch;
   align-self: center;
   border: 1px solid white;
   border-radius: 10px;
@@ -120,6 +120,7 @@ p.italic {
   flex-direction: row;
   gap: 20px;
   align-items: center;
+  justify-content: space-between;
 }
 
 .add_button,

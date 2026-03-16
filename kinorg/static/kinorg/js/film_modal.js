@@ -35,7 +35,7 @@ if (modal) {
 
         modalLists.innerHTML = all.map(lst => `
             <div class="film_modal_list_item">
-                <a href="/lists/${lst.sqid}/" class="link film_modal_list_name">${lst.title}</a>
+                <a href="/lists/${lst.sqid}/" class="film_modal_list_name">${lst.title}</a>
                 <button class="film_modal_toggle_btn ${lst.contains_film ? 'remove_button' : 'add_button'}"
                         data-list-id="${lst.id}"
                         data-film-id="${filmId}"
