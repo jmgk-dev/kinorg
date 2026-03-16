@@ -1,4 +1,4 @@
-const SPEED = 30; // pixels per second
+const SPEED = 60; // pixels per second
 
 document.querySelectorAll('.carousel_container').forEach(container => {
     const inner = container.querySelector('.carousel_inner');

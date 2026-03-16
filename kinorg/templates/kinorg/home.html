@@ -32,37 +32,6 @@
 		{% endif %}
 
 
-		{% if user.is_authenticated and recent_reviews %}
-		<div class="home_reviews_section">
-			<div class="list_header"><span>Recent Reviews</span></div>
-			<ul class="home_reviews_list">
-				{% for review in recent_reviews %}
-				<li class="home_review_item">
-					<a class="poster_link" href="{% url 'kinorg:film_detail' review.film.id %}" data-film-id="{{ review.film.id }}" data-film-title="{{ review.film.title }}" data-poster-path="{{ review.film.poster_path }}" data-media-type="movie">
-						{% if review.film.poster_path and review.film.poster_path != 'None' %}
-						<img class="poster home_review_poster" src="{{ config_data.secure_base_url }}w200{{ review.film.poster_path }}">
-						{% else %}
-						<img class="poster home_review_poster" src="{% static 'images/placeholder.jpg' %}">
-						{% endif %}
-					</a>
-					<div class="home_review_text">
-						<p><a href="{% url 'kinorg:film_detail' review.film.id %}" class="link"><b>{{ review.film.title }}</b></a></p>
-						{% if review.stars %}
-						<div class="rating">
-							{% for i in "12345" %}
-								<span class="star {% if i|add:0 <= review.stars %}filled{% endif %}">★</span>
-							{% endfor %}
-						</div>
-						{% endif %}
-						<p class="home_review_quote">"{{ review.mini_review }}"</p>
-						<p class="home_review_user">— {{ review.user }}</p>
-					</div>
-				</li>
-				{% endfor %}
-			</ul>
-		</div>
-		{% endif %}
-
 		<div class="list_header">
 			<span>Recently Added to Lists</span>
 		</div>
@@ -70,7 +39,7 @@
 
 		<div class="carousel_container">
 			<div class="carousel_inner">
-    			{% for film in object_list|slice:":16" %}
+    			{% for film in object_list|slice:":20" %}
     				<a class="poster_link" href="{% url 'kinorg:film_detail' film.id %}" data-film-id="{{ film.id }}" data-film-title="{{ film.title }}" data-poster-path="{{ film.poster_path }}" data-media-type="movie">
     					{% if film.poster_path != 'None' %}
     					<img class="poster" src="{{config_data.secure_base_url}}w200{{film.poster_path}}">
@@ -79,7 +48,7 @@
     					{% endif %}
     				</a>
     			{% endfor %}
-    			{% for film in object_list|slice:":16" %}
+    			{% for film in object_list|slice:":20" %}
     				<a class="poster_link" href="{% url 'kinorg:film_detail' film.id %}" data-film-id="{{ film.id }}" data-film-title="{{ film.title }}" data-poster-path="{{ film.poster_path }}" data-media-type="movie">
     					{% if film.poster_path != 'None' %}
     					<img class="poster" src="{{config_data.secure_base_url}}w200{{film.poster_path}}">
@@ -93,7 +62,7 @@
 
 		<div class="carousel_container">
 			<div class="carousel_inner carousel_reverse">
-    			{% for film in object_list|slice:"17:35" %}
+    			{% for film in object_list|slice:"20:40" %}
     				<a class="poster_link" href="{% url 'kinorg:film_detail' film.id %}" data-film-id="{{ film.id }}" data-film-title="{{ film.title }}" data-poster-path="{{ film.poster_path }}" data-media-type="movie">
     					{% if film.poster_path != 'None' %}
     					<img class="poster" src="{{config_data.secure_base_url}}w200{{film.poster_path}}">
@@ -102,7 +71,7 @@
     					{% endif %}
     				</a>
     			{% endfor %}
-    			{% for film in object_list|slice:"17:35" %}
+    			{% for film in object_list|slice:"20:40" %}
     				<a class="poster_link" href="{% url 'kinorg:film_detail' film.id %}" data-film-id="{{ film.id }}" data-film-title="{{ film.title }}" data-poster-path="{{ film.poster_path }}" data-media-type="movie">
     					{% if film.poster_path != 'None' %}
     					<img class="poster" src="{{config_data.secure_base_url}}w200{{film.poster_path}}">
@@ -116,7 +85,7 @@
 
 		<div class="carousel_container">
 			<div class="carousel_inner">
-    			{% for film in object_list|slice:"36:54" %}
+    			{% for film in object_list|slice:"40:60" %}
     				<a class="poster_link" href="{% url 'kinorg:film_detail' film.id %}" data-film-id="{{ film.id }}" data-film-title="{{ film.title }}" data-poster-path="{{ film.poster_path }}" data-media-type="movie">
     					{% if film.poster_path != 'None' %}
     					<img class="poster" src="{{config_data.secure_base_url}}w200{{film.poster_path}}">
@@ -125,7 +94,7 @@
     					{% endif %}
     				</a>
     			{% endfor %}
-    			{% for film in object_list|slice:"36:54" %}
+    			{% for film in object_list|slice:"40:60" %}
     				<a class="poster_link" href="{% url 'kinorg:film_detail' film.id %}" data-film-id="{{ film.id }}" data-film-title="{{ film.title }}" data-poster-path="{{ film.poster_path }}" data-media-type="movie">
     					{% if film.poster_path != 'None' %}
     					<img class="poster" src="{{config_data.secure_base_url}}w200{{film.poster_path}}">

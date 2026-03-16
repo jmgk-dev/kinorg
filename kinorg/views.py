@@ -190,13 +190,6 @@ class Home(ListView):
         context = super().get_context_data(**kwargs)
         if self.request.user.is_authenticated:
             context['has_lists'] = FilmList.objects.filter(owner=self.request.user).exists()
-            context['recent_reviews'] = (
-                WatchedFilm.objects
-                .exclude(mini_review__isnull=True)
-                .exclude(mini_review__exact='')
-                .select_related('user', 'film')
-                [:10]
-            )
         return context
 
 
