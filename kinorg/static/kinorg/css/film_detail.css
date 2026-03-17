@@ -123,6 +123,10 @@ p.italic {
   justify-content: space-between;
 }
 
+.add_remove_button > .btn {
+  flex: 1;
+}
+
 .add_button,
 .remove_button {
   width: 120px;

@@ -186,7 +186,7 @@
                           <img src="https://img.youtube.com/vi/{{ video.key }}/maxresdefault.jpg" 
                                alt="Video Thumbnail" 
                                style="width: 100%; min-width: 270px; max-width: 720px; border-radius: 10px; border-color: white; border-style: solid;border-width: 1px;"></a>
-                        <a href="https://www.youtube.com/watch?v={{ video.key }}" target="_blank" class="btn">{{ video.name }}</a>
+                        <a href="https://www.youtube.com/watch?v={{ video.key }}" target="_blank">{{ video.name }}</a>
                     </li>
                 {% empty %}
             <p>No videos available for this film.</p>
@@ -221,7 +221,7 @@
                         {% endif %}
                         </a>
 
-                        <p><a href="{% url 'kinorg:person_credits' member.id %}" class="btn">{{ member.name }}</a> as {{ member.character }}</p>
+                        <p><a href="{% url 'kinorg:person_credits' member.id %}">{{ member.name }}</a> as {{ member.character }}</p>
                     </li>
                 {% endfor %}
             </ul>
@@ -254,7 +254,7 @@
                         <img class="detail_poster" src="{% static 'images/placeholder.jpg' %}">
                     {% endif %}
                     </a>
-                    <p><a href="{% url 'kinorg:film_detail' similar_film.id %}" class="btn">{{ similar_film.title }}</a></p>
+                    <p><a href="{% url 'kinorg:film_detail' similar_film.id %}">{{ similar_film.title }}</a></p>
                 </li>
             {% empty %}
             <li>No similar films found.</li>
