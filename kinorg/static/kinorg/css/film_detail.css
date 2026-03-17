@@ -67,6 +67,22 @@ p.italic {
     display: block;
 }
 
+.provider_link {
+    display: block;
+    border-radius: 10px;
+    border: 2px solid rgba(255,255,255,0.7);
+    transition: border-color 0.2s, filter 0.2s;
+}
+
+.provider_link:hover {
+    border-color: white;
+    filter: brightness(1.15);
+}
+
+.provider_link .provider_logo {
+    border: none;
+}
+
 .justwatch_link {
     font-size: 13px;
     opacity: 0.7;

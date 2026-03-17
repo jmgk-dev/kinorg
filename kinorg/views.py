@@ -303,6 +303,30 @@ class FilmDetail(LoginRequiredMixin, TemplateView):
         context['watch_providers'] = gb_providers
         context['justwatch_url'] = f"https://www.justwatch.com/uk/search?q={quote(film_data.get('title', ''))}"
 
+        # Amazon affiliate link — shown when any Amazon provider is available
+        amazon_tag = os.environ.get('AMAZON_ASSOCIATE_TAG', '')
+        all_providers = (
+            gb_providers.get('flatrate', []) +
+            gb_providers.get('rent', []) +
+            gb_providers.get('buy', [])
+        )
+        amazon_provider_ids = {
+            p['provider_id'] for p in all_providers
+            if 'amazon' in p.get('provider_name', '').lower()
+        }
+        if amazon_tag and amazon_provider_ids:
+            encoded_title = quote(film_data.get('title', ''))
+            context['amazon_url'] = f"https://www.amazon.co.uk/s?k={encoded_title}&i=instant-video&tag={amazon_tag}"
+        else:
+            context['amazon_url'] = None
+        context['amazon_provider_ids'] = amazon_provider_ids
+
+        # Sort videos: trailers first, then everything else
+        videos = film_data.get('videos', {}).get('results', [])
+        videos.sort(key=lambda v: 'trailer' not in v.get('name', '').lower())
+        if film_data.get('videos'):
+            film_data['videos']['results'] = videos
+
         directors = [c for c in film_data.get('credits', {}).get('crew', []) if c['job'] == 'Director']
         context["directors"] = directors
 

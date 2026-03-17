@@ -95,6 +95,9 @@ if (modal) {
     modal.addEventListener('click', (e) => {
         if (e.target === modal) closeModal();
     });
+    window.addEventListener('pageshow', (e) => {
+        if (e.persisted) closeModal();
+    });
 
     document.addEventListener('click', (e) => {
         const link = e.target.closest('.poster_link');

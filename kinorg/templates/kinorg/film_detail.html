@@ -61,7 +61,11 @@
             <ul class="providers_list">
                 {% for provider in watch_providers.flatrate %}
                 <li class="provider_item" title="{{ provider.provider_name }}">
+                    {% if provider.provider_id in amazon_provider_ids and amazon_url %}
+                    <a href="{{ amazon_url }}" target="_blank" rel="noopener" class="provider_link"><img class="provider_logo" src="{{ config_data.secure_base_url }}w92{{ provider.logo_path }}" alt="{{ provider.provider_name }}"></a>
+                    {% else %}
                     <img class="provider_logo" src="{{ config_data.secure_base_url }}w92{{ provider.logo_path }}" alt="{{ provider.provider_name }}">
+                    {% endif %}
                 </li>
                 {% endfor %}
             </ul>
@@ -74,7 +78,11 @@
             <ul class="providers_list">
                 {% for provider in watch_providers.rent %}
                 <li class="provider_item" title="{{ provider.provider_name }}">
+                    {% if provider.provider_id in amazon_provider_ids and amazon_url %}
+                    <a href="{{ amazon_url }}" target="_blank" rel="noopener" class="provider_link"><img class="provider_logo" src="{{ config_data.secure_base_url }}w92{{ provider.logo_path }}" alt="{{ provider.provider_name }}"></a>
+                    {% else %}
                     <img class="provider_logo" src="{{ config_data.secure_base_url }}w92{{ provider.logo_path }}" alt="{{ provider.provider_name }}">
+                    {% endif %}
                 </li>
                 {% endfor %}
             </ul>
@@ -87,7 +95,11 @@
             <ul class="providers_list">
                 {% for provider in watch_providers.buy %}
                 <li class="provider_item" title="{{ provider.provider_name }}">
+                    {% if provider.provider_id in amazon_provider_ids and amazon_url %}
+                    <a href="{{ amazon_url }}" target="_blank" rel="noopener" class="provider_link"><img class="provider_logo" src="{{ config_data.secure_base_url }}w92{{ provider.logo_path }}" alt="{{ provider.provider_name }}"></a>
+                    {% else %}
                     <img class="provider_logo" src="{{ config_data.secure_base_url }}w92{{ provider.logo_path }}" alt="{{ provider.provider_name }}">
+                    {% endif %}
                 </li>
                 {% endfor %}
             </ul>
@@ -183,7 +195,7 @@
                 {% for video in film.videos.results %}
                     <li class="video_item">
                         <a href="https://www.youtube.com/watch?v={{ video.key }}" target="_blank">
-                          <img src="https://img.youtube.com/vi/{{ video.key }}/maxresdefault.jpg" 
+                          <img src="https://img.youtube.com/vi/{{ video.key }}/hqdefault.jpg"
                                alt="Video Thumbnail" 
                                style="width: 100%; min-width: 270px; max-width: 720px; border-radius: 10px; border-color: white; border-style: solid;border-width: 1px;"></a>
                         <a href="https://www.youtube.com/watch?v={{ video.key }}" target="_blank">{{ video.name }}</a>
