@@ -95,7 +95,7 @@
 
 	<div class="search_bar bar_item">
 		<div class="search-wrapper">
-    		{% block search %}<a href="{% url 'kinorg:search' %}"><button>Search for Films and People</button></a>{% endblock %}
+    		{% block search %}<a href="{% url 'kinorg:search' %}" class="btn">Search for Films and People</a>{% endblock %}
 		</div>
 	</div>
 
@@ -109,8 +109,8 @@
 
 <div class="jmgk_credit">
 	<a href="https://jmgk.dev/" target="_blank">
-		<button class="jmgk_link">jmgk.dev</button class="jmgk_link">
-	<a/>
+		<button class="jmgk_link">jmgk.dev</button>
+	</a>
 </div>
 
 <script src="{% static 'kinorg/js/typeahead.js' %}"></script>

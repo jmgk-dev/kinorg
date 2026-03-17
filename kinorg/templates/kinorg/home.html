@@ -16,7 +16,7 @@
 		{% if user.is_authenticated %}
 			{% if not has_lists %}
 			<div class="home_quickstart">
-				<p>You don't have any lists yet. <a href="{% url 'kinorg:create_list' %}"><u>Create one</u></a> to get started — then search for films and invite friends to add to it.</p>
+				<p>You don't have any lists yet. <a href="{% url 'kinorg:create_list' %}" class="btn btn-cta">Create one</a> to get started — then search for films and invite friends to add to it.</p>
 			</div>
 			{% endif %}
 		{% else %}
@@ -25,10 +25,10 @@
 				<p class="blurb_sub">Build shared lists with friends. Create a list, add films, invite people — everyone can contribute.</p>
 			</div>
 			<div class="home_cta">
-				<a href="{% url 'kinorg:about' %}"><button class="learn_more_button">Learn More</button></a>
-				<a href="{% url 'user_admin:signup' %}"><button class="signup_button">Sign Up</button></a>
+				<a href="{% url 'kinorg:about' %}" class="btn learn_more_button">Learn More</a>
+				<a href="{% url 'user_admin:signup' %}" class="btn signup_button">Sign Up</a>
 			</div>
-			<p class="home_login_link">Already have an account? <a href="{% url 'user_admin:login' %}"><button class="login_button">Log in</button></a></p>
+			<p class="home_login_link">Already have an account? <a href="{% url 'user_admin:login' %}" class="btn login_button">Log in</a></p>
 		{% endif %}
 
 
