@@ -336,6 +336,9 @@ class FilmDetail(LoginRequiredMixin, TemplateView):
         film_data['genres_json'] = json.dumps(film_data.get('genres', []))
         film_data['keywords_json'] = json.dumps(film_data.get('keywords', {}).get('keywords', []))
         film_data['production_companies_json'] = json.dumps(film_data.get('production_companies', []))
+        countries = film_data.get('production_countries', [])
+        country_codes = [c['iso_3166_1'] for c in countries if 'iso_3166_1' in c]
+        film_data['production_countries_json'] = json.dumps(country_codes)
 
         for lst in my_lists:
             lst.contains_film = lst.films.filter(id=movie_id).exists()
@@ -383,6 +386,8 @@ def add_film(request):
                 'genres':               request.POST.get('genres'),
                 'keywords':             request.POST.get('keywords'),
                 'production_companies': request.POST.get('production_companies'),
+                'production_countries': request.POST.get('production_countries'),
+                'primary_country': json.loads(request.POST.get('production_countries') or '[]')[0] if request.POST.get('production_countries') else '',
             }
 
             film_object, created = Film.objects.update_or_create(
@@ -722,6 +727,8 @@ def add_film_by_tmdb_id(request):
                 'crew': film_data.get('credits', {}).get('crew', []),
                 'keywords': film_data.get('keywords', {}).get('keywords', []),
                 'production_companies': film_data.get('production_companies', []),
+                'production_countries': [c['iso_3166_1'] for c in film_data.get('production_countries', []) if 'iso_3166_1' in c],
+                'primary_country': (film_data.get('production_countries') or [{}])[0].get('iso_3166_1', ''),
             }
         )
 

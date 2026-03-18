@@ -80,8 +80,19 @@ class Film(models.Model):
 	)
 	
 	production_companies = models.JSONField(
-		default=list, 
+		default=list,
 		blank=True,
+	)
+
+	production_countries = models.JSONField(
+		default=list,
+		blank=True,
+	)
+
+	primary_country = models.CharField(
+		max_length=2,
+		blank=True,
+		default='',
 	)
 
 
