@@ -9,6 +9,7 @@ from django.conf import settings
 from django.http import HttpResponse, JsonResponse
 
 from django.contrib.auth import get_user_model
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import ListView, CreateView, DetailView, TemplateView
 from django.urls import reverse_lazy
@@ -251,6 +252,16 @@ class MyLists(LoginRequiredMixin, TemplateView):
         return context
 
 
+SORT_MAP = {
+    'date_desc': '-date_added',
+    'date_asc': 'date_added',
+    'title_asc': 'film__title',
+    'title_desc': '-film__title',
+    'release_desc': '-film__release_date',
+    'release_asc': 'film__release_date',
+}
+
+
 class ListDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
 
     login_url = "user_admin:login"
@@ -277,17 +288,8 @@ class ListDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
         sort = self.request.GET.get('sort', 'date_desc')
         country = self.request.GET.get('country', '')
 
-        sort_map = {
-            'date_desc': '-date_added',
-            'date_asc': 'date_added',
-            'title_asc': 'film__title',
-            'title_desc': '-film__title',
-            'release_desc': '-film__release_date',
-            'release_asc': 'film__release_date',
-        }
-
         additions = self.object.addition_set.select_related('film').order_by(
-            sort_map.get(sort, '-date_added')
+            SORT_MAP.get(sort, '-date_added')
         )
 
         if country:
@@ -305,13 +307,59 @@ class ListDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
                 else:
                     country_map[code] = code
 
+        limit = 48
+        total = additions.count()
+
         context['invitations'] = invitations
-        context['additions'] = additions
+        context['additions'] = additions[:limit]
+        context['has_more'] = total > limit
+        context['next_offset'] = limit
         context['countries'] = sorted(country_map.items(), key=lambda x: x[1])
         context['current_sort'] = sort
         context['current_country'] = country
 
         return context
+
+
+@login_required(login_url='user_admin:login')
+def list_additions_json(request, slug):
+    try:
+        film_list = FilmList.objects.get(sqid=slug)
+    except FilmList.DoesNotExist:
+        return JsonResponse({'error': 'Not found'}, status=404)
+
+    if film_list.owner != request.user and request.user not in film_list.guests.all():
+        return JsonResponse({'error': 'Forbidden'}, status=403)
+
+    sort = request.GET.get('sort', 'date_desc')
+    country = request.GET.get('country', '')
+    offset = int(request.GET.get('offset', 0))
+    limit = 48
+
+    additions = film_list.addition_set.select_related('film').order_by(
+        SORT_MAP.get(sort, '-date_added')
+    )
+
+    if country:
+        additions = additions.filter(film__primary_country=country)
+
+    total = additions.count()
+    batch = additions[offset:offset + limit]
+
+    films = [
+        {
+            'id': addition.film.id,
+            'title': addition.film.title,
+            'poster_path': addition.film.poster_path,
+        }
+        for addition in batch
+    ]
+
+    return JsonResponse({
+        'films': films,
+        'has_more': (offset + limit) < total,
+        'next_offset': offset + limit,
+    })
 
 
 class FilmDetail(LoginRequiredMixin, TemplateView):

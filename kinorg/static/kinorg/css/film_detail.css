@@ -22,6 +22,7 @@ p.italic {
 .similar_content, .cast_content {
     flex-direction: column;
     gap: 0px;
+    overflow: hidden;
 }
 
 .watch_providers_content {
@@ -156,26 +157,34 @@ p.italic {
 }
 
 
+.videos_container .detail_content {
+    overflow: hidden;
+}
+
 .cast_list,
 .video_list,
 .similar_list {
     display: flex;
     flex-direction: row;
     gap: 20px;
-    overflow: scroll;
+    overflow-x: auto;
+    margin: 0 -15px;
+    padding: 0 15px;
 }
 
 .reviews_list {
-    width: 100%;
     display: flex;
     flex-direction: row;
     gap: 20px;
-    overflow: scroll;
+    overflow-x: auto;
+    margin: 0 -15px;
+    padding: 0 15px;
 }
 
 .reviews_content {
     flex-direction: column;
     width: 100%;
+    overflow: hidden;
 }
 
 .review_item {

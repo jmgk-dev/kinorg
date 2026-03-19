@@ -1,3 +1,57 @@
+// Load more
+const filmGrid = document.getElementById('film_grid');
+const loadMoreBtn = document.getElementById('load_more_btn');
+
+if (loadMoreBtn && filmGrid) {
+    const baseUrl = filmGrid.dataset.baseUrl;
+    const placeholderUrl = filmGrid.dataset.placeholderUrl;
+    const filmUrlTemplate = filmGrid.dataset.filmUrl;
+    const additionsUrl = filmGrid.dataset.additionsUrl;
+
+    loadMoreBtn.addEventListener('click', () => {
+        const offset = loadMoreBtn.dataset.offset;
+        const sort = loadMoreBtn.dataset.sort;
+        const country = loadMoreBtn.dataset.country;
+
+        loadMoreBtn.disabled = true;
+        loadMoreBtn.textContent = 'Loading...';
+
+        const params = new URLSearchParams({ offset, sort });
+        if (country) params.set('country', country);
+
+        fetch(`${additionsUrl}?${params}`)
+            .then(res => res.json())
+            .then(data => {
+                data.films.forEach(film => {
+                    const filmUrl = filmUrlTemplate.replace('/0', '/' + film.id);
+                    const posterSrc = film.poster_path && film.poster_path !== 'None'
+                        ? `${baseUrl}w200${film.poster_path}`
+                        : placeholderUrl;
+                    const li = document.createElement('li');
+                    li.className = 'results_item';
+                    li.innerHTML = `<a class="poster_link" href="${filmUrl}"
+                        data-film-id="${film.id}"
+                        data-film-title="${film.title}"
+                        data-poster-path="${film.poster_path}"
+                        data-media-type="movie">
+                        <img class="poster" src="${posterSrc}" alt="${film.title}">
+                    </a>`;
+                    filmGrid.appendChild(li);
+                });
+
+                loadMoreBtn.dataset.offset = data.next_offset;
+
+                if (!data.has_more) {
+                    loadMoreBtn.closest('.load_more_container').remove();
+                } else {
+                    loadMoreBtn.disabled = false;
+                    loadMoreBtn.textContent = 'Load more';
+                }
+            });
+    });
+}
+
+// Invite modal
 const autocompleteResults = document.getElementById('user_autocomplete_results');
 const alreadyInvited = new Set(JSON.parse(autocompleteResults.dataset.invited || '[]'));
 

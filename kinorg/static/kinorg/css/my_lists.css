@@ -44,14 +44,16 @@
     box-sizing: border-box;
     min-width: 0;
     min-height: 220px;
+    overflow: hidden;
 }
 
 .list_poster_stack {
     display: flex;
     flex-direction: row;
-    width: 100%;
-    overflow: scroll;
+    overflow-x: auto;
     gap: 10px;
+    margin: 0 -15px;
+    padding: 0 15px;
 }
 
 .stack_item {

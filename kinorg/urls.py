@@ -8,6 +8,7 @@ urlpatterns = [
     path("search/", views.Search.as_view(), name="search"),
     path("lists/", views.MyLists.as_view(), name="my_lists"),
     path("lists/<slug>/", views.ListDetail.as_view(), name="list"),
+    path("lists/<slug>/additions/", views.list_additions_json, name="list_additions_json"),
     path("create/", views.CreateList.as_view(), name="create_list"),
     path("add-film/", views.add_film, name="add_film"),
     path("remove-film/", views.remove_film, name="remove_film"),

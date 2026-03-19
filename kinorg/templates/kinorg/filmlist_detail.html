@@ -41,7 +41,12 @@
     </div>
 
     <div class="content_list_container">
-        <ul class="list_of_content">
+        <ul class="list_of_content"
+            id="film_grid"
+            data-base-url="{{ config_data.secure_base_url }}"
+            data-placeholder-url="{% static 'images/placeholder.jpg' %}"
+            data-film-url="{% url 'kinorg:film_detail' 0 %}"
+            data-additions-url="{% url 'kinorg:list_additions_json' object.sqid %}">
             {% for addition in additions %}
             <li class="results_item">
                 <a class="poster_link" href="{% url 'kinorg:film_detail' addition.film.id %}" data-film-id="{{ addition.film.id }}" data-film-title="{{ addition.film.title }}" data-poster-path="{{ addition.film.poster_path }}" data-media-type="movie">
@@ -55,6 +60,15 @@
             {% endfor %}
         </ul>
     </div>
+
+    {% if has_more %}
+    <div class="load_more_container">
+        <button id="load_more_btn"
+                data-offset="{{ next_offset }}"
+                data-sort="{{ current_sort }}"
+                data-country="{{ current_country }}">Load more</button>
+    </div>
+    {% endif %}
 
     {% if object.owner == request.user %}
     <div id="invite_modal" class="modal">

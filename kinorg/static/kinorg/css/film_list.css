@@ -22,6 +22,12 @@
     cursor: pointer;
 }
 
+.load_more_container {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0 40px;
+}
+
 .list_title {
     display: flex;
     justify-content: center;
