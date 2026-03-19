@@ -19,9 +19,30 @@
     </div>
     {% endif %}
 
+    <div class="list_controls">
+        <form method="get" id="list_controls_form">
+            <select name="sort" onchange="document.getElementById('list_controls_form').submit()">
+                <option value="date_desc" {% if current_sort == 'date_desc' %}selected{% endif %}>Date added (newest first)</option>
+                <option value="date_asc" {% if current_sort == 'date_asc' %}selected{% endif %}>Date added (oldest first)</option>
+                <option value="title_asc" {% if current_sort == 'title_asc' %}selected{% endif %}>Title (A–Z)</option>
+                <option value="title_desc" {% if current_sort == 'title_desc' %}selected{% endif %}>Title (Z–A)</option>
+                <option value="release_desc" {% if current_sort == 'release_desc' %}selected{% endif %}>Release date (newest first)</option>
+                <option value="release_asc" {% if current_sort == 'release_asc' %}selected{% endif %}>Release date (oldest first)</option>
+            </select>
+            {% if countries %}
+            <select name="country" onchange="document.getElementById('list_controls_form').submit()">
+                <option value="">All countries</option>
+                {% for code, name in countries %}
+                <option value="{{ code }}" {% if current_country == code %}selected{% endif %}>{{ name }}</option>
+                {% endfor %}
+            </select>
+            {% endif %}
+        </form>
+    </div>
+
     <div class="content_list_container">
         <ul class="list_of_content">
-            {% for addition in object.addition_set.all %}
+            {% for addition in additions %}
             <li class="results_item">
                 <a class="poster_link" href="{% url 'kinorg:film_detail' addition.film.id %}" data-film-id="{{ addition.film.id }}" data-film-title="{{ addition.film.title }}" data-poster-path="{{ addition.film.poster_path }}" data-media-type="movie">
                     {% if addition.film.poster_path != 'None' %}

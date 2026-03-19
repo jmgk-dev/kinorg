@@ -240,7 +240,7 @@ class MyLists(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         user = self.request.user
 
-        my_lists = FilmList.objects.filter(owner=user).order_by('-id')
+        my_lists = FilmList.objects.filter(owner=user).order_by('-id').prefetch_related('addition_set__film')
         guest_lists = FilmList.objects.filter(guests=user).order_by('-id')
         invitations = Invitation.objects.filter(to_user=user).exclude(accepted=True)
 
@@ -274,7 +274,42 @@ class ListDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
             film_list=self.get_object()
         ).select_related('to_user')
 
+        sort = self.request.GET.get('sort', 'date_desc')
+        country = self.request.GET.get('country', '')
+
+        sort_map = {
+            'date_desc': '-date_added',
+            'date_asc': 'date_added',
+            'title_asc': 'film__title',
+            'title_desc': '-film__title',
+            'release_desc': '-film__release_date',
+            'release_asc': 'film__release_date',
+        }
+
+        additions = self.object.addition_set.select_related('film').order_by(
+            sort_map.get(sort, '-date_added')
+        )
+
+        if country:
+            additions = additions.filter(film__primary_country=country)
+
+        # Build country list from all films in this list (before filtering)
+        country_map = {}
+        for addition in self.object.addition_set.select_related('film').exclude(film__primary_country=''):
+            code = addition.film.primary_country
+            if code not in country_map:
+                for c in (addition.film.production_countries or []):
+                    if isinstance(c, dict) and c.get('iso_3166_1') == code:
+                        country_map[code] = c.get('name', code)
+                        break
+                else:
+                    country_map[code] = code
+
         context['invitations'] = invitations
+        context['additions'] = additions
+        context['countries'] = sorted(country_map.items(), key=lambda x: x[1])
+        context['current_sort'] = sort
+        context['current_country'] = country
 
         return context
 

@@ -1,4 +1,27 @@
 
+.list_controls {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.list_controls form {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.list_controls select {
+    background-color: #1a1a1a;
+    color: white;
+    border: 1px solid white;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
 .list_title {
     display: flex;
     justify-content: center;

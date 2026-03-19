@@ -25,7 +25,7 @@ class Command(BaseCommand):
                 countries = data.get('production_countries', [])
                 codes = [c['iso_3166_1'] for c in countries if 'iso_3166_1' in c]
 
-                film.production_countries = codes
+                film.production_countries = countries
                 film.primary_country = codes[0] if codes else ''
                 film.save(update_fields=['production_countries', 'primary_country'])
 

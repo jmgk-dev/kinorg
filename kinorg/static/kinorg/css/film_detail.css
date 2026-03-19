@@ -67,27 +67,16 @@ p.italic {
 }
 
 .justwatch_badge {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 44px;
-    height: 44px;
-    border-radius: 10px;
-    background-color: #e6a919;
-    border: 1px solid rgba(255,255,255,0.2);
     transition: filter 0.2s;
-    flex-shrink: 0;
 }
 
 .justwatch_badge:hover {
     filter: brightness(1.15);
 }
 
-.justwatch_badge_text {
-    color: black;
-    font-weight: 700;
-    font-size: 14px;
-    letter-spacing: 0.5px;
+.justwatch_logo {
+    height: 44px;
+    width: auto;
 }
 
 .film_content_container {

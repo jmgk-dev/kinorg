@@ -33,16 +33,17 @@
     display: flex;
     flex-direction: column;
     gap: 20px;
-    justify-content: center;
+    justify-content: flex-start;
     border-color: white;
     border-style: solid;
     border-width: 1px;
     border-radius: 10px;
     padding: 15px;
-    width: 100%;       
-    max-width: 720px;  
+    width: 100%;
+    max-width: 720px;
     box-sizing: border-box;
     min-width: 0;
+    min-height: 220px;
 }
 
 .list_poster_stack {
@@ -55,6 +56,27 @@
 
 .stack_item {
   /*margin-left: -40px;*/
+}
+
+.stack_see_all {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 95px;
+    height: 142.5px;
+    border: 1px solid white;
+    border-radius: 5px;
+    flex-shrink: 0;
+    font-size: 13px;
+    text-align: center;
+    padding: 8px;
+    box-sizing: border-box;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.stack_see_all:hover {
+    opacity: 1;
 }
 
 .invitations_container {
