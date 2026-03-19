@@ -35,30 +35,6 @@ p.italic {
     font-size: 13px;
 }
 
-.providers_group {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.providers_label {
-    font-size: 12px;
-    opacity: 0.6;
-    margin: 0;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-.providers_list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-}
-
-.provider_item {
-    list-style: none;
-}
-
 .provider_logo {
     width: 44px;
     height: 44px;
@@ -83,10 +59,35 @@ p.italic {
     border: none;
 }
 
-.justwatch_link {
-    font-size: 13px;
-    opacity: 0.7;
-    margin-top: 4px;
+.watch_links {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+}
+
+.justwatch_badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background-color: #e6a919;
+    border: 1px solid rgba(255,255,255,0.2);
+    transition: filter 0.2s;
+    flex-shrink: 0;
+}
+
+.justwatch_badge:hover {
+    filter: brightness(1.15);
+}
+
+.justwatch_badge_text {
+    color: black;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.5px;
 }
 
 .film_content_container {

@@ -301,7 +301,7 @@ class FilmDetail(LoginRequiredMixin, TemplateView):
         providers_data = get_tmdb_data(f"https://api.themoviedb.org/3/movie/{movie_id}/watch/providers")
         gb_providers = providers_data.get('results', {}).get('GB', {})
         context['watch_providers'] = gb_providers
-        context['justwatch_url'] = f"https://www.justwatch.com/uk/search?q={quote(film_data.get('title', ''))}"
+        context['justwatch_url'] = gb_providers.get('link') or f"https://www.justwatch.com/uk/search?q={quote(film_data.get('title', ''))}"
 
         # Amazon affiliate link — shown when any Amazon provider is available
         amazon_tag = os.environ.get('AMAZON_ASSOCIATE_TAG', '')
@@ -310,16 +310,17 @@ class FilmDetail(LoginRequiredMixin, TemplateView):
             gb_providers.get('rent', []) +
             gb_providers.get('buy', [])
         )
-        amazon_provider_ids = {
-            p['provider_id'] for p in all_providers
-            if 'amazon' in p.get('provider_name', '').lower()
-        }
-        if amazon_tag and amazon_provider_ids:
+        amazon_provider = next(
+            (p for p in all_providers if 'amazon' in p.get('provider_name', '').lower()),
+            None
+        )
+        if amazon_tag and amazon_provider:
             encoded_title = quote(film_data.get('title', ''))
             context['amazon_url'] = f"https://www.amazon.co.uk/s?k={encoded_title}&i=instant-video&tag={amazon_tag}"
+            context['amazon_logo_path'] = amazon_provider.get('logo_path', '')
         else:
             context['amazon_url'] = None
-        context['amazon_provider_ids'] = amazon_provider_ids
+            context['amazon_logo_path'] = None
 
         # Sort videos: trailers first, then everything else
         videos = film_data.get('videos', {}).get('results', [])
