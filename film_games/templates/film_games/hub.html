@@ -1,0 +1,35 @@
+{% extends "kinorg/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'film_games/css/hub.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="game_hub_container">
+
+    <span class="game_title">Games</span>
+    <p>Play and compete on the daily leaderboard.{% if not request.user.is_authenticated %} <a href="{% url 'user_admin:login' %}">Sign in</a> to save your results.{% endif %}</p>
+
+    <div class="game_cards">
+
+        <a href="{% url 'film_games:framed' %}" class="game_card">
+            <div class="game_card_icon">🎞</div>
+            <span class="game_card_title">Framed</span>
+            <p>Guess the film from its poster — revealed one frame at a time.</p>
+        </a>
+
+        <a href="{% url 'film_games:higher_lower' %}" class="game_card">
+            <div class="game_card_icon">↕</div>
+            <span class="game_card_title">Higher or Lower</span>
+            <p>Which film came first? Keep your streak going.</p>
+        </a>
+
+    </div>
+
+</div>
+
+{% endblock %}

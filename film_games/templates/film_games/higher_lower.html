@@ -1,0 +1,61 @@
+{% extends "kinorg/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'film_games/css/higher_lower.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="hl_container"
+     data-pair-url="{% url 'film_games:higher_lower_pair' %}"
+     data-answer-url="{% url 'film_games:higher_lower_answer' %}"
+     data-base-url="{{ config_data.secure_base_url }}"
+     data-placeholder-url="{% static 'images/placeholder.jpg' %}"
+     data-csrf="{{ csrf_token }}">
+
+    <div class="hl_header">
+        <a href="{% url 'film_games:hub' %}" class="hl_back">← Games</a>
+        <span class="game_title">Higher or Lower</span>
+        <div class="hl_score_display">Score: <span id="hl_score">0</span></div>
+    </div>
+
+    <p class="hl_question">Which film came out <strong>first</strong>?</p>
+
+    <div class="hl_cards" id="hl_cards">
+        <div class="hl_card" id="hl_card_a">
+            <img class="hl_poster" id="hl_poster_a" src="" alt="">
+            <div class="hl_title" id="hl_title_a"></div>
+            <div class="hl_year" id="hl_year_a"></div>
+        </div>
+
+        <div class="hl_vs">VS</div>
+
+        <div class="hl_card" id="hl_card_b">
+            <img class="hl_poster" id="hl_poster_b" src="" alt="">
+            <div class="hl_title" id="hl_title_b"></div>
+            <div class="hl_year" id="hl_year_b"></div>
+        </div>
+    </div>
+
+    <div class="hl_result" id="hl_result"></div>
+
+    <div class="hl_gameover" id="hl_gameover">
+        <h3>Game over!</h3>
+        <p>You got <strong><span id="hl_final_score"></span></strong> in a row.</p>
+        {% if not request.user.is_authenticated %}
+        <p class="hl_login_nudge"><a href="{% url 'user_admin:login' %}">Sign in</a> to save your score to the leaderboard.</p>
+        {% endif %}
+        <button id="hl_share_btn" class="btn">Share</button>
+        <button id="hl_play_again_btn" class="btn btn-cta">Play again</button>
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'film_games/js/higher_lower.js' %}"></script>
+{% endblock %}

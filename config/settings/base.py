@@ -29,6 +29,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 INSTALLED_APPS = [
     'kinorg.apps.KinorgConfig',
     'user_admin.apps.UserAdminConfig',
+    'film_games.apps.FilmGamesConfig',
     'django_q',
     'django.contrib.admin',
     'django.contrib.auth',
