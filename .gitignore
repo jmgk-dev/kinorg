@@ -1,0 +1,82 @@
+# Misc files
+*.scssc
+*.sublime-workspace
+*.sublime-project
+
+# Tests
+app/tests/.cache/*
+app/tests/__pycache__/*
+
+# virtual env packages
+**/venv/**/*
+
+# Ignore all .jpg and .png files
+*.jpg
+*.png
+
+# Except for the 'staticfiles/image' directory
+!staticfiles/image/
+!staticfiles/image/*.jpg
+!staticfiles/image/*.png
+!staticfiles/favicon/*.jpg
+!staticfiles/favicon/*.png
+!staticfiles/favicon/favicon.ico
+!kinorg/static/kinorg/img/*.jpg
+!kinorg/static/kinorg/img/*.png
+
+# Ignore environment files
+.env
+deploy.sh
+
+# Compiled source #
+###################
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+
+# Packages #
+############
+# it's better to unpack these files and commit the raw source
+# git has its own built in compression methods
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Logs and databases #
+######################
+*.log
+*.sql
+*.sqlite
+*.sqlite3
+logs/
+venv/
+
+# OS generated files #
+######################
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Directories #
+######################
+env/
+db.sqlite3
+media/
+**/*/__pycache__/**/*
+ __pycache__/
+ *.pyc
+cache/
+
+.gitignore

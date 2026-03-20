@@ -57,19 +57,27 @@
 
         <div class="watch_links">
             {% if pcc_url %}
-            <a href="{{ pcc_url }}" target="_blank" rel="noopener" class="provider_link pcc_link" title="Showing at Prince Charles Cinema">
-                Prince Charles Cinema
-            </a>
+            <div class="watch_links_row">
+                <span class="watch_links_label">In cinemas</span>
+                <a href="{{ pcc_url }}" target="_blank" rel="noopener" class="provider_link" title="Showing at Prince Charles Cinema">
+                    <img class="provider_logo" src="{% static 'kinorg/img/pcc_logo_474.jpg' %}" alt="Prince Charles Cinema">
+                </a>
+            </div>
             {% endif %}
-            {% if amazon_url %}
-            <a href="{{ amazon_url }}" target="_blank" rel="noopener" class="provider_link" title="Amazon Prime Video">
-                <img class="provider_logo" src="{{ config_data.secure_base_url }}w92{{ amazon_logo_path }}" alt="Amazon Prime Video">
-            </a>
-            {% endif %}
-            {% if watch_providers %}
-            <a href="{{ justwatch_url }}" target="_blank" rel="noopener" class="justwatch_badge" title="Find on JustWatch">
-                <img src="{% static 'kinorg/img/justwatch-logo.webp' %}" alt="JustWatch" class="justwatch_logo">
-            </a>
+            {% if amazon_url or watch_providers %}
+            <div class="watch_links_row">
+                <span class="watch_links_label">Stream / Buy</span>
+                {% if amazon_url %}
+                <a href="{{ amazon_url }}" target="_blank" rel="noopener" class="provider_link" title="Amazon Prime Video">
+                    <img class="provider_logo" src="{{ config_data.secure_base_url }}w92{{ amazon_logo_path }}" alt="Amazon Prime Video">
+                </a>
+                {% endif %}
+                {% if watch_providers %}
+                <a href="{{ justwatch_url }}" target="_blank" rel="noopener" class="provider_link" title="Find on JustWatch">
+                    <img class="provider_logo" src="{% static 'kinorg/img/jw_logo_180.png' %}" alt="JustWatch">
+                </a>
+                {% endif %}
+            </div>
             {% endif %}
         </div>
     </div>

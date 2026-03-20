@@ -37,16 +37,16 @@ p.italic {
 }
 
 .provider_logo {
-    width: 44px;
-    height: 44px;
-    border-radius: 10px;
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
     border: 1px solid rgba(255,255,255,0.2);
     display: block;
 }
 
 .provider_link {
     display: block;
-    border-radius: 10px;
+    border-radius: 12px;
     border: 2px solid rgba(255,255,255,0.7);
     transition: border-color 0.2s, filter 0.2s;
 }
@@ -62,23 +62,24 @@ p.italic {
 
 .watch_links {
     display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.watch_links_row {
+    display: flex;
     flex-direction: row;
     align-items: center;
     gap: 12px;
 }
 
-.justwatch_badge {
-    transition: filter 0.2s;
+.watch_links_label {
+    font-size: 13px;
+    opacity: 0.6;
+    width: 80px;
+    flex-shrink: 0;
 }
 
-.justwatch_badge:hover {
-    filter: brightness(1.15);
-}
-
-.justwatch_logo {
-    height: 44px;
-    width: auto;
-}
 
 .film_content_container {
     flex-direction: column;
@@ -315,10 +316,6 @@ p.italic {
 
     .detail_content, .add_remove_buttons, .review_section {
       width: 85%;
-    }
-
-    .justwatch_logo {
-        height: 30px;
     }
 
 }
