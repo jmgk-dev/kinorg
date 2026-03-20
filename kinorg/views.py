@@ -100,6 +100,11 @@ def film_autocomplete(request):
 
     filter_type = request.GET.get('filter', 'all')  # 'all', 'films', 'people'
 
+    cache_key = f'tmdb_autocomplete_{query}_{filter_type}'
+    cached = cache.get(cache_key)
+    if cached is not None:
+        return JsonResponse({'results': cached})
+
     # Parse year from query e.g. "stalker 1979"
     year_match = re.search(r'\b(19\d{2}|20[0-2]\d)\b', query)
     year = year_match.group(1) if year_match else None
@@ -152,6 +157,7 @@ def film_autocomplete(request):
                 'profile_path': r.get('profile_path') or '',
             })
 
+    cache.set(cache_key, results, timeout=300)
     return JsonResponse({'results': results})
 
 
