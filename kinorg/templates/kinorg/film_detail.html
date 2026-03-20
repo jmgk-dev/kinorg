@@ -50,20 +50,27 @@
 </div>
 
 
-{% if watch_providers %}
+{% if watch_providers or pcc_url %}
 <div class="detail_container">
     <div class="detail_content watch_providers_content">
         <p><b>Where to Watch</b> <span class="providers_region">(UK)</span></p>
 
         <div class="watch_links">
+            {% if pcc_url %}
+            <a href="{{ pcc_url }}" target="_blank" rel="noopener" class="provider_link pcc_link" title="Showing at Prince Charles Cinema">
+                Prince Charles Cinema
+            </a>
+            {% endif %}
             {% if amazon_url %}
             <a href="{{ amazon_url }}" target="_blank" rel="noopener" class="provider_link" title="Amazon Prime Video">
                 <img class="provider_logo" src="{{ config_data.secure_base_url }}w92{{ amazon_logo_path }}" alt="Amazon Prime Video">
             </a>
             {% endif %}
+            {% if watch_providers %}
             <a href="{{ justwatch_url }}" target="_blank" rel="noopener" class="justwatch_badge" title="Find on JustWatch">
                 <img src="{% static 'kinorg/img/justwatch-logo.webp' %}" alt="JustWatch" class="justwatch_logo">
             </a>
+            {% endif %}
         </div>
     </div>
 </div>

@@ -16,7 +16,7 @@ from django.urls import reverse_lazy
 
 from django.core.cache import cache
 
-from .models import Film, FilmList, Addition, Invitation, WatchedFilm
+from .models import Film, FilmList, Addition, Invitation, WatchedFilm, PCCScreening
 
 
 # Functions ------------------------------------------------------------>
@@ -420,6 +420,9 @@ class FilmDetail(LoginRequiredMixin, TemplateView):
         else:
             context['amazon_url'] = None
             context['amazon_logo_path'] = None
+
+        pcc = PCCScreening.objects.filter(tmdb_id=movie_id).first()
+        context['pcc_url'] = pcc.pcc_url if pcc else None
 
         # Sort videos: trailers first, then everything else
         videos = film_data.get('videos', {}).get('results', [])

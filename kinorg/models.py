@@ -248,3 +248,11 @@ class WatchedFilm(models.Model):
 	)
 
 
+class PCCScreening(models.Model):
+	tmdb_id = models.IntegerField(unique=True)
+	pcc_url = models.URLField()
+
+	def __str__(self):
+		return f"PCC: {self.tmdb_id}"
+
+

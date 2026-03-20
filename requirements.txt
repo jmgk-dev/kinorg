@@ -36,3 +36,4 @@ wcwidth==0.2.14
 WebOb==1.8.9
 whitenoise==6.12.0
 anthropic
+beautifulsoup4
