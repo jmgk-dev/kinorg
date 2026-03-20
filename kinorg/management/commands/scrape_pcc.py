@@ -7,7 +7,32 @@ from django.core.mail import send_mail
 from kinorg.models import PCCScreening
 
 PCC_URL = "https://princecharlescinema.com/whats-on/"
-TMDB_ID_RE = re.compile(r"/film/(\d+)/")
+YEAR_RE = re.compile(r"\((\d{4})\)$")
+SPAN_YEAR_RE = re.compile(r"^\d{4}$")
+
+
+def extract_title_and_year(a_tag, runtime_div):
+    raw_title = a_tag.get_text(strip=True)
+
+    # Try to get year from running-time spans first
+    year = None
+    if runtime_div:
+        for span in runtime_div.select("span"):
+            text = span.get_text(strip=True)
+            if SPAN_YEAR_RE.match(text):
+                year = int(text)
+                break
+
+    # Fall back to year embedded in title e.g. "The Killer (1989)"
+    if not year:
+        m = YEAR_RE.search(raw_title)
+        if m:
+            year = int(m.group(1))
+
+    # Strip parenthetical year from title
+    clean_title = YEAR_RE.sub("", raw_title).strip()
+
+    return clean_title, year
 
 
 class Command(BaseCommand):
@@ -24,15 +49,17 @@ class Command(BaseCommand):
             return
 
         soup = BeautifulSoup(response.text, "html.parser")
-        film_links = soup.select("a.liveeventtitle")
 
         seen = {}
-        for a in film_links:
+        for film in soup.select(".film_list-outer"):
+            a = film.select_one("a.liveeventtitle")
+            runtime_div = film.select_one(".running-time")
+            if not a:
+                continue
             href = a.get("href", "")
-            match = TMDB_ID_RE.search(href)
-            if match:
-                tmdb_id = int(match.group(1))
-                seen[tmdb_id] = href
+            title, year = extract_title_and_year(a, runtime_div)
+            if title and href:
+                seen[(title, year)] = href
 
         if not seen:
             self.stderr.write("No films found — PCC page structure may have changed.")
@@ -50,11 +77,10 @@ class Command(BaseCommand):
                 )
             return
 
-        # Replace all existing records
         PCCScreening.objects.all().delete()
         PCCScreening.objects.bulk_create([
-            PCCScreening(tmdb_id=tmdb_id, pcc_url=url)
-            for tmdb_id, url in seen.items()
+            PCCScreening(title=title, year=year, pcc_url=url)
+            for (title, year), url in seen.items()
         ])
 
         self.stdout.write(self.style.SUCCESS(f"Done — {len(seen)} films saved."))

@@ -100,7 +100,7 @@ def film_autocomplete(request):
 
     filter_type = request.GET.get('filter', 'all')  # 'all', 'films', 'people'
 
-    cache_key = f'tmdb_autocomplete_{query}_{filter_type}'
+    cache_key = f'tmdb_autocomplete_{query.replace(" ", "_")}_{filter_type}'
     cached = cache.get(cache_key)
     if cached is not None:
         return JsonResponse({'results': cached})
@@ -421,7 +421,13 @@ class FilmDetail(LoginRequiredMixin, TemplateView):
             context['amazon_url'] = None
             context['amazon_logo_path'] = None
 
-        pcc = PCCScreening.objects.filter(tmdb_id=movie_id).first()
+        film_title = film_data.get('title', '')
+        release_year = film_data.get('release_date', '')[:4]
+        pcc_matches = PCCScreening.objects.filter(title__iexact=film_title)
+        if pcc_matches.count() > 1 and release_year:
+            pcc = pcc_matches.filter(year=release_year).first()
+        else:
+            pcc = pcc_matches.first()
         context['pcc_url'] = pcc.pcc_url if pcc else None
 
         # Sort videos: trailers first, then everything else
