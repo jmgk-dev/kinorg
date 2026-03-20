@@ -14,6 +14,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import ListView, CreateView, DetailView, TemplateView
 from django.urls import reverse_lazy
 
+from django.core.cache import cache
+
 from .models import Film, FilmList, Addition, Invitation, WatchedFilm
 
 
@@ -379,9 +381,17 @@ class FilmDetail(LoginRequiredMixin, TemplateView):
 
         film_reviews = WatchedFilm.objects.filter(film__id=movie_id).exclude(mini_review__isnull=True).exclude(mini_review__exact='')
 
-        film_data = get_tmdb_data(f"https://api.themoviedb.org/3/movie/{movie_id}?append_to_response=credits,keywords,similar,videos&language=en-US")
+        film_cache_key = f'tmdb_film_{movie_id}'
+        film_data = cache.get(film_cache_key)
+        if not film_data:
+            film_data = get_tmdb_data(f"https://api.themoviedb.org/3/movie/{movie_id}?append_to_response=credits,keywords,similar,videos&language=en-US")
+            cache.set(film_cache_key, film_data, timeout=3600)
 
-        providers_data = get_tmdb_data(f"https://api.themoviedb.org/3/movie/{movie_id}/watch/providers")
+        providers_cache_key = f'tmdb_providers_{movie_id}'
+        providers_data = cache.get(providers_cache_key)
+        if not providers_data:
+            providers_data = get_tmdb_data(f"https://api.themoviedb.org/3/movie/{movie_id}/watch/providers")
+            cache.set(providers_cache_key, providers_data, timeout=3600)
         gb_providers = providers_data.get('results', {}).get('GB', {})
         context['watch_providers'] = gb_providers
         context['justwatch_url'] = gb_providers.get('link') or f"https://www.justwatch.com/uk/search?q={quote(film_data.get('title', ''))}"
@@ -595,7 +605,11 @@ class PersonCredits(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
 
         person_id = self.kwargs["person_id"]
-        search_data = get_tmdb_data(f"https://api.themoviedb.org/3/person/{person_id}?append_to_response=movie_credits&language=en-US")
+        person_cache_key = f'tmdb_person_{person_id}'
+        search_data = cache.get(person_cache_key)
+        if not search_data:
+            search_data = get_tmdb_data(f"https://api.themoviedb.org/3/person/{person_id}?append_to_response=movie_credits&language=en-US")
+            cache.set(person_cache_key, search_data, timeout=3600)
 
         known_for = search_data.get('known_for_department', 'Acting')
 
