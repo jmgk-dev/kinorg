@@ -1,111 +1,47 @@
 p.italic {
-  font-style: italic;
+    font-style: italic;
+    margin: 0;
 }
 
-.detail_container {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 20px;
+/* ===== HEADER ===== */
+
+.film_header_wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+    padding: 0 16px;
 }
 
-.detail_content {
-  display: flex;
-  flex-direction: row;
-  gap: 20px;
-  justify-content: center;
-  max-width: 720px;
-  border: 1px solid white;
-  border-radius: 10px;
-  padding: 15px;
-}
-
-.similar_content, .cast_content {
-    flex-direction: column;
-    gap: 0px;
-    overflow: hidden;
-}
-
-.watch_providers_content {
-    flex-direction: column;
-    gap: 14px;
+.film_header_inner {
     width: 100%;
-}
-
-.providers_region {
-    opacity: 0.6;
-    font-size: 13px;
-}
-
-.provider_logo {
-    width: 56px;
-    height: 56px;
-    border-radius: 12px;
-    border: 1px solid rgba(255,255,255,0.2);
-    display: block;
-}
-
-.provider_link {
-    display: block;
-    border-radius: 12px;
-    border: 2px solid rgba(255,255,255,0.7);
-    transition: border-color 0.2s, filter 0.2s;
-}
-
-.provider_link:hover {
-    border-color: white;
-    filter: brightness(1.15);
-}
-
-.provider_link .provider_logo {
-    border: none;
-}
-
-.watch_links {
+    max-width: 960px;
+    border: 1px solid white;
+    border-radius: 10px;
+    padding: 20px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
-}
-
-.watch_links_row {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 12px;
-}
-
-.watch_links_label {
-    font-size: 13px;
-    opacity: 0.6;
-    width: 80px;
-    flex-shrink: 0;
-}
-
-
-.film_content_container {
-    flex-direction: column;
-    width: 100%;
-}
-
-.film_content_a {
-    display: flex;
-    flex-direction: row;
     gap: 20px;
-    align-items: flex-start;
+}
+
+.film_header_top {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 24px;
+    align-items: start;
 }
 
 .detail_poster {
-  height: 300px;
-  border: 1px solid white;
-  margin-top: 0px;
-  border-radius: 5px;
-  flex-shrink: 0;
+    width: 200px;
+    height: auto;
+    border: 1px solid white;
+    border-radius: 5px;
+    display: block;
 }
 
-.film_details {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  flex: 1;
+.film_info {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 .film_title_row {
@@ -115,7 +51,7 @@ p.italic {
     gap: 10px;
 }
 
-.film_title_row h4 {
+.film_title_row h3 {
     margin: 0;
 }
 
@@ -143,7 +79,6 @@ p.italic {
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
-    margin: 2px 0;
 }
 
 .meta_chip {
@@ -152,12 +87,72 @@ p.italic {
     border: 1px solid rgba(255,255,255,0.4);
     border-radius: 20px;
     opacity: 0.8;
+    white-space: nowrap;
 }
 
 .details_label {
     margin: 0;
     font-size: 13px;
     opacity: 0.6;
+}
+
+.director_links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.watch_section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.watch_rows {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.watch_row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+.watch_row_label {
+    font-size: 13px;
+    opacity: 0.6;
+    width: 80px;
+    flex-shrink: 0;
+}
+
+.provider_logo {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: block;
+}
+
+.provider_link {
+    display: block;
+    border-radius: 10px;
+    border: 2px solid rgba(255,255,255,0.7);
+    transition: border-color 0.2s, filter 0.2s;
+}
+
+.provider_link:hover {
+    border-color: white;
+    filter: brightness(1.15);
+}
+
+.provider_link .provider_logo {
+    border: none;
+}
+
+.videos_btn {
+    align-self: flex-start;
 }
 
 .overview {
@@ -167,82 +162,126 @@ p.italic {
     margin: 0;
 }
 
-.add_remove_buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  align-items: stretch;
-  align-self: center;
-  border: 1px solid white;
-  border-radius: 10px;
-  width: 100%;
-  max-width: 722px;
-  padding: 15px;
+
+/* ===== TABS ===== */
+
+.film_tabs_wrap {
+    display: flex;
+    justify-content: center;
+    padding: 0 16px;
+    margin-bottom: 40px;
 }
 
-.add_remove_button {
-  display: flex;
-  flex-direction: row;
-  gap: 10px;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.add_remove_button > .btn {
-  flex: 1;
-}
-
-.add_button,
-.remove_button {
-  width: 120px;
-  text-align: center;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.add_button {
-  background-color: green;
-}
-
-.remove_button {
-  background-color: red;
-}
-
-.director_links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 5px;
-}
-
-
-.videos_container .detail_content {
+.film_tabs_inner {
+    width: 100%;
+    max-width: 960px;
+    border: 1px solid white;
+    border-radius: 10px;
     overflow: hidden;
 }
 
+.tab_nav {
+    display: flex;
+    flex-direction: row;
+    border-bottom: 1px solid rgba(255,255,255,0.3);
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.tab_nav::-webkit-scrollbar {
+    display: none;
+}
+
+.tab_btn {
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: rgba(255,255,255,0.6);
+    padding: 14px 20px;
+    cursor: pointer;
+    font-size: 14px;
+    white-space: nowrap;
+    transition: color 0.2s, border-color 0.2s;
+    margin-bottom: -1px;
+}
+
+.tab_btn:hover {
+    color: white;
+}
+
+.tab_btn.active {
+    color: white;
+    border-bottom-color: white;
+}
+
+.tab_panel {
+    display: none;
+    padding: 20px;
+}
+
+.tab_panel.active {
+    display: block;
+}
+
+
+/* ===== CAST / SIMILAR ===== */
+
 .cast_list,
-.video_list,
 .similar_list {
     display: flex;
     flex-direction: row;
-    gap: 20px;
+    gap: 16px;
     overflow-x: auto;
-    margin: 0 -15px;
-    padding: 0 15px;
+    margin: 0 -20px;
+    padding: 0 20px 10px;
+    list-style: none;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.3) transparent;
 }
+
+.cast_item,
+.similar_item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex-shrink: 0;
+    width: 100px;
+}
+
+.cast_item p,
+.similar_item p {
+    font-size: 13px;
+    line-height: 1.3;
+    margin: 0;
+}
+
+.cast_character {
+    opacity: 0.6;
+    font-size: 12px !important;
+}
+
+.cast_photo {
+    width: 100px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 5px;
+    border: 1px solid rgba(255,255,255,0.4);
+    display: block;
+}
+
+
+/* ===== REVIEWS ===== */
 
 .reviews_list {
     display: flex;
     flex-direction: row;
-    gap: 20px;
+    gap: 16px;
     overflow-x: auto;
-    margin: 0 -15px;
-    padding: 0 15px;
-}
-
-.reviews_content {
-    flex-direction: column;
-    width: 100%;
-    overflow: hidden;
+    margin: 16px -20px 0;
+    padding: 0 20px 10px;
+    list-style: none;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.3) transparent;
 }
 
 .review_item {
@@ -267,6 +306,7 @@ p.italic {
 .review_item p {
     font-size: 15px;
     line-height: 1.5;
+    margin: 0;
 }
 
 .flag_btn {
@@ -290,20 +330,53 @@ p.italic {
     color: #e05252;
 }
 
-/* Review section */
+
+/* ===== LISTS TAB ===== */
+
+.add_remove_buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.add_remove_button {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.add_remove_button > .btn {
+    flex: 1;
+}
+
+.add_button,
+.remove_button {
+    width: 120px;
+    text-align: center;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.add_button {
+    background-color: green;
+}
+
+.remove_button {
+    background-color: red;
+}
+
+
+/* ===== REVIEW SECTION (add/edit) ===== */
 
 .review_section {
-    width: 100%;
-    max-width: 722px;
-    border: 1px solid white;
-    border-radius: 10px;
-    padding: 15px;
+    margin-bottom: 16px;
 }
 
 .review_display {
     display: flex;
     flex-direction: column;
-  gap: 15px;
+    gap: 15px;
 }
 
 .star-rating {
@@ -342,7 +415,27 @@ p.italic {
     border-radius: 4px;
 }
 
-/* Modal */
+
+/* ===== VIDEO LIST (in modal) ===== */
+
+.video_list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    list-style: none;
+    padding: 0;
+    margin: 16px 0 0;
+}
+
+.video_item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 13px;
+}
+
+
+/* ===== MODAL ===== */
 
 .modal {
     display: none;
@@ -353,31 +446,31 @@ p.italic {
     width: 100%;
     height: 100%;
     overflow: auto;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.7);
 }
 
 .modal-content {
     background-color: black;
-    margin: 10% auto;
-    padding: 20px;
-    border: 1px solid #888;
-    border-radius: 8px;
-    width: 85%;
-    max-width: 500px;
+    margin: 8% auto;
+    padding: 24px;
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 10px;
+    width: 90%;
+    max-width: 600px;
     position: relative;
 }
 
 .close {
-    color: #aaa;
+    color: rgba(255,255,255,0.6);
     float: right;
     font-size: 28px;
     font-weight: bold;
     cursor: pointer;
+    line-height: 1;
 }
 
-.close:hover,
-.close:focus {
-    color: #000;
+.close:hover {
+    color: white;
 }
 
 .rating-input,
@@ -400,18 +493,73 @@ p.italic {
     font-weight: bold;
 }
 
+
+/* ===== MOBILE ===== */
+
 @media (max-width: 600px) {
 
-    .detail_content {
+    .film_header_wrap,
+    .film_tabs_wrap {
+        padding: 0 10px;
+    }
+
+    .film_header_inner {
+        padding: 12px;
+        gap: 12px;
+    }
+
+    .film_header_top {
         gap: 10px;
     }
 
     .detail_poster {
-      height: 180px;
+        width: 90px;
     }
 
-    .detail_content, .add_remove_buttons, .review_section {
-      width: 85%;
+    .film_info {
+        gap: 6px;
+    }
+
+    .film_title_row h3 {
+        font-size: 1rem;
+    }
+
+    .like_btn {
+        font-size: 1.2rem;
+    }
+
+    p.italic {
+        font-size: 12px;
+    }
+
+    .meta_chip {
+        font-size: 11px;
+        padding: 2px 6px;
+    }
+
+    .details_label {
+        font-size: 12px;
+    }
+
+    .director_links .btn {
+        font-size: 12px;
+        padding: 4px 8px;
+    }
+
+    .tab_btn {
+        padding: 12px 14px;
+        font-size: 13px;
+    }
+
+    .tab_panel {
+        padding: 14px;
+    }
+
+    .cast_list,
+    .similar_list,
+    .reviews_list {
+        margin: 0 -14px;
+        padding: 0 14px 10px;
     }
 
 }

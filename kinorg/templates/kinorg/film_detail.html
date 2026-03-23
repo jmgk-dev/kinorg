@@ -7,18 +7,17 @@
 
 {% block content %}
 
-<div class="detail_container">
+<div class="film_header_wrap">
+    <div class="film_header_inner">
 
-    <div class="detail_content film_content_container">
+        <div class="film_header_top">
 
-        <div class="film_content_a">
+            <img class="detail_poster" src="{% if film.poster_path %}{{config_data.secure_base_url}}w342{{film.poster_path}}{% else %}{% static 'images/placeholder.jpg' %}{% endif %}">
 
-            <img class="detail_poster" src="{% if film.poster_path %}{{config_data.secure_base_url}}w500{{film.poster_path}}{% else %}{% static 'images/placeholder.jpg' %}{% endif %}">
-
-            <div class="film_details">
+            <div class="film_info">
 
                 <div class="film_title_row">
-                    <h4><b>{{ film.title }}</b></h4>
+                    <h3><b>{{ film.title }}</b></h3>
                     <button class="like_btn {% if is_liked %}liked{% endif %}"
                             data-tmdb-id="{{ film.id }}"
                             data-title="{{ film.title }}"
@@ -27,8 +26,6 @@
                         {% if is_liked %}♥{% else %}♡{% endif %}
                     </button>
                 </div>
-
-                {% if film.tagline %}<p class="italic">{{ film.tagline }}</p>{% endif %}
 
                 <div class="film_meta">
                     {% if film.release_date %}<span class="meta_chip">{{ film.release_date|slice:":4" }}</span>{% endif %}
@@ -44,72 +41,92 @@
                     {% endfor %}
                 </div>
 
-                {% if film.overview %}
-                <p class="overview">{{ film.overview }}</p>
+                {% if film.videos and film.videos.results %}
+                <button class="videos_btn btn" onclick="openVideosModal()">&#9654; Videos</button>
                 {% endif %}
 
             </div>
 
         </div>
 
+        {% if film.tagline %}<p class="italic tagline">{{ film.tagline }}</p>{% endif %}
+
+        {% if film.overview %}
+        <p class="overview">{{ film.overview }}</p>
+        {% endif %}
+
+        {% if watch_providers or pcc_url %}
+        <div class="watch_section">
+            <p class="details_label">Where to Watch</p>
+            <div class="watch_rows">
+                {% if pcc_url %}
+                <div class="watch_row">
+                    <span class="watch_row_label">In cinemas</span>
+                    <a href="{{ pcc_url }}" target="_blank" rel="noopener" class="provider_link" title="Showing at Prince Charles Cinema">
+                        <img class="provider_logo" src="{% static 'kinorg/img/pcc_logo_474.jpg' %}" alt="Prince Charles Cinema">
+                    </a>
+                </div>
+                {% endif %}
+                {% if amazon_url or watch_providers %}
+                <div class="watch_row">
+                    <span class="watch_row_label">Stream / Buy</span>
+                    {% if amazon_url %}
+                    <a href="{{ amazon_url }}" target="_blank" rel="noopener" class="provider_link" title="Amazon Prime Video">
+                        <img class="provider_logo" src="{{ config_data.secure_base_url }}w92{{ amazon_logo_path }}" alt="Amazon Prime Video">
+                    </a>
+                    {% endif %}
+                    {% if watch_providers %}
+                    <a href="{{ justwatch_url }}" target="_blank" rel="noopener" class="provider_link" title="Find on JustWatch">
+                        <img class="provider_logo" src="{% static 'kinorg/img/jw_logo_180.png' %}" alt="JustWatch">
+                    </a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
     </div>
-
 </div>
 
 
-<div class="detail_container">
+<div class="film_tabs_wrap">
+    <div class="film_tabs_inner">
 
-    {% include "kinorg/_review_section.html" with film=film %}
+        <div class="tab_nav">
+            <button class="tab_btn active" data-tab="cast">Cast</button>
+            <button class="tab_btn" data-tab="reviews">Reviews</button>
+            <button class="tab_btn" data-tab="similar">Similar</button>
+            <button class="tab_btn" data-tab="lists">Lists</button>
+        </div>
 
-</div>
-
-
-{% if watch_providers or pcc_url %}
-<div class="detail_container">
-    <div class="detail_content watch_providers_content">
-        <p><b>Where to Watch</b> <span class="providers_region">(UK)</span></p>
-
-        <div class="watch_links">
-            {% if pcc_url %}
-            <div class="watch_links_row">
-                <span class="watch_links_label">In cinemas</span>
-                <a href="{{ pcc_url }}" target="_blank" rel="noopener" class="provider_link" title="Showing at Prince Charles Cinema">
-                    <img class="provider_logo" src="{% static 'kinorg/img/pcc_logo_474.jpg' %}" alt="Prince Charles Cinema">
-                </a>
-            </div>
-            {% endif %}
-            {% if amazon_url or watch_providers %}
-            <div class="watch_links_row">
-                <span class="watch_links_label">Stream / Buy</span>
-                {% if amazon_url %}
-                <a href="{{ amazon_url }}" target="_blank" rel="noopener" class="provider_link" title="Amazon Prime Video">
-                    <img class="provider_logo" src="{{ config_data.secure_base_url }}w92{{ amazon_logo_path }}" alt="Amazon Prime Video">
-                </a>
-                {% endif %}
-                {% if watch_providers %}
-                <a href="{{ justwatch_url }}" target="_blank" rel="noopener" class="provider_link" title="Find on JustWatch">
-                    <img class="provider_logo" src="{% static 'kinorg/img/jw_logo_180.png' %}" alt="JustWatch">
-                </a>
-                {% endif %}
-            </div>
+        <div class="tab_panel active" id="tab-cast">
+            {% if film.credits.cast %}
+            <ul class="cast_list">
+                {% for member in film.credits.cast|slice:":15" %}
+                <li class="cast_item">
+                    <a href="{% url 'kinorg:person_credits' member.id %}">
+                        {% if member.profile_path %}
+                            <img class="cast_photo" src="{{config_data.secure_base_url}}w185{{member.profile_path}}" alt="{{ member.name }}">
+                        {% else %}
+                            <img class="cast_photo" src="{% static 'images/placeholder.jpg' %}" alt="{{ member.name }}">
+                        {% endif %}
+                    </a>
+                    <p><a href="{% url 'kinorg:person_credits' member.id %}">{{ member.name }}</a></p>
+                    <p class="cast_character">{{ member.character }}</p>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p>No cast information available.</p>
             {% endif %}
         </div>
-    </div>
-</div>
-{% endif %}
 
-
-{% if film_reviews %}
-
-<div class="detail_container">
-
-    <div class="detail_content reviews_content">
-
-        <h4><b>Reviews</b></h4>
-
-        <ul class="reviews_list">
-
-            {% for review in film_reviews %}
+        <div class="tab_panel" id="tab-reviews">
+            {% include "kinorg/_review_section.html" with film=film %}
+            {% if film_reviews %}
+            <ul class="reviews_list">
+                {% for review in film_reviews %}
                 <li class="review_item">
                     <div class="review_header">
                         <p><b>{{ review.user }}</b></p>
@@ -128,150 +145,77 @@
                     {% endif %}
                     <p>"{{ review.mini_review }}"</p>
                 </li>
-            {% endfor %}
-
-        </ul>
-
-    </div>
-    
-
-</div>
-
-{% endif %}
-
-<div class="detail_container">
-
-    {% if my_lists or guest_lists %}
-    <div class="add_remove_buttons">
-    <p><b>My Lists</b></p>
-
-        {% for lst in my_lists %}
-
-            <div class="add_remove_button">
-                <a href="{% url 'kinorg:list' lst.sqid %}" class="btn">{{ lst.title|slice:":30" }}</a>
-
-                {% include "kinorg/_toggle_button.html" with lst=lst film=film is_in_list=lst.contains_film %}
-
-            </div>
-
-        {% endfor %}
-
-        {% for lst in guest_lists %}
-
-            <div class="add_remove_button">
-                <a href="{% url 'kinorg:list' lst.sqid %}" class="btn">{{ lst.title|slice:":30" }}</a>
-
-                {% include "kinorg/_toggle_button.html" with lst=lst film=film is_in_list=lst.contains_film %}
-
-            </div>
-
-        {% endfor %}
-
-    </div>
-
-    {% else %}
-
-    <p>You don't have any lists yet. <a href="{% url 'kinorg:my_lists' %}" class="btn btn-cta">Create a list</a> to add this film!</p>
-
-    {% endif %}
-
-</div>
-
-
-
-<div class="videos_container detail_container">
-
-    <div class="videos_section detail_content">
-        
-        {% if film.videos %}
-            <!-- <h3><b>Videos</b></h3> -->
-            
-            <ul class="video_list">
-                {% for video in film.videos.results %}
-                    <li class="video_item">
-                        <a href="https://www.youtube.com/watch?v={{ video.key }}" target="_blank">
-                          <img src="https://img.youtube.com/vi/{{ video.key }}/hqdefault.jpg"
-                               alt="Video Thumbnail" 
-                               style="width: 100%; min-width: 270px; max-width: 720px; border-radius: 10px; border-color: white; border-style: solid;border-width: 1px;"></a>
-                        <a href="https://www.youtube.com/watch?v={{ video.key }}" target="_blank">{{ video.name }}</a>
-                    </li>
-                {% empty %}
-            <p>No videos available for this film.</p>
                 {% endfor %}
             </ul>
+            {% endif %}
+        </div>
 
-        {% endif %}
-
-    </div>
-
-</div>
-
-
-
-<div class="detail_container">
-
-    <div class="detail_content cast_content">
-
-        {% if film.credits.cast %}
-
-            <p><b>Cast</b></p>
-            
-            <ul class="cast_list">
-                {% for member in film.credits.cast|slice:":10" %}
-                    <li class="cast_item">
-
-                        <a href="{% url 'kinorg:person_credits' member.id %}">
-                        {% if member.profile_path %}
-                            <img class="detail_poster" src="{{config_data.secure_base_url}}w500{{member.profile_path}}">
-                        {% else %}
-                            <img class="detail_poster" src="{% static 'images/placeholder.jpg' %}">
-                        {% endif %}
-                        </a>
-
-                        <p><a href="{% url 'kinorg:person_credits' member.id %}">{{ member.name }}</a> as {{ member.character }}</p>
-                    </li>
-                {% endfor %}
-            </ul>
-        
-        {% else %}
-        
-        <p>No cast information available.</p>
-
-        {% endif %}
-
-    </div>
-
-</div>
-
-
-<div class="detail_container">
-    
-    <div class="detail_content similar_content">
-
-    {% if film.similar %}
-        <p><b>Similar Films</b></p>
-        
-        <ul class="similar_list">
-            {% for similar_film in film.similar.results|slice:":10" %}
+        <div class="tab_panel" id="tab-similar">
+            {% if film.similar and film.similar.results %}
+            <ul class="similar_list">
+                {% for similar_film in film.similar.results|slice:":15" %}
                 <li class="similar_item">
                     <a href="{% url 'kinorg:film_detail' similar_film.id %}">
-                    {% if similar_film.poster_path %}
-                        <img class="detail_poster" src="{{config_data.secure_base_url}}w500{{similar_film.poster_path}}">
-                    {% else %}
-                        <img class="detail_poster" src="{% static 'images/placeholder.jpg' %}">
-                    {% endif %}
+                        {% if similar_film.poster_path %}
+                            <img class="cast_photo" src="{{config_data.secure_base_url}}w185{{similar_film.poster_path}}" alt="{{ similar_film.title }}">
+                        {% else %}
+                            <img class="cast_photo" src="{% static 'images/placeholder.jpg' %}" alt="{{ similar_film.title }}">
+                        {% endif %}
                     </a>
                     <p><a href="{% url 'kinorg:film_detail' similar_film.id %}">{{ similar_film.title }}</a></p>
                 </li>
-            {% empty %}
-            <li>No similar films found.</li>
+                {% empty %}
+                <li>No similar films found.</li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p>No similar films found.</p>
+            {% endif %}
+        </div>
+
+        <div class="tab_panel" id="tab-lists">
+            {% if my_lists or guest_lists %}
+            <div class="add_remove_buttons">
+                <p><b>My Lists</b></p>
+                {% for lst in my_lists %}
+                <div class="add_remove_button">
+                    <a href="{% url 'kinorg:list' lst.sqid %}" class="btn">{{ lst.title|slice:":30" }}</a>
+                    {% include "kinorg/_toggle_button.html" with lst=lst film=film is_in_list=lst.contains_film %}
+                </div>
+                {% endfor %}
+                {% for lst in guest_lists %}
+                <div class="add_remove_button">
+                    <a href="{% url 'kinorg:list' lst.sqid %}" class="btn">{{ lst.title|slice:":30" }}</a>
+                    {% include "kinorg/_toggle_button.html" with lst=lst film=film is_in_list=lst.contains_film %}
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p>You don't have any lists yet. <a href="{% url 'kinorg:my_lists' %}" class="btn btn-cta">Create a list</a> to add this film!</p>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+
+
+<div class="modal" id="videos-modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeVideosModal()">&times;</span>
+        <h4><b>Videos</b></h4>
+        <ul class="video_list">
+            {% for video in film.videos.results %}
+            <li class="video_item">
+                <a href="https://www.youtube.com/watch?v={{ video.key }}" target="_blank">
+                    <img src="https://img.youtube.com/vi/{{ video.key }}/hqdefault.jpg"
+                         alt="{{ video.name }}"
+                         style="width: 100%; border-radius: 8px;">
+                </a>
+                <a href="https://www.youtube.com/watch?v={{ video.key }}" target="_blank">{{ video.name }}</a>
+            </li>
             {% endfor %}
         </ul>
-
-    {% endif %}
-        
     </div>
-    
 </div>
 
 

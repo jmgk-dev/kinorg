@@ -28,22 +28,6 @@ function toggleFilm(button) {
     });
 }
 
-function ReadMore() {
-    var dots = document.getElementById("dots");
-    var moreText = document.getElementById("more");
-    var btnText = document.getElementById("myBtn");
-
-    if (dots.style.display === "none") {
-        dots.style.display = "inline";
-        btnText.innerHTML = "Read more";
-        moreText.style.display = "none";
-    } else {
-        dots.style.display = "none";
-        btnText.innerHTML = "Read less";
-        moreText.style.display = "inline";
-    }
-}
-
 function openReviewModal() {
     document.getElementById('review-modal').style.display = 'block';
 }
@@ -52,24 +36,42 @@ function closeReviewModal() {
     document.getElementById('review-modal').style.display = 'none';
 }
 
-window.onclick = function(event) {
-    const modal = document.getElementById('review-modal');
-    if (event.target == modal) {
-        closeReviewModal();
-    }
+function openVideosModal() {
+    document.getElementById('videos-modal').style.display = 'block';
 }
 
+function closeVideosModal() {
+    document.getElementById('videos-modal').style.display = 'none';
+}
+
+window.onclick = function(event) {
+    const reviewModal = document.getElementById('review-modal');
+    const videosModal = document.getElementById('videos-modal');
+    if (event.target === reviewModal) closeReviewModal();
+    if (event.target === videosModal) closeVideosModal();
+};
+
 document.addEventListener('DOMContentLoaded', function () {
+
+    // Tabs
+    document.querySelectorAll('.tab_btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            document.querySelectorAll('.tab_btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab_panel').forEach(p => p.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+        });
+    });
+
+    // Like button
     const likeBtn = document.querySelector('.like_btn');
     if (likeBtn) {
         likeBtn.addEventListener('click', function () {
             const tmdbId = likeBtn.dataset.tmdbId;
-            const title = likeBtn.dataset.title;
-            const posterPath = likeBtn.dataset.posterPath;
             const csrfToken = document.cookie.match(/csrftoken=([^;]+)/)[1];
             const formData = new FormData();
-            formData.append('title', title);
-            formData.append('poster_path', posterPath);
+            formData.append('title', likeBtn.dataset.title);
+            formData.append('poster_path', likeBtn.dataset.posterPath);
             fetch(`/like/${tmdbId}/`, {
                 method: 'POST',
                 headers: { 'X-CSRFToken': csrfToken },
@@ -86,6 +88,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // Flag buttons
     document.querySelectorAll('.flag_btn').forEach(function (btn) {
         btn.addEventListener('click', function () {
             const reviewId = btn.dataset.reviewId;
@@ -104,4 +107,5 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
     });
+
 });
