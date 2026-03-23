@@ -28,6 +28,10 @@ app/tests/__pycache__/*
 .env
 deploy.sh
 
+# Import data files
+*.xls
+*.xlsx
+
 # Compiled source #
 ###################
 *.com
