@@ -90,6 +90,7 @@ p.italic {
     display: flex;
     flex-direction: row;
     gap: 20px;
+    align-items: flex-start;
 }
 
 .detail_poster {
@@ -97,18 +98,74 @@ p.italic {
   border: 1px solid white;
   margin-top: 0px;
   border-radius: 5px;
+  flex-shrink: 0;
 }
 
 .film_details {
   display: flex;
   flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.film_title_row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.film_title_row h4 {
+    margin: 0;
+}
+
+.like_btn {
+    background: none;
+    border: none;
+    font-size: 1.6rem;
+    cursor: pointer;
+    color: white;
+    line-height: 1;
+    padding: 0;
+    flex-shrink: 0;
+    transition: transform 0.15s;
+}
+
+.like_btn:hover {
+    transform: scale(1.2);
+}
+
+.like_btn.liked {
+    color: #e05252;
+}
+
+.film_meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 2px 0;
+}
+
+.meta_chip {
+    font-size: 12px;
+    padding: 3px 8px;
+    border: 1px solid rgba(255,255,255,0.4);
+    border-radius: 20px;
+    opacity: 0.8;
+}
+
+.details_label {
+    margin: 0;
+    font-size: 13px;
+    opacity: 0.6;
 }
 
 .overview {
-  max-width: 500px;
+    font-size: 14px;
+    line-height: 1.6;
+    opacity: 0.9;
+    margin: 0;
 }
-
-#more { display: none; }
 
 .add_remove_buttons {
   display: flex;

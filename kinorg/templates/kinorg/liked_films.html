@@ -1,0 +1,43 @@
+{% extends "kinorg/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" type="text/css" href="{% static 'kinorg/css/my_lists.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="lists_page_container">
+
+    <div class="my_lists_title">
+        <span>Liked Films</span>
+    </div>
+
+    {% if liked_films %}
+
+    <div class="my_lists_container">
+        <ul class="liked_films_grid">
+            {% for like in liked_films %}
+            <li class="liked_film_item">
+                <a href="{% url 'kinorg:film_detail' like.tmdb_id %}">
+                    {% if like.poster_path %}
+                    <img class="poster" src="{{ config_data.secure_base_url }}w200{{ like.poster_path }}" alt="{{ like.title }}">
+                    {% else %}
+                    <img class="poster" src="{% static 'images/placeholder.jpg' %}" alt="{{ like.title }}">
+                    {% endif %}
+                    <p class="liked_film_title">{{ like.title }}</p>
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    {% else %}
+
+    <p>You haven't liked any films yet. Hit the ♡ on a film page to save it here.</p>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

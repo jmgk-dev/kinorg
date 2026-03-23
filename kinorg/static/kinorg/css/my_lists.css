@@ -95,3 +95,46 @@
     margin-top: 20px;
 }
 
+.liked_films_grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    list-style: none;
+    padding: 0;
+    max-width: 720px;
+    justify-content: flex-start;
+}
+
+.liked_film_item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 95px;
+}
+
+.liked_film_item a {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    text-decoration: none;
+    color: inherit;
+}
+
+.liked_film_item .poster {
+    width: 95px;
+    height: 142px;
+    object-fit: cover;
+    border-radius: 5px;
+    border: 1px solid white;
+}
+
+.liked_film_title {
+    font-size: 12px;
+    line-height: 1.3;
+    margin: 0;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+

@@ -60,6 +60,32 @@ window.onclick = function(event) {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
+    const likeBtn = document.querySelector('.like_btn');
+    if (likeBtn) {
+        likeBtn.addEventListener('click', function () {
+            const tmdbId = likeBtn.dataset.tmdbId;
+            const title = likeBtn.dataset.title;
+            const posterPath = likeBtn.dataset.posterPath;
+            const csrfToken = document.cookie.match(/csrftoken=([^;]+)/)[1];
+            const formData = new FormData();
+            formData.append('title', title);
+            formData.append('poster_path', posterPath);
+            fetch(`/like/${tmdbId}/`, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': csrfToken },
+                body: formData,
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.liked !== undefined) {
+                    likeBtn.classList.toggle('liked', data.liked);
+                    likeBtn.textContent = data.liked ? '♥' : '♡';
+                    likeBtn.title = data.liked ? 'Unlike this film' : 'Like this film';
+                }
+            });
+        });
+    }
+
     document.querySelectorAll('.flag_btn').forEach(function (btn) {
         btn.addEventListener('click', function () {
             const reviewId = btn.dataset.reviewId;

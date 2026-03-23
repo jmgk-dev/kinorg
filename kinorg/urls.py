@@ -31,4 +31,6 @@ urlpatterns = [
     path("remove-film-ajax/", views.remove_film_ajax, name="remove_film_ajax"),
     path("remove-review/", views.remove_review, name="remove_review"),
     path("flag-review/<int:review_id>/", views.flag_review, name="flag_review"),
+    path("like/<int:tmdb_id>/", views.toggle_like, name="toggle_like"),
+    path("liked/", views.LikedFilms.as_view(), name="liked_films"),
     ]

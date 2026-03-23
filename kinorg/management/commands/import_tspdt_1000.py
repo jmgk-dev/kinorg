@@ -77,11 +77,13 @@ class Command(BaseCommand):
                 skipped += 1
                 continue
 
-            self.stdout.write(f"[{i}/{total}] {title} ({int(year)})", ending='\r')
+            year_int = int(str(year)[:4])
+
+            self.stdout.write(f"[{i}/{total}] {title} ({year_int})", ending='\r')
             self.stdout.flush()
 
             try:
-                result = search_tmdb(title, year)
+                result = search_tmdb(title, year_int)
                 time.sleep(0.25)
 
                 if not result:
@@ -92,7 +94,7 @@ class Command(BaseCommand):
                 film = Film.objects.filter(pk=tmdb_id).first()
 
                 if film:
-                    if COLLECTION_TAG not in film.collections:
+                    if COLLECTION_TAG not in (film.collections or []):
                         film.collections = film.collections + [COLLECTION_TAG]
                         film.save(update_fields=['collections'])
                     updated += 1

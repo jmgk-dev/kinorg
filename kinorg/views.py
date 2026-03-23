@@ -16,7 +16,7 @@ from django.urls import reverse_lazy
 
 from django.core.cache import cache
 
-from .models import Film, FilmList, Addition, Invitation, WatchedFilm, PCCScreening
+from .models import Film, FilmList, Addition, Invitation, WatchedFilm, PCCScreening, LikedFilm
 from better_profanity import profanity
 
 
@@ -470,6 +470,7 @@ class FilmDetail(LoginRequiredMixin, TemplateView):
         context["film"] = film_data
         context["watched"] = watched
         context["film_reviews"] = film_reviews
+        context["is_liked"] = LikedFilm.objects.filter(user=user, tmdb_id=movie_id).exists()
 
         return context
 
@@ -630,6 +631,35 @@ def flag_review(request, review_id):
             flagged = True
         return JsonResponse({'flagged': flagged})
     return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
+@login_required(login_url='user_admin:login')
+def toggle_like(request, tmdb_id):
+    if request.method == 'POST':
+        liked, created = LikedFilm.objects.get_or_create(
+            user=request.user,
+            tmdb_id=tmdb_id,
+            defaults={
+                'title': request.POST.get('title', ''),
+                'poster_path': request.POST.get('poster_path', ''),
+            }
+        )
+        if not created:
+            liked.delete()
+            return JsonResponse({'liked': False})
+        return JsonResponse({'liked': True})
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
+class LikedFilms(LoginRequiredMixin, TemplateView):
+
+    login_url = "user_admin:login"
+    template_name = "kinorg/liked_films.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['liked_films'] = LikedFilm.objects.filter(user=self.request.user).order_by('-liked_at')
+        return context
 
 
 class PersonCredits(LoginRequiredMixin, TemplateView):

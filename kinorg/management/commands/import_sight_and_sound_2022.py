@@ -93,7 +93,7 @@ class Command(BaseCommand):
                 film = Film.objects.filter(pk=tmdb_id).first()
 
                 if film:
-                    if COLLECTION_TAG not in film.collections:
+                    if COLLECTION_TAG not in (film.collections or []):
                         film.collections = film.collections + [COLLECTION_TAG]
                         film.save(update_fields=['collections'])
                     updated += 1

@@ -268,3 +268,26 @@ class PCCScreening(models.Model):
 		return f"PCC: {self.title} ({self.year})"
 
 
+class LikedFilm(models.Model):
+
+	class Meta:
+		unique_together = ('user', 'tmdb_id')
+
+	user = models.ForeignKey(
+		settings.AUTH_USER_MODEL,
+		on_delete=models.CASCADE,
+		related_name='liked_films',
+	)
+
+	tmdb_id = models.BigIntegerField()
+
+	title = models.CharField(max_length=200, blank=True)
+
+	poster_path = models.CharField(max_length=200, blank=True)
+
+	liked_at = models.DateTimeField(auto_now_add=True)
+
+	def __str__(self):
+		return f"{self.user} likes {self.title}"
+
+
