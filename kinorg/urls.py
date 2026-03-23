@@ -30,4 +30,5 @@ urlpatterns = [
     path("add-film-by-id/", views.add_film_by_tmdb_id, name="add_film_by_tmdb_id"),
     path("remove-film-ajax/", views.remove_film_ajax, name="remove_film_ajax"),
     path("remove-review/", views.remove_review, name="remove_review"),
+    path("flag-review/<int:review_id>/", views.flag_review, name="flag_review"),
     ]

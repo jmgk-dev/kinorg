@@ -95,6 +95,11 @@ class Film(models.Model):
 		default='',
 	)
 
+	collections = models.JSONField(
+		default=list,
+		blank=True,
+	)
+
 
 class FilmList(models.Model):
 
@@ -245,6 +250,12 @@ class WatchedFilm(models.Model):
 
 	review_visible = models.BooleanField(
 		default=True,
+	)
+
+	flagged_by = models.ManyToManyField(
+		settings.AUTH_USER_MODEL,
+		blank=True,
+		related_name='flagged_reviews',
 	)
 
 

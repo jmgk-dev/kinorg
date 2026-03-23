@@ -97,7 +97,14 @@
 
             {% for review in film_reviews %}
                 <li class="review_item">
-                    <p><b>{{ review.user }}</b></p>
+                    <div class="review_header">
+                        <p><b>{{ review.user }}</b></p>
+                        {% if review.user != request.user %}
+                        <button class="flag_btn {% if review.id in user_flagged_ids %}flagged{% endif %}"
+                                data-review-id="{{ review.id }}"
+                                title="Flag this review">{% if review.id in user_flagged_ids %}🚩 Flagged{% else %}Flag{% endif %}</button>
+                        {% endif %}
+                    </div>
                     {% if review.stars %}
                     <div class="rating review_stars">
                         {% for i in "12345" %}

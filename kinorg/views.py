@@ -17,6 +17,7 @@ from django.urls import reverse_lazy
 from django.core.cache import cache
 
 from .models import Film, FilmList, Addition, Invitation, WatchedFilm, PCCScreening
+from better_profanity import profanity
 
 
 # Functions ------------------------------------------------------------>
@@ -385,7 +386,10 @@ class FilmDetail(LoginRequiredMixin, TemplateView):
         my_lists = FilmList.objects.filter(owner=user).order_by('-id')
         guest_lists = FilmList.objects.filter(guests=user).order_by('-id')
 
-        film_reviews = WatchedFilm.objects.filter(film__id=movie_id).exclude(mini_review__isnull=True).exclude(mini_review__exact='')
+        film_reviews = WatchedFilm.objects.filter(film__id=movie_id, review_visible=True).exclude(mini_review__isnull=True).exclude(mini_review__exact='')
+        context['user_flagged_ids'] = set(
+            WatchedFilm.objects.filter(flagged_by=user).values_list('id', flat=True)
+        )
 
         film_cache_key = f'tmdb_film_{movie_id}'
         film_data = cache.get(film_cache_key)
@@ -554,7 +558,7 @@ def add_review(request):
         user = request.user
 
         stars = request.POST.get("stars")  # Can be None
-        mini_review = request.POST.get("mini_review", "").strip()
+        mini_review = profanity.censor(request.POST.get("mini_review", "").strip())
 
         fields = [
             'title', 'release_date', 'poster_path', 'backdrop_path',
@@ -608,6 +612,24 @@ def remove_review(request):
         else:
     
             return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
+@login_required(login_url='user_admin:login')
+def flag_review(request, review_id):
+    if request.method == 'POST':
+        review = WatchedFilm.objects.filter(id=review_id).first()
+        if not review:
+            return JsonResponse({'error': 'Not found'}, status=404)
+        if review.user == request.user:
+            return JsonResponse({'error': 'Cannot flag your own review'}, status=400)
+        if request.user in review.flagged_by.all():
+            review.flagged_by.remove(request.user)
+            flagged = False
+        else:
+            review.flagged_by.add(request.user)
+            flagged = True
+        return JsonResponse({'flagged': flagged})
+    return JsonResponse({'error': 'Invalid request'}, status=400)
 
 
 class PersonCredits(LoginRequiredMixin, TemplateView):

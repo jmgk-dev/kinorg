@@ -58,3 +58,24 @@ window.onclick = function(event) {
         closeReviewModal();
     }
 }
+
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.flag_btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            const reviewId = btn.dataset.reviewId;
+            fetch(`/flag-review/${reviewId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.cookie.match(/csrftoken=([^;]+)/)[1],
+                },
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.flagged !== undefined) {
+                    btn.classList.toggle('flagged', data.flagged);
+                    btn.textContent = data.flagged ? '🚩 Flagged' : 'Flag';
+                }
+            });
+        });
+    });
+});

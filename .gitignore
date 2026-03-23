@@ -78,5 +78,3 @@ media/
  __pycache__/
  *.pyc
 cache/
-
-.gitignore
