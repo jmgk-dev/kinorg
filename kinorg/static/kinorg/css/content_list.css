@@ -4,6 +4,38 @@
     align-items: center;
 }
 
+.person_page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 16px 40px;
+    gap: 24px;
+}
+
+.person_header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+}
+
+.person_photo {
+    width: 100px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.3);
+}
+
+.person_tabs_wrap {
+    width: 100%;
+    max-width: 960px;
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: rgba(255,255,255,0.05);
+    min-height: 200px;
+}
+
 .content_list_container {
 }
 

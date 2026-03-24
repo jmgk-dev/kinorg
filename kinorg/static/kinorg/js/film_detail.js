@@ -90,6 +90,14 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    // See more tiles for cast / crew
+    document.querySelectorAll('.see_more_card').forEach(function (card) {
+        card.addEventListener('click', function () {
+            const list = document.getElementById(card.dataset.target);
+            list.classList.add('show-all');
+        });
+    });
+
     // Overflow indicator for scrollable lists
     document.querySelectorAll('.cast_list, .similar_list').forEach(function (list) {
         if (list.scrollWidth > list.clientWidth) {

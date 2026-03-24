@@ -5,58 +5,81 @@
 <link rel="stylesheet" type="text/css" href="{% static 'kinorg/css/content_list.css' %}">
 {% endblock %}
 
-
 {% block content %}
 
-<div class="results_title_info">
-    <span>{{ name }}</span>
-</div>
+<div class="person_page">
 
-{% if directed_films and cast_films %}
-<div class="results_title_info">
-    <a href="?tab=acting" 
-       class="tab {% if active_tab == 'acting' %}active{% endif %}">
-        Acting ({{ cast_films|length }})
-    </a>
-    <a href="?tab=directing" 
-       class="tab {% if active_tab == 'directing' %}active{% endif %}">
-        Directing ({{ directed_films|length }})
-    </a>
-</div>
-{% endif %}
+    <div class="person_header">
+        {% if profile_path %}
+        <img class="person_photo" src="{{ config_data.secure_base_url }}w185{{ profile_path }}" alt="{{ name }}">
+        {% endif %}
+        <span class="page_title">{{ name }}</span>
+    </div>
 
-<div class="content_list_container">
+    <div class="person_tabs_wrap">
 
-<ul class="list_of_content">
-
-{% if active_tab == 'acting' %}
-    {% for film in cast_films %}
-    <li class="results_item">
-        <div class="result">
-            {% if film.poster_path %}
-            <a href="{% url 'kinorg:film_detail' film.id %}"><img class="poster" src="{{config_data.secure_base_url}}w200{{film.poster_path}}"></a>
-            {% else %}
-            <a href="{% url 'kinorg:film_detail' film.id %}"><img class="poster" src="{% static 'images/placeholder.jpg' %}"></a>
+        <div class="tab_nav" id="person_tab_nav">
+            {% if cast_films %}
+            <button class="tab_btn {% if default_tab == 'acting' %}active{% endif %}" data-tab="acting">
+                Acting ({{ cast_films|length }})
+            </button>
             {% endif %}
+            {% for category, films in crew_tabs.items %}
+            <button class="tab_btn {% if default_tab == category|lower|cut:' ' %}active{% endif %}" data-tab="{{ category|lower|cut:' ' }}">
+                {{ category }} ({{ films|length }})
+            </button>
+            {% endfor %}
         </div>
-    </li>
-    {% endfor %}
-{% else %}
-    {% for film in directed_films %}
-    <li class="results_item">
-        <div class="result">
-            {% if film.poster_path %}
-            <a href="{% url 'kinorg:film_detail' film.id %}"><img class="poster" src="{{config_data.secure_base_url}}w200{{film.poster_path}}"></a>
-            {% else %}
-            <a href="{% url 'kinorg:film_detail' film.id %}"><img class="poster" src="{% static 'images/placeholder.jpg' %}"></a>
-            {% endif %}
-        </div>
-    </li>
-    {% endfor %}
-{% endif %}
 
-</ul>
+        {% if cast_films %}
+        <div class="tab_panel {% if default_tab == 'acting' %}active{% endif %}" id="tab-acting">
+            <ul class="list_of_content">
+                {% for film in cast_films %}
+                <li class="results_item">
+                    <a href="{% url 'kinorg:film_detail' film.id %}">
+                        {% if film.poster_path %}
+                        <img class="poster" src="{{ config_data.secure_base_url }}w200{{ film.poster_path }}" alt="{{ film.title }}">
+                        {% else %}
+                        <img class="poster" src="{% static 'images/placeholder.jpg' %}" alt="{{ film.title }}">
+                        {% endif %}
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        {% for category, films in crew_tabs.items %}
+        <div class="tab_panel {% if default_tab == category|lower|cut:' ' %}active{% endif %}" id="tab-{{ category|lower|cut:' ' }}">
+            <ul class="list_of_content">
+                {% for film in films %}
+                <li class="results_item">
+                    <a href="{% url 'kinorg:film_detail' film.id %}">
+                        {% if film.poster_path %}
+                        <img class="poster" src="{{ config_data.secure_base_url }}w200{{ film.poster_path }}" alt="{{ film.title }}">
+                        {% else %}
+                        <img class="poster" src="{% static 'images/placeholder.jpg' %}" alt="{{ film.title }}">
+                        {% endif %}
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endfor %}
+
+    </div>
 
 </div>
+
+<script>
+document.querySelectorAll('#person_tab_nav .tab_btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+        document.querySelectorAll('#person_tab_nav .tab_btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.person_tabs_wrap .tab_panel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    });
+});
+</script>
 
 {% endblock %}

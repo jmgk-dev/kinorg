@@ -680,23 +680,57 @@ class PersonCredits(LoginRequiredMixin, TemplateView):
 
         known_for = search_data.get('known_for_department', 'Acting')
 
-        films = search_data['movie_credits'].get('cast', []) + [f for f in search_data['movie_credits'].get('crew', []) if f.get('job') == 'Director'
-]
+        CREW_CATEGORIES = [
+            ('Directing',     {'Director', 'Co-Director'}),
+            ('Writing',       {'Writer', 'Screenplay', 'Original Screenplay', 'Story', 'Novel', 'Adaptation', 'Script'}),
+            ('Producing',     {'Producer', 'Executive Producer', 'Co-Producer'}),
+            ('Cinematography',{'Director of Photography', 'Cinematography'}),
+            ('Editing',       {'Editor', 'Film Editing'}),
+            ('Music',         {'Original Music Composer', 'Music', 'Composer'}),
+            ('Production Design', {'Production Design', 'Production Designer'}),
+            ('Costume Design',{'Costume Design', 'Costume Designer'}),
+        ]
 
-        cast_films = sorted(search_data['movie_credits'].get('cast', []), key=lambda film: film['popularity'], reverse=True)
-        directed_films = sorted(
-            [f for f in search_data['movie_credits'].get('crew', []) if f.get('job') == 'Director'],
-            key=lambda film: film['popularity'], reverse=True
+        cast_films = sorted(
+            search_data['movie_credits'].get('cast', []),
+            key=lambda f: f.get('popularity', 0), reverse=True
         )
 
-        # Determine active tab - only relevant if both lists have film
-        default_tab = 'directing' if known_for == 'Directing' else 'acting'
-        active_tab = self.request.GET.get('tab', default_tab)
+        crew_tabs = {}
+        seen = {}
+        for member in search_data['movie_credits'].get('crew', []):
+            job = member.get('job', '')
+            for category, jobs in CREW_CATEGORIES:
+                if job in jobs:
+                    seen.setdefault(category, set())
+                    if member['id'] not in seen[category]:
+                        seen[category].add(member['id'])
+                        crew_tabs.setdefault(category, [])
+                        crew_tabs[category].append(member)
+                    break
+        for cat in crew_tabs:
+            crew_tabs[cat].sort(key=lambda f: f.get('popularity', 0), reverse=True)
+
+        DEPT_TO_TAB = {
+            'Acting':             'acting',
+            'Directing':          'directing',
+            'Writing':            'writing',
+            'Production':         'producing',
+            'Camera':             'cinematography',
+            'Editing':            'editing',
+            'Sound':              'music',
+            'Art':                'productiondesign',
+            'Costume & Make-Up':  'costumedesign',
+        }
+        all_tab_keys = (['acting'] if cast_films else []) + [k.lower().replace(' ', '') for k in crew_tabs.keys()]
+        preferred = DEPT_TO_TAB.get(known_for, 'acting')
+        default_tab = preferred if preferred in all_tab_keys else (all_tab_keys[0] if all_tab_keys else 'acting')
 
         context["name"] = search_data["name"]
+        context["profile_path"] = search_data.get("profile_path")
         context["cast_films"] = cast_films
-        context["directed_films"] = directed_films
-        context["active_tab"] = active_tab
+        context["crew_tabs"] = crew_tabs
+        context["default_tab"] = default_tab
 
         return context
 

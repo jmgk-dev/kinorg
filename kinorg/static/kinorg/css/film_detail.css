@@ -8,6 +8,7 @@ p.italic {
 .film_header_wrap {
     display: flex;
     justify-content: center;
+    margin-top: -40px;
     margin-bottom: 20px;
     padding: 0 16px;
 }
@@ -212,49 +213,39 @@ p.italic {
     min-height: 320px;
 }
 
-.tab_nav {
+/* tab styles are in kinorg_base.css */
+
+
+/* ===== SEE MORE ===== */
+
+.cast_list .list_extra {
+    display: none;
+}
+
+.cast_list.show-all .list_extra {
     display: flex;
-    flex-direction: row;
-    border-bottom: 1px solid rgba(255,255,255,0.3);
-    overflow-x: auto;
-    scrollbar-width: none;
 }
 
-.tab_nav::-webkit-scrollbar {
+.cast_list.show-all .see_more_card {
     display: none;
 }
 
-.tab_btn {
-    background: none;
-    border: none;
-    border-bottom: 3px solid transparent;
-    color: rgba(255,255,255,0.6);
-    padding: 14px 20px;
+.see_more_tile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 13px;
+    padding: 8px;
+    box-sizing: border-box;
+    opacity: 0.7;
     cursor: pointer;
-    font-size: 14px;
-    white-space: nowrap;
-    transition: color 0.2s, border-color 0.2s;
-    margin-bottom: -1px;
+    transition: opacity 0.2s;
 }
 
-.tab_btn:hover {
-    color: white;
+.see_more_tile:hover {
+    opacity: 1;
 }
-
-.tab_btn.active {
-    color: white;
-    border-bottom-color: white;
-}
-
-.tab_panel {
-    display: none;
-    padding: 20px;
-}
-
-.tab_panel.active {
-    display: block;
-}
-
 
 /* ===== CAST / SIMILAR ===== */
 
@@ -538,12 +529,12 @@ p.italic {
 
     .film_header_wrap,
     .film_tabs_wrap {
-        padding: 0 10px;
+        padding: 0 4px;
     }
 
     .film_header_inner {
         padding: 12px;
-        gap: 12px;
+        gap: 20px;
     }
 
     .film_header_top {
@@ -557,7 +548,7 @@ p.italic {
     .film_info {
         max-height: none;
         overflow: visible;
-        gap: 4px;
+        gap: 5px;
         justify-content: flex-start;
     }
 

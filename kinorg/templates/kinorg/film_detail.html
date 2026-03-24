@@ -8,7 +8,7 @@
 {% block content %}
 
 <div class="film_header_wrap">
-    <div class="film_header_inner" {% if film.backdrop_path %}style="background-image: linear-gradient(to right, black, transparent 15%, transparent 85%, black), linear-gradient(to bottom, black 0%, transparent 25%, transparent 55%, black 100%), linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url('{{config_data.secure_base_url}}w1280{{film.backdrop_path}}'); background-size: cover; background-position: center top;"{% endif %}>
+    <div class="film_header_inner" {% if film.backdrop_path %}style="background-image: linear-gradient(to right, black, transparent 15%, transparent 85%, black), linear-gradient(to bottom, black 0%, transparent 25%, transparent 55%, black 100%), linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)), url('{{config_data.secure_base_url}}w1280{{film.backdrop_path}}'); background-size: cover; background-position: center top;"{% endif %}>
 
         <div class="film_header_top">
 
@@ -144,6 +144,7 @@
 
         <div class="tab_nav">
             <button class="tab_btn active" data-tab="cast">Cast</button>
+            <button class="tab_btn" data-tab="crew">Crew</button>
             <button class="tab_btn" data-tab="reviews">Reviews</button>
             <button class="tab_btn" data-tab="similar">Similar</button>
             <button class="tab_btn" data-tab="lists">Lists</button>
@@ -151,9 +152,9 @@
 
         <div class="tab_panel active" id="tab-cast">
             {% if film.credits.cast %}
-            <ul class="cast_list">
-                {% for member in film.credits.cast|slice:":15" %}
-                <li class="cast_item">
+            <ul class="cast_list" id="cast_list">
+                {% for member in film.credits.cast %}
+                <li class="cast_item{% if forloop.counter0 >= 10 %} list_extra{% endif %}">
                     <a href="{% url 'kinorg:person_credits' member.id %}">
                         {% if member.profile_path %}
                             <img class="cast_photo" src="{{config_data.secure_base_url}}w185{{member.profile_path}}" alt="{{ member.name }}">
@@ -165,10 +166,48 @@
                     <p class="cast_character">{{ member.character }}</p>
                 </li>
                 {% endfor %}
+                {% if film.credits.cast|length > 10 %}
+                <li class="cast_item see_more_card" data-target="cast_list">
+                    <div class="cast_photo see_more_tile">
+                        <span>+ {{ film.credits.cast|length|add:"-10" }} more</span>
+                    </div>
+                </li>
+                {% endif %}
             </ul>
             {% else %}
             <p>No cast information available.</p>
             {% endif %}
+        </div>
+
+        <div class="tab_panel" id="tab-crew">
+            {% with crew=film.credits.crew|key_crew %}
+            {% if crew %}
+            <ul class="cast_list" id="crew_list">
+                {% for member in crew %}
+                <li class="cast_item{% if forloop.counter0 >= 10 %} list_extra{% endif %}">
+                    <a href="{% url 'kinorg:person_credits' member.id %}">
+                        {% if member.profile_path %}
+                            <img class="cast_photo" src="{{config_data.secure_base_url}}w185{{member.profile_path}}" alt="{{ member.name }}">
+                        {% else %}
+                            <img class="cast_photo" src="{% static 'images/placeholder.jpg' %}" alt="{{ member.name }}">
+                        {% endif %}
+                    </a>
+                    <p><a href="{% url 'kinorg:person_credits' member.id %}">{{ member.name }}</a></p>
+                    <p class="cast_character">{{ member.job }}</p>
+                </li>
+                {% endfor %}
+                {% if crew|length > 10 %}
+                <li class="cast_item see_more_card" data-target="crew_list">
+                    <div class="cast_photo see_more_tile">
+                        <span>+ {{ crew|length|add:"-10" }} more</span>
+                    </div>
+                </li>
+                {% endif %}
+            </ul>
+            {% else %}
+            <p>No crew information available.</p>
+            {% endif %}
+            {% endwith %}
         </div>
 
         <div class="tab_panel" id="tab-reviews">
@@ -196,6 +235,8 @@
                 </li>
                 {% endfor %}
             </ul>
+            {% else %}
+            <p class="film_modal_no_lists">No reviews yet — add your own above!</p>
             {% endif %}
         </div>
 
@@ -225,7 +266,6 @@
         <div class="tab_panel" id="tab-lists">
             {% if my_lists or guest_lists %}
             <div class="add_remove_buttons">
-                <p><b>My Lists</b></p>
                 {% for lst in my_lists %}
                 <div class="add_remove_button">
                     <a href="{% url 'kinorg:list' lst.sqid %}" class="btn">{{ lst.title|slice:":30" }}</a>

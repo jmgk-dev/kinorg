@@ -120,7 +120,7 @@ header {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    padding: 0 10px 20px 6px;
+    padding: 0 10px 0 6px;
     position: sticky;
     top: 0;
     z-index: 998;
@@ -162,7 +162,7 @@ p {
 
 .page_content {
     flex: 1;
-    padding-top: 20px;
+    padding-top: 40px;
 }
 
 .bar_item {
@@ -256,6 +256,54 @@ p {
     gap: 10px;
     margin-top: 20px;
 }
+
+/* ===== TABS (shared) ===== */
+
+.tab_nav {
+    display: flex;
+    flex-direction: row;
+    border-bottom: 1px solid rgba(255,255,255,0.3);
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.tab_nav::-webkit-scrollbar {
+    display: none;
+}
+
+.tab_btn {
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: rgba(255,255,255,0.6);
+    padding: 14px 20px;
+    cursor: pointer;
+    font-size: 14px;
+    white-space: nowrap;
+    transition: color 0.2s, border-color 0.2s;
+    margin-bottom: -1px;
+}
+
+.tab_btn:hover {
+    color: white;
+    filter: none;
+}
+
+.tab_btn.active {
+    color: white;
+    border-bottom-color: white;
+}
+
+.tab_panel {
+    display: none;
+    padding: 20px;
+}
+
+.tab_panel.active {
+    display: block;
+}
+
+/* ===== END TABS ===== */
 
 .page_title {
     font-family: "Roboto Mono", monospace;
