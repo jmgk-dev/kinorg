@@ -16,7 +16,16 @@
         <div class="person_info">
             <span class="page_title person_name">{{ name }}</span>
             {% if biography %}
-            <p class="person_bio">{{ biography|truncatewords:60 }}</p>
+            {% if biography|wordcount > 80 %}
+            <p class="person_bio person_bio--desktop">{{ biography|truncatewords:80 }} <button class="person_bio_more_btn">more</button></p>
+            {% else %}
+            <p class="person_bio person_bio--desktop">{{ biography }}</p>
+            {% endif %}
+            {% if biography|wordcount > 40 %}
+            <p class="person_bio person_bio--mobile">{{ biography|truncatewords:40 }} <button class="person_bio_more_btn">more</button></p>
+            {% else %}
+            <p class="person_bio person_bio--mobile">{{ biography }}</p>
+            {% endif %}
             {% endif %}
         </div>
     </div>
@@ -76,6 +85,15 @@
 
 </div>
 
+{% if biography and biography|wordcount > 40 %}
+<div class="person_bio_modal" id="person_bio_modal">
+    <div class="person_bio_modal_card">
+        <button class="person_bio_modal_close" id="person_bio_modal_close">&times;</button>
+        <p class="person_bio_modal_text">{{ biography }}</p>
+    </div>
+</div>
+{% endif %}
+
 <script>
 document.querySelectorAll('#person_tab_nav .tab_btn').forEach(function (btn) {
     btn.addEventListener('click', function () {
@@ -89,6 +107,27 @@ document.querySelectorAll('#person_tab_nav .tab_btn').forEach(function (btn) {
 
 const activeBtn = document.querySelector('#person_tab_nav .tab_btn.active');
 if (activeBtn) activeBtn.scrollIntoView({ inline: 'nearest', block: 'nearest' });
+
+const bioModal = document.getElementById('person_bio_modal');
+const bioModalClose = document.getElementById('person_bio_modal_close');
+if (bioModal) {
+    document.querySelectorAll('.person_bio_more_btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            bioModal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        });
+    });
+    bioModalClose.addEventListener('click', function () {
+        bioModal.style.display = 'none';
+        document.body.style.overflow = '';
+    });
+    bioModal.addEventListener('click', function (e) {
+        if (e.target === bioModal) {
+            bioModal.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+    });
+}
 </script>
 
 {% endblock %}

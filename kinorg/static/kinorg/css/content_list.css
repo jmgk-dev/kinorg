@@ -48,6 +48,65 @@
     margin: 0;
 }
 
+.person_bio_more_btn {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.5);
+    font-size: 12px;
+    cursor: pointer;
+    padding: 0;
+    display: inline;
+    text-decoration: underline;
+}
+
+.person_bio_modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    z-index: 1001;
+    justify-content: center;
+    align-items: center;
+    padding: 16px;
+}
+
+.person_bio_modal_card {
+    background: #1a1a1a;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    padding: 20px 24px;
+    max-width: 560px;
+    width: 100%;
+    position: relative;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.person_bio_modal_close {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.4rem;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+}
+
+.person_bio--mobile {
+    display: none;
+}
+
+.person_bio_modal_text {
+    font-size: 13px;
+    line-height: 1.7;
+    opacity: 0.85;
+    margin: 0;
+    padding-right: 16px;
+}
+
 .person_tabs_wrap {
     width: 100%;
     max-width: 960px;
@@ -91,8 +150,24 @@
         width: 90px;
     }
 
+    .person_name {
+        font-size: 1rem;
+    }
+
+    .person_info {
+        gap: 6px;
+    }
+
     .person_bio {
         font-size: 12px;
+    }
+
+    .person_bio--desktop {
+        display: none;
+    }
+
+    .person_bio--mobile {
+        display: block;
     }
 
     .person_tabs_wrap .tab_panel {
