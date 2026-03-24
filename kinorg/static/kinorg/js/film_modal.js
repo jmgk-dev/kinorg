@@ -17,13 +17,15 @@ if (modal) {
         modalTitle.textContent = title;
         modalPoster.src = posterPath ? `${TMDB_BASE}w200${posterPath}` : placeholder;
         modalDetailLink.href = detailUrl;
-        modalLists.innerHTML = '<p>Loading...</p>';
-        modal.style.display = 'flex';
-        document.body.style.overflow = 'hidden';
+        modalLists.innerHTML = '';
 
         fetch(`/film-lists/?film_id=${filmId}`)
             .then(res => res.json())
-            .then(data => renderLists(data, filmId));
+            .then(data => {
+                renderLists(data, filmId);
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            });
     }
 
     function renderLists(data, filmId) {
