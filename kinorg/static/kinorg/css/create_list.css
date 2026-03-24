@@ -1,11 +1,23 @@
-.create_list_form {
-	display: flex;
-	justify-content: center;
-	margin-top: 30px;
+.create_list_page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px 16px 40px;
+    gap: 24px;
 }
 
-.form {
-	display: flex;
-	flex-direction: column;
-	gap: 20px;
+.create_list_header {
+    width: 100%;
+    max-width: 720px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.create_list_form {
+    width: 100%;
+    max-width: 720px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
 }

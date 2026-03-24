@@ -15,24 +15,26 @@ p.italic {
 .film_header_inner {
     width: 100%;
     max-width: 960px;
-    border: 1px solid white;
     border-radius: 10px;
-    padding: 20px;
+    padding: 24px;
     display: flex;
     flex-direction: column;
     gap: 20px;
+    overflow: hidden;
+    background-color: rgba(255,255,255,0.05);
 }
 
 .film_header_top {
     display: grid;
-    grid-template-columns: auto 1fr;
-    gap: 24px;
+    grid-template-columns: auto 1fr auto;
+    gap: 40px;
     align-items: start;
 }
 
 .detail_poster {
     width: 200px;
-    height: auto;
+    aspect-ratio: 2/3;
+    object-fit: cover;
     border: 1px solid white;
     border-radius: 5px;
     display: block;
@@ -41,7 +43,26 @@ p.italic {
 .film_info {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
+    max-height: 300px;
+    overflow: hidden;
+}
+
+.like_btn--mobile {
+    display: none;
+}
+
+.watch_section--desktop {
+    height: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
+}
+
+.like_btn--desktop {
+    align-self: flex-end;
+    margin-bottom: auto;
 }
 
 .film_title_row {
@@ -108,6 +129,14 @@ p.italic {
     gap: 8px;
 }
 
+.watch_section--desktop {
+    display: flex;
+}
+
+.watch_section--mobile {
+    display: none;
+}
+
 .watch_rows {
     display: flex;
     flex-direction: column;
@@ -126,6 +155,12 @@ p.italic {
     opacity: 0.6;
     width: 80px;
     flex-shrink: 0;
+}
+
+.watch_row--videos {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255,255,255,0.15);
 }
 
 .provider_logo {
@@ -151,10 +186,6 @@ p.italic {
     border: none;
 }
 
-.videos_btn {
-    align-self: flex-start;
-}
-
 .overview {
     font-size: 14px;
     line-height: 1.6;
@@ -175,9 +206,10 @@ p.italic {
 .film_tabs_inner {
     width: 100%;
     max-width: 960px;
-    border: 1px solid white;
     border-radius: 10px;
     overflow: hidden;
+    background-color: rgba(255,255,255,0.05);
+    min-height: 320px;
 }
 
 .tab_nav {
@@ -225,6 +257,12 @@ p.italic {
 
 
 /* ===== CAST / SIMILAR ===== */
+
+.cast_list.has-overflow,
+.similar_list.has-overflow {
+    -webkit-mask-image: linear-gradient(to right, black calc(100% - 70px), transparent 100%);
+    mask-image: linear-gradient(to right, black calc(100% - 70px), transparent 100%);
+}
 
 .cast_list,
 .similar_list {
@@ -517,7 +555,10 @@ p.italic {
     }
 
     .film_info {
-        gap: 6px;
+        max-height: none;
+        overflow: visible;
+        gap: 4px;
+        justify-content: flex-start;
     }
 
     .film_title_row h3 {
@@ -560,6 +601,28 @@ p.italic {
     .reviews_list {
         margin: 0 -14px;
         padding: 0 14px 10px;
+    }
+
+    .film_header_top {
+        grid-template-columns: auto 1fr;
+    }
+
+    .watch_section--desktop {
+        display: none;
+    }
+
+    .like_btn--mobile {
+        display: block;
+    }
+
+    .watch_section--mobile {
+        display: flex;
+        margin-top: 8px;
+    }
+
+    .tagline,
+    .overview {
+        margin-top: 6px;
     }
 
 }

@@ -7,13 +7,16 @@
 
 {% block content %}
 
-<div class="create_list_form">
-<form method="post" class="form">
-	{% csrf_token %}
-    {{ form.as_p }}
-    <input type="submit" style="background-color:rebeccapurple; color:white;" value="Create">
-
-</form>
+<div class="create_list_page">
+    <div class="create_list_header">
+        <span class="page_title">Create a List</span>
+        <p class="page_blurb">Give your list a name. Once created, you can add films via search and invite friends to collaborate.</p>
+    </div>
+    <form method="post" class="create_list_form">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" style="background-color:rebeccapurple; color:white;" value="Create">
+    </form>
 </div>
 
 

@@ -10,7 +10,7 @@
 <div class="lists_page_container">
 
     <div class="my_lists_title">
-        <span>Liked Films</span>
+        <span class="page_title">Liked Films</span>
     </div>
 
     {% if liked_films %}
@@ -34,7 +34,9 @@
 
     {% else %}
 
-    <p>You haven't liked any films yet. Hit the ♡ on a film page to save it here.</p>
+    <div class="empty_state">
+        <p class="page_blurb">You haven't liked any films yet. Hit the ♡ on a film page to save it here.</p>
+    </div>
 
     {% endif %}
 

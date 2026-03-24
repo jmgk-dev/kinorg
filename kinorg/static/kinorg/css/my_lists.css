@@ -1,21 +1,25 @@
 .lists_page_container {
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    align-items: center;
+    padding: 30px 16px 40px;
+    gap: 8px;
 }
 
 .my_lists_title {
+    width: 100%;
+    max-width: 720px;
     display: flex;
     justify-content: center;
     align-items: center;
+    margin-bottom: 8px;
 }
 
 .my_lists_container {
     display: flex;
     justify-content: center;
-    margin: 0px;
-    margin-top: 40px;
-    margin-bottom: 40px;
+    width: 100%;
+    max-width: 720px;
 }
 
 .my_lists {

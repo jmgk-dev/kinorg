@@ -10,8 +10,15 @@
 <div class="lists_page_container">
 
     <div class="my_lists_title">
-        <span>My Lists</span>
+        <span class="page_title">My Lists</span>
     </div>
+
+{% if not my_lists and not guest_lists %}
+    <div class="empty_state">
+        <p class="page_blurb">You don't have any lists yet. Lists are a great way to organise films to watch — create one and invite friends to collaborate!</p>
+        <a href="{% url 'kinorg:create_list' %}" class="btn btn-cta">Create your first list</a>
+    </div>
+{% endif %}
 
 {% if my_lists %}
     
@@ -68,7 +75,31 @@
                 <li class="list_item">
 
                     <a href="{% url 'kinorg:list' glist.sqid  %}" class="btn">{{ glist.title|slice:":30" }}</a>
-                    <div>List created by {{ glist.owner }}</div>
+                    <p class="page_blurb">Shared by {{ glist.owner }}</p>
+
+                    {% with total=glist.addition_set.all|length %}
+                    {% if total > 0 %}
+                    <ul class="list_poster_stack">
+                        {% for addition in glist.addition_set.all|slice:":10" %}
+                            <li class="stack_item">
+                                <a class="poster_link" href="{% url 'kinorg:film_detail' addition.film.id %}" data-film-id="{{ addition.film.id }}" data-film-title="{{ addition.film.title }}" data-poster-path="{{ addition.film.poster_path }}" data-media-type="movie">
+                                <img class="poster" src="{{config_data.secure_base_url}}w200{{addition.film.poster_path}}">
+                                </a>
+                            </li>
+                        {% endfor %}
+                        {% if total > 10 %}
+                            <li class="stack_item">
+                                <a href="{% url 'kinorg:list' glist.sqid %}" class="stack_see_all">
+                                    <span>+ {{ total|add:"-10" }} more</span>
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                    {% else %}
+                        <a href="{% url 'kinorg:search' %}" class="btn btn-search">Search for films to add</a>
+                    {% endif %}
+                    {% endwith %}
+
                 </li>
 
             {% endfor %}

@@ -1,5 +1,5 @@
 {% extends "kinorg/base.html" %}
-{% load static %}
+{% load static kinorg_extras %}
 
 {% block extra_css %}
 <link rel="stylesheet" type="text/css" href="{% static 'kinorg/css/film_detail.css' %}">
@@ -8,7 +8,7 @@
 {% block content %}
 
 <div class="film_header_wrap">
-    <div class="film_header_inner">
+    <div class="film_header_inner" {% if film.backdrop_path %}style="background-image: linear-gradient(to right, black, transparent 15%, transparent 85%, black), linear-gradient(to bottom, black 0%, transparent 25%, transparent 55%, black 100%), linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url('{{config_data.secure_base_url}}w1280{{film.backdrop_path}}'); background-size: cover; background-position: center top;"{% endif %}>
 
         <div class="film_header_top">
 
@@ -18,7 +18,7 @@
 
                 <div class="film_title_row">
                     <h3><b>{{ film.title }}</b></h3>
-                    <button class="like_btn {% if is_liked %}liked{% endif %}"
+                    <button class="like_btn like_btn--mobile {% if is_liked %}liked{% endif %}"
                             data-tmdb-id="{{ film.id }}"
                             data-title="{{ film.title }}"
                             data-poster-path="{{ film.poster_path }}"
@@ -31,7 +31,7 @@
                     {% if film.release_date %}<span class="meta_chip">{{ film.release_date|slice:":4" }}</span>{% endif %}
                     {% if film.runtime %}<span class="meta_chip">{{ film.runtime }}m</span>{% endif %}
                     {% for genre in film.genres %}<span class="meta_chip">{{ genre.name }}</span>{% endfor %}
-                    {% for country in film.production_countries %}<span class="meta_chip">{{ country.name }}</span>{% endfor %}
+                    {% for country in film.production_countries %}<span class="meta_chip">{{ country.name|country_abbr }}</span>{% endfor %}
                 </div>
 
                 <p class="details_label">Directed by</p>
@@ -41,11 +41,52 @@
                     {% endfor %}
                 </div>
 
-                {% if film.videos and film.videos.results %}
-                <button class="videos_btn btn" onclick="openVideosModal()">&#9654; Videos</button>
-                {% endif %}
-
             </div>
+
+            {% if watch_providers or pcc_url or film.videos.results %}
+            <div class="watch_section watch_section--desktop">
+                <button class="like_btn like_btn--desktop {% if is_liked %}liked{% endif %}"
+                        data-tmdb-id="{{ film.id }}"
+                        data-title="{{ film.title }}"
+                        data-poster-path="{{ film.poster_path }}"
+                        title="{% if is_liked %}Unlike{% else %}Like{% endif %} this film">
+                    {% if is_liked %}♥{% else %}♡{% endif %}
+                </button>
+                <p class="details_label">Where to Watch</p>
+                <div class="watch_rows">
+                    {% if pcc_url %}
+                    <div class="watch_row">
+                        <span class="watch_row_label">In cinemas</span>
+                        <a href="{{ pcc_url }}" target="_blank" rel="noopener" class="provider_link" title="Showing at Prince Charles Cinema">
+                            <img class="provider_logo" src="{% static 'kinorg/img/pcc_logo_474.jpg' %}" alt="Prince Charles Cinema">
+                        </a>
+                    </div>
+                    {% endif %}
+                    {% if amazon_url or watch_providers %}
+                    <div class="watch_row">
+                        <span class="watch_row_label">Stream / Buy</span>
+                        {% if amazon_url %}
+                        <a href="{{ amazon_url }}" target="_blank" rel="noopener" class="provider_link" title="Amazon Prime Video">
+                            <img class="provider_logo" src="{{ config_data.secure_base_url }}w92{{ amazon_logo_path }}" alt="Amazon Prime Video">
+                        </a>
+                        {% endif %}
+                        {% if watch_providers %}
+                        <a href="{{ justwatch_url }}" target="_blank" rel="noopener" class="provider_link" title="Find on JustWatch">
+                            <img class="provider_logo" src="{% static 'kinorg/img/jw_logo_180.png' %}" alt="JustWatch">
+                        </a>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    {% if film.videos and film.videos.results %}
+                    {% with vids=film.videos.results first_vid=film.videos.results|first %}
+                    <div class="watch_row watch_row--videos">
+                        <button class="btn" onclick="openVideosModal()">&#9654; {% if vids|length == 1 and "trailer" in first_vid.name|lower %}Trailer{% elif vids|length > 1 %}Trailers &amp; More{% else %}Watch{% endif %}</button>
+                    </div>
+                    {% endwith %}
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
 
         </div>
 
@@ -55,8 +96,8 @@
         <p class="overview">{{ film.overview }}</p>
         {% endif %}
 
-        {% if watch_providers or pcc_url %}
-        <div class="watch_section">
+        {% if watch_providers or pcc_url or film.videos.results %}
+        <div class="watch_section watch_section--mobile">
             <p class="details_label">Where to Watch</p>
             <div class="watch_rows">
                 {% if pcc_url %}
@@ -81,6 +122,14 @@
                     </a>
                     {% endif %}
                 </div>
+                {% endif %}
+                {% if film.videos and film.videos.results %}
+                {% with vids=film.videos.results first_vid=film.videos.results|first %}
+                <div class="watch_row watch_row--videos">
+                    <span class="watch_row_label">Videos</span>
+                    <button class="btn" onclick="openVideosModal()">&#9654; {% if vids|length == 1 and "trailer" in first_vid.name|lower %}Trailer{% elif vids|length > 1 %}Trailers &amp; More{% else %}Watch{% endif %}</button>
+                </div>
+                {% endwith %}
                 {% endif %}
             </div>
         </div>

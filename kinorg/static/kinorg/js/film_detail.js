@@ -63,15 +63,15 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // Like button
-    const likeBtn = document.querySelector('.like_btn');
-    if (likeBtn) {
-        likeBtn.addEventListener('click', function () {
-            const tmdbId = likeBtn.dataset.tmdbId;
+    // Like buttons (desktop + mobile kept in sync)
+    const likeBtns = document.querySelectorAll('.like_btn');
+    likeBtns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            const tmdbId = btn.dataset.tmdbId;
             const csrfToken = document.cookie.match(/csrftoken=([^;]+)/)[1];
             const formData = new FormData();
-            formData.append('title', likeBtn.dataset.title);
-            formData.append('poster_path', likeBtn.dataset.posterPath);
+            formData.append('title', btn.dataset.title);
+            formData.append('poster_path', btn.dataset.posterPath);
             fetch(`/like/${tmdbId}/`, {
                 method: 'POST',
                 headers: { 'X-CSRFToken': csrfToken },
@@ -80,13 +80,22 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(r => r.json())
             .then(data => {
                 if (data.liked !== undefined) {
-                    likeBtn.classList.toggle('liked', data.liked);
-                    likeBtn.textContent = data.liked ? '♥' : '♡';
-                    likeBtn.title = data.liked ? 'Unlike this film' : 'Like this film';
+                    likeBtns.forEach(function (b) {
+                        b.classList.toggle('liked', data.liked);
+                        b.textContent = data.liked ? '♥' : '♡';
+                        b.title = data.liked ? 'Unlike this film' : 'Like this film';
+                    });
                 }
             });
         });
-    }
+    });
+
+    // Overflow indicator for scrollable lists
+    document.querySelectorAll('.cast_list, .similar_list').forEach(function (list) {
+        if (list.scrollWidth > list.clientWidth) {
+            list.classList.add('has-overflow');
+        }
+    });
 
     // Flag buttons
     document.querySelectorAll('.flag_btn').forEach(function (btn) {
