@@ -13,7 +13,12 @@
         {% if profile_path %}
         <img class="person_photo" src="{{ config_data.secure_base_url }}w185{{ profile_path }}" alt="{{ name }}">
         {% endif %}
-        <span class="page_title">{{ name }}</span>
+        <div class="person_info">
+            <span class="page_title person_name">{{ name }}</span>
+            {% if biography %}
+            <p class="person_bio">{{ biography|truncatewords:60 }}</p>
+            {% endif %}
+        </div>
     </div>
 
     <div class="person_tabs_wrap">
@@ -78,8 +83,12 @@ document.querySelectorAll('#person_tab_nav .tab_btn').forEach(function (btn) {
         document.querySelectorAll('.person_tabs_wrap .tab_panel').forEach(p => p.classList.remove('active'));
         btn.classList.add('active');
         document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+        btn.scrollIntoView({ inline: 'nearest', block: 'nearest' });
     });
 });
+
+const activeBtn = document.querySelector('#person_tab_nav .tab_btn.active');
+if (activeBtn) activeBtn.scrollIntoView({ inline: 'nearest', block: 'nearest' });
 </script>
 
 {% endblock %}

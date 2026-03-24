@@ -766,6 +766,7 @@ class PersonCredits(LoginRequiredMixin, TemplateView):
 
         context["name"] = search_data["name"]
         context["profile_path"] = search_data.get("profile_path")
+        context["biography"] = search_data.get("biography", "")
         context["cast_films"] = cast_films
         context["crew_tabs"] = crew_tabs
         context["default_tab"] = default_tab

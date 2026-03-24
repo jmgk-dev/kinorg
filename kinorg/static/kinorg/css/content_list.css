@@ -14,17 +14,37 @@
 
 .person_header {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 14px;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 20px;
+    width: 100%;
+    max-width: 960px;
 }
 
 .person_photo {
-    width: 100px;
-    height: 150px;
+    width: 120px;
+    flex-shrink: 0;
+    aspect-ratio: 2/3;
     object-fit: cover;
     border-radius: 8px;
     border: 1px solid rgba(255,255,255,0.3);
+}
+
+.person_info {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.person_name {
+    text-align: left;
+}
+
+.person_bio {
+    font-size: 13px;
+    line-height: 1.6;
+    opacity: 0.75;
+    margin: 0;
 }
 
 .person_tabs_wrap {
@@ -65,3 +85,33 @@
     border-bottom: 2px solid currentColor;
 }
 
+@media (max-width: 600px) {
+    .person_photo {
+        width: 90px;
+    }
+
+    .person_bio {
+        font-size: 12px;
+    }
+
+    .person_tabs_wrap .tab_panel {
+        padding: 10px;
+    }
+
+    .list_of_content {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.4rem;
+        padding: 0;
+        margin: 0;
+    }
+
+    .results_item {
+        width: 100%;
+    }
+
+    .results_item .poster {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 2/3;
+    }
+}
