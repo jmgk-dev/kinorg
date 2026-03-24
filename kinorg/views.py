@@ -137,9 +137,39 @@ def film_autocomplete(request):
         return (title != query_lower, -r.get('popularity', 0))
     raw = sorted(raw, key=sort_key)
 
+    COUNTRY_ISO = {
+        'US': 'USA', 'GB': 'UK', 'FR': 'France', 'DE': 'Germany',
+        'IT': 'Italy', 'JP': 'Japan', 'KR': 'South Korea', 'CN': 'China',
+        'IN': 'India', 'ES': 'Spain', 'SE': 'Sweden', 'DK': 'Denmark',
+        'NO': 'Norway', 'FI': 'Finland', 'AU': 'Australia', 'CA': 'Canada',
+        'BR': 'Brazil', 'MX': 'Mexico', 'AR': 'Argentina', 'RU': 'Russia',
+        'IR': 'Iran', 'TR': 'Turkey', 'PL': 'Poland', 'HU': 'Hungary',
+        'RO': 'Romania', 'CZ': 'Czech Republic', 'AT': 'Austria',
+        'BE': 'Belgium', 'NL': 'Netherlands', 'PT': 'Portugal',
+        'HK': 'Hong Kong', 'TW': 'Taiwan', 'TH': 'Thailand',
+        'GR': 'Greece', 'CH': 'Switzerland', 'IL': 'Israel',
+        'PH': 'Philippines', 'ZA': 'South Africa', 'NG': 'Nigeria',
+    }
+
+    LANG_TO_COUNTRY = {
+        'fr': 'France', 'de': 'Germany', 'it': 'Italy', 'ja': 'Japan',
+        'ko': 'South Korea', 'zh': 'China', 'es': 'Spain', 'pt': 'Portugal',
+        'sv': 'Sweden', 'da': 'Denmark', 'nb': 'Norway', 'fi': 'Finland',
+        'ru': 'Russia', 'pl': 'Poland', 'hu': 'Hungary', 'ro': 'Romania',
+        'cs': 'Czech Republic', 'tr': 'Turkey', 'fa': 'Iran', 'hi': 'India',
+        'th': 'Thailand', 'el': 'Greece', 'he': 'Israel', 'nl': 'Netherlands',
+        'ar': 'Arabic', 'uk': 'Ukraine', 'sk': 'Slovakia',
+    }
+
     results = []
     for r in raw[:10]:
         if r.get('media_type') == 'movie':
+            codes = r.get('origin_country', [])
+            if codes:
+                country = COUNTRY_ISO.get(codes[0], codes[0])
+            else:
+                lang = r.get('original_language', '')
+                country = LANG_TO_COUNTRY.get(lang, '')
             results.append({
                 'id': r['id'],
                 'title': r.get('title', ''),
@@ -147,8 +177,14 @@ def film_autocomplete(request):
                 'poster_path': r.get('poster_path') or '',
                 'media_type': 'movie',
                 'profile_path': '',
+                'country': country,
             })
         elif r.get('media_type') == 'person':
+            known_for_titles = [
+                f.get('title') or f.get('name', '')
+                for f in r.get('known_for', [])[:3]
+                if f.get('title') or f.get('name')
+            ]
             results.append({
                 'id': r['id'],
                 'title': r.get('name', ''),
@@ -156,6 +192,8 @@ def film_autocomplete(request):
                 'poster_path': '',
                 'media_type': 'person',
                 'profile_path': r.get('profile_path') or '',
+                'known_for_department': r.get('known_for_department', ''),
+                'known_for_titles': known_for_titles,
             })
 
     cache.set(cache_key, results, timeout=300)

@@ -96,6 +96,17 @@
     text-overflow: ellipsis;
 }
 
+.search_result_meta {
+    font-size: 0.8rem;
+    opacity: 0.6;
+}
+
+.search_result_known_for {
+    font-size: 0.75rem;
+    opacity: 0.5;
+    font-style: italic;
+}
+
 @media (max-width: 600px) {
     .search_page {
         padding: 10px;
