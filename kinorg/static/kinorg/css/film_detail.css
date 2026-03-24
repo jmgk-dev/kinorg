@@ -533,12 +533,12 @@ p.italic {
     }
 
     .film_header_inner {
-        padding: 12px;
+        padding: 8px;
         gap: 20px;
     }
 
     .film_header_top {
-        gap: 10px;
+        gap: 14px;
     }
 
     .detail_poster {
@@ -548,7 +548,7 @@ p.italic {
     .film_info {
         max-height: none;
         overflow: visible;
-        gap: 5px;
+        gap: 7px;
         justify-content: flex-start;
     }
 
