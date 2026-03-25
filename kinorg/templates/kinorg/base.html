@@ -112,10 +112,8 @@
 
 <div class="page_content">
     {% block content %}{% endblock %}
-</div>
 
-
-<div class="footer_credits">
+    <div class="footer_credits">
 	<a href="https://jmgk.dev/" target="_blank">
 		<button class="jmgk_link">jmgk.dev</button>
 	</a>
@@ -124,6 +122,7 @@
 		<img src="{% static 'images/tmdb_logo_square.svg' %}" alt="TMDB" class="tmdb_logo_square">
 	</a>
 </div>
+</div>{# end page_content #}
 
 <script src="{% static 'kinorg/js/typeahead.js' %}"></script>
 {% include "kinorg/_film_modal.html" %}

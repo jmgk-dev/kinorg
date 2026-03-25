@@ -178,6 +178,8 @@ p {
 .page_content {
     flex: 1;
     padding-top: 72px;
+    display: flex;
+    flex-direction: column;
 }
 
 .bar_item {
