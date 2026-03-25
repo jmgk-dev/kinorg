@@ -38,7 +38,7 @@
                         {% else %}
                         <span class="list_item_title">{{ list.title|slice:":30" }}</span>
                         {% endif %}
-                        <a href="{% url 'kinorg:list' list.sqid %}?invite=1" class="btn btn-invite">Invite</a>
+                        <button class="btn btn-invite" data-list-id="{{ list.id }}" data-list-title="{{ list.title|slice:':30' }}">Invite</button>
                     </div>
 
                     {% if total > 0 %}
@@ -121,4 +121,29 @@
 
 </div>
 
+<div id="lists_invite_modal" class="modal">
+    <div class="modal-content">
+        <button class="close" id="lists_invite_close">&times;</button>
+        <h4 id="lists_invite_heading"></h4>
+        <div id="lists_invite_message"></div>
+        <form id="lists_invite_form" method="POST" action="{% url 'kinorg:invite_guest' %}">
+            {% csrf_token %}
+            <input type="hidden" name="list_id" id="lists_invite_list_id">
+            <div class="invite_form_row">
+                <input type="text" id="lists_invite_input" name="username" placeholder="Search username..." autocomplete="off">
+                <div id="lists_invite_selected" style="display:none">
+                    <span id="lists_invite_selected_label"></span>
+                    <span id="lists_invite_clear">&times;</span>
+                </div>
+                <button type="submit">Invite</button>
+            </div>
+            <ul id="lists_invite_autocomplete"></ul>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'kinorg/js/filmlist_list.js' %}"></script>
 {% endblock %}
