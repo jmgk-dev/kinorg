@@ -18,3 +18,5 @@ document.getElementById('nav_toggle').onclick = function() {
 };
 
 document.getElementById('nav_backdrop').onclick = closeMenu;
+
+window.addEventListener('pageshow', closeMenu);
