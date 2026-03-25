@@ -358,15 +358,32 @@ p {
     padding-top: 30px;
 }
 
-.tmdb_logo {
-    height: 16px;
-    display: block;
-    opacity: 0.7;
+.tmdb_credit_fixed {
+    position: fixed;
+    bottom: 14px;
+    right: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    opacity: 0.5;
     transition: opacity 0.2s;
+    z-index: 10;
 }
 
-.tmdb_credit:hover .tmdb_logo {
-    opacity: 1;
+.tmdb_credit_fixed:hover {
+    opacity: 0.9;
+}
+
+.tmdb_powered_text {
+    font-size: 10px;
+    color: white;
+    white-space: nowrap;
+}
+
+.tmdb_logo_square {
+    height: 28px;
+    width: 28px;
+    display: block;
 }
 
 .jmgk_link {
