@@ -3,6 +3,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" type="text/css" href="{% static 'kinorg/css/my_lists.css' %}">
+<link rel="stylesheet" href="{% static 'kinorg/css/film_detail.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -121,7 +122,7 @@
 
 </div>
 
-<div id="lists_invite_modal" class="modal">
+<div id="lists_invite_modal" class="modal" style="display:none">
     <div class="modal-content">
         <button class="close" id="lists_invite_close">&times;</button>
         <h4 id="lists_invite_heading"></h4>
