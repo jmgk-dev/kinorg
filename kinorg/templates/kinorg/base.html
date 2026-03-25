@@ -44,6 +44,7 @@
 <body>
 
 <header>
+<div class="header_inner">
 
 	<div class="logo_container">
 		{% if user.is_authenticated  %}
@@ -70,7 +71,7 @@
     <nav id="nav_menu">
         <ul>
             <li><b>{{ user.username }}</b></li>
-            <li><a href="{% url 'kinorg:my_lists' %}">My Lists</a></li>
+            <li><a href="{% url 'kinorg:my_lists' %}">Lists</a></li>
             <li><a href="{% url 'kinorg:liked_films' %}">Liked Films</a></li>
             <li><a href="{% url 'kinorg:create_list' %}">Create List</a></li>
             <li><a href="{% url 'kinorg:invitations' %}">Invitations</a></li>
@@ -94,6 +95,7 @@
 
 {% endif %}
 
+</div>{# end header_inner #}
 </header>
 
 {% if user.is_authenticated %}

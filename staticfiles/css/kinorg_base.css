@@ -76,6 +76,8 @@ button:active {
     padding: 5px;
     transition: filter 0.2s ease, transform 0.1s ease;
     text-align: center;
+    align-self: flex-start;
+    max-width: 320px;
 }
 
 .btn:hover {
@@ -117,10 +119,7 @@ select {
 
 header {
     display: flex;
-    flex-direction: row;
-    justify-content: space-between;
     align-items: center;
-    padding: 0 10px 0 6px;
     position: sticky;
     top: 0;
     z-index: 998;
@@ -128,6 +127,22 @@ header {
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
     overscroll-behavior-y: contain;
+}
+
+h3 {
+    margin: 0;
+}
+
+.header_inner {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 10px 0 6px;
+    max-width: 960px;
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 p {
@@ -162,7 +177,7 @@ p {
 
 .page_content {
     flex: 1;
-    padding-top: 56px;
+    padding-top: 72px;
 }
 
 .bar_item {
@@ -197,6 +212,7 @@ p {
     display: flex;
     align-items: center;
     gap: 5px;
+    margin-top: 4px;
     height: 26px;
 }
 
@@ -540,8 +556,8 @@ p {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 10px;
-    padding: 6px 0;
+    gap: 8px;
+    padding: 4px 0;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
@@ -551,7 +567,8 @@ p {
     white-space: nowrap;
     flex: 1;
     text-align: center;
-    padding: 5px 10px;
+    padding: 4px 8px;
+    font-size: 12px;
 }
 
 .film_modal_no_lists {
@@ -582,9 +599,11 @@ p {
 }
 
 .film_modal_toggle_btn {
-    width: 80px;
+    width: 70px;
     flex-shrink: 0;
     text-align: center;
+    font-size: 12px;
+    padding: 4px 6px;
 }
 
 .film_modal_toggle_btn.add_button {
@@ -603,12 +622,17 @@ p {
 /* Film modal END --------------------------------------- */
 
 @media (max-width: 600px) {
+  .page_content {
+      padding-top: 58px;
+  }
+
   .search_btn_text {
       display: none;
   }
 
   .header_search_btn {
       height: 22px;
+      margin-top: 2px;
   }
 
   h3 {

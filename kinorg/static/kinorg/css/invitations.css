@@ -6,6 +6,12 @@
     gap: 24px;
 }
 
+@media (max-width: 600px) {
+    .invitations_page {
+        padding: 8px 10px 30px;
+    }
+}
+
 .invitations_header {
     width: 100%;
     max-width: 720px;

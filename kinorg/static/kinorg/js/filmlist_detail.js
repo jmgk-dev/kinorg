@@ -64,15 +64,22 @@ if (inviteOpenBtn) {
     inviteOpenBtn.addEventListener('click', () => {
         inviteModal.style.display = 'block';
     });
+    if (new URLSearchParams(window.location.search).get('invite') === '1') {
+        inviteModal.style.display = 'block';
+    }
 }
+const openedViaInviteLink = new URLSearchParams(window.location.search).get('invite') === '1';
+
 if (inviteCloseBtn) {
     inviteCloseBtn.addEventListener('click', () => {
         inviteModal.style.display = 'none';
+        if (openedViaInviteLink) history.back();
     });
 }
 window.addEventListener('click', (e) => {
     if (e.target === inviteModal) {
         inviteModal.style.display = 'none';
+        if (openedViaInviteLink) history.back();
     }
 });
 

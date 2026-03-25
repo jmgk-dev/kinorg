@@ -75,6 +75,7 @@ p.italic {
 
 .film_title_row h3 {
     margin: 0;
+    font-size: 1.3rem;
 }
 
 .like_btn {
@@ -122,6 +123,11 @@ p.italic {
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
+}
+
+.director_links .btn {
+    font-size: 12px;
+    padding: 4px 8px;
 }
 
 .watch_section {
@@ -365,24 +371,29 @@ p.italic {
 .add_remove_buttons {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 8px;
+    max-width: 360px;
 }
 
 .add_remove_button {
     display: flex;
     flex-direction: row;
-    gap: 10px;
+    gap: 8px;
     align-items: center;
     justify-content: space-between;
 }
 
 .add_remove_button > .btn {
+    font-size: 12px;
+    padding: 4px 8px;
     flex: 1;
+    max-width: none;
 }
 
 .add_button,
 .remove_button {
-    width: 120px;
+    width: 90px;
+    font-size: 12px;
     text-align: center;
     -webkit-tap-highlight-color: transparent;
 }

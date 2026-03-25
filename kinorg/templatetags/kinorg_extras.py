@@ -10,7 +10,7 @@ COUNTRY_ABBR = {
 KEY_CREW_JOBS = {
     "Director", "Co-Director",
     "Writer", "Screenplay", "Original Screenplay", "Story", "Novel", "Adaptation", "Script",
-    "Producer", "Executive Producer", "Co-Producer",
+    "Producer",
     "Director of Photography", "Cinematography",
     "Editor", "Film Editing",
     "Original Music Composer", "Music", "Composer",
@@ -19,6 +19,20 @@ KEY_CREW_JOBS = {
     "Visual Effects Supervisor",
     "Casting",
 }
+
+# Lower index = shown first
+JOB_PRIORITY = [
+    "Director", "Co-Director",
+    "Writer", "Screenplay", "Original Screenplay", "Story", "Novel", "Adaptation", "Script",
+    "Director of Photography", "Cinematography",
+    "Editor", "Film Editing",
+    "Original Music Composer", "Music", "Composer",
+    "Production Design", "Production Designer",
+    "Costume Design", "Costume Designer",
+    "Producer",
+    "Visual Effects Supervisor",
+    "Casting",
+]
 
 
 @register.filter
@@ -38,4 +52,5 @@ def key_crew(crew_list):
             if key not in seen:
                 seen.add(key)
                 result.append(member)
+    result.sort(key=lambda m: JOB_PRIORITY.index(m["job"]) if m["job"] in JOB_PRIORITY else 99)
     return result

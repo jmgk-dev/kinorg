@@ -10,7 +10,7 @@
 <div class="lists_page_container">
 
     <div class="my_lists_title">
-        <span class="page_title">My Lists</span>
+        <span class="page_title">Lists</span>
     </div>
 
 {% if not my_lists and not guest_lists %}
@@ -30,9 +30,17 @@
 
                 <li class="list_item">
 
-                    <a href="{% url 'kinorg:list' list.sqid  %}" class="btn">{{ list.title|slice:":30" }}</a>
-                    
                     {% with total=list.addition_set.all|length %}
+
+                    <div class="list_item_header">
+                        {% if total > 0 %}
+                        <a href="{% url 'kinorg:list' list.sqid %}" class="list_item_title">{{ list.title|slice:":30" }}</a>
+                        {% else %}
+                        <span class="list_item_title">{{ list.title|slice:":30" }}</span>
+                        {% endif %}
+                        <a href="{% url 'kinorg:list' list.sqid %}?invite=1" class="btn btn-invite">Invite</a>
+                    </div>
+
                     {% if total > 0 %}
                     <ul class="list_poster_stack">
                         {% for addition in list.addition_set.all|slice:":10" %}
@@ -53,6 +61,7 @@
                     {% else %}
                         <a href="{% url 'kinorg:search' %}" class="btn btn-search">Search for films to add</a>
                     {% endif %}
+
                     {% endwith %}
 
                 </li>

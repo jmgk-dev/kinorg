@@ -34,6 +34,16 @@
     align-items: center;
 }
 
+.content_list_container {
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 10px;
+    padding: 16px;
+    margin: 16px auto;
+    max-width: 960px;
+    width: calc(100% - 32px);
+    box-sizing: border-box;
+}
+
 .invite_user {
     display: flex;
     justify-content: center;

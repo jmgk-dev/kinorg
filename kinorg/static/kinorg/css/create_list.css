@@ -6,6 +6,12 @@
     gap: 24px;
 }
 
+@media (max-width: 600px) {
+    .create_list_page {
+        padding: 8px 10px 30px;
+    }
+}
+
 .create_list_header {
     width: 100%;
     max-width: 720px;
