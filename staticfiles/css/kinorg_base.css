@@ -468,7 +468,7 @@ p {
     transition: opacity 0.25s ease, visibility 0.25s ease;
     position: fixed;
     top: 0;
-    right: 0;
+    right: max(0px, calc((100vw - 960px) / 2));
     width: 260px;
     height: 100vh;
     background-color: rgba(0, 0, 0, 0.95);
