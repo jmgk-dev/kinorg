@@ -1,5 +1,6 @@
 .home_page_container {
   width: 100%;
+  flex: 1;
 }
 
 .blurb {
