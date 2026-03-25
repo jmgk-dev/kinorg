@@ -469,11 +469,11 @@ p {
     position: fixed;
     top: 0;
     right: 0;
-    width: max(260px, calc(260px + (100vw - 960px) / 2));
+    width: max(260px, calc((100vw - 960px) / 2));
     height: 100vh;
     background-color: rgba(0, 0, 0, 0.95);
     box-shadow: -4px 0 16px rgba(0,0,0,0.15);
-    padding: 60px 30px 30px max(30px, calc((100vw - 960px) / 2));
+    padding: 60px 30px 30px max(30px, calc((100vw - 960px) / 2 - 230px));
     box-sizing: border-box;
     z-index: 1000;
 }
