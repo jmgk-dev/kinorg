@@ -20,6 +20,48 @@ from .models import Film, FilmList, Addition, Invitation, WatchedFilm, PCCScreen
 from better_profanity import profanity
 
 
+def _to_str_set(lst, key='name'):
+    """Normalise a JSONField that may contain strings or dicts."""
+    result = set()
+    for item in (lst or []):
+        if isinstance(item, str):
+            result.add(item)
+        elif isinstance(item, dict) and key in item:
+            result.add(item[key])
+    return result
+
+
+def get_similar_films(film_id, film_obj, limit=12):
+    """Score DB films by metadata similarity. Returns top `limit` Film objects."""
+    if not film_obj:
+        return []
+
+    genres = _to_str_set(film_obj.genres)
+    keywords = _to_str_set(film_obj.keywords)
+    countries = _to_str_set(film_obj.production_countries, key='iso_3166_1')
+    directors = {c['name'] for c in (film_obj.crew or []) if isinstance(c, dict) and c.get('job') == 'Director'}
+    decade = (film_obj.release_date.year // 10) * 10 if film_obj.release_date else None
+
+    candidates = Film.objects.exclude(id=film_id).filter(
+        release_date__isnull=False, poster_path__gt=''
+    )
+
+    scored = []
+    for f in candidates:
+        score = len(genres & _to_str_set(f.genres)) * 3
+        score += min(len(keywords & _to_str_set(f.keywords)), 5)
+        score += len(countries & _to_str_set(f.production_countries, key='iso_3166_1')) * 2
+        if directors & {c['name'] for c in (f.crew or []) if isinstance(c, dict) and c.get('job') == 'Director'}:
+            score += 5
+        if decade and f.release_date and (f.release_date.year // 10) * 10 == decade:
+            score += 1
+        if score > 0:
+            scored.append((score, f))
+
+    scored.sort(key=lambda x: -x[0])
+    return [f for _, f in scored[:limit]]
+
+
 # Functions ------------------------------------------------------------>
 
 def get_tmdb_data(url):
@@ -106,6 +148,11 @@ def film_autocomplete(request):
     if cached is not None:
         return JsonResponse({'results': cached})
 
+    # People whose English name isn't their TMDB primary name and won't appear in search
+    PERSON_ALIASES = {
+        'john woo': 11401,
+    }
+
     # Parse year from query e.g. "stalker 1979"
     year_match = re.search(r'\b(19\d{2}|20[0-2]\d)\b', query)
     year = year_match.group(1) if year_match else None
@@ -121,8 +168,17 @@ def film_autocomplete(request):
         data = get_tmdb_data(
             f"https://api.themoviedb.org/3/search/multi?query={query}&include_adult=false&language=en-US&page=1"
         )
-        raw = data.get('results', [])
-        raw = [r for r in raw if r.get('media_type') in ('movie', 'person')]
+        raw = [r for r in data.get('results', []) if r.get('media_type') in ('movie', 'person')]
+
+        # Also search people directly — search/multi can miss directors with low popularity
+        if filter_type != 'films':
+            person_data = get_tmdb_data(
+                f"https://api.themoviedb.org/3/search/person?query={query}&include_adult=false&language=en-US&page=1"
+            )
+            existing_ids = {r['id'] for r in raw if r.get('media_type') == 'person'}
+            for p in person_data.get('results', []):
+                if p['id'] not in existing_ids:
+                    raw.append(dict(p, media_type='person'))
 
     # Apply filter
     if filter_type == 'films':
@@ -130,11 +186,38 @@ def film_autocomplete(request):
     elif filter_type == 'people':
         raw = [r for r in raw if r.get('media_type') == 'person']
 
-    # Exact title matches first, then by popularity (avoids burying older/less popular films)
+    # Inject aliased people who can't be found via normal TMDB search
+    if filter_type != 'films':
+        alias_id = PERSON_ALIASES.get(clean_query.lower())
+        if alias_id:
+            already_present = any(r.get('id') == alias_id and r.get('media_type') == 'person' for r in raw)
+            if not already_present:
+                alias_data = get_tmdb_data(f"https://api.themoviedb.org/3/person/{alias_id}?language=en-US")
+                if alias_data.get('id'):
+                    credits = get_tmdb_data(f"https://api.themoviedb.org/3/person/{alias_id}/movie_credits?language=en-US")
+                    top_films = sorted(credits.get('crew', []) + credits.get('cast', []),
+                                       key=lambda f: -f.get('popularity', 0))
+                    seen, known_for = set(), []
+                    for f in top_films:
+                        if f['id'] not in seen and f.get('title'):
+                            seen.add(f['id'])
+                            known_for.append({'title': f['title'], 'media_type': 'movie'})
+                        if len(known_for) == 3:
+                            break
+                    alias_data['known_for'] = known_for
+                    raw.insert(0, dict(alias_data, media_type='person', popularity=999))
+
+    # Filter out people with no profile photo — low-data profiles give empty click-throughs
+    raw = [r for r in raw if r.get('media_type') != 'person' or r.get('profile_path')]
+
+    # Exact name/title matches first, people boosted, then by popularity
     query_lower = clean_query.lower()
     def sort_key(r):
         title = (r.get('title') or r.get('name') or '').lower()
-        return (title != query_lower, -r.get('popularity', 0))
+        exact = title == query_lower
+        is_person = r.get('media_type') == 'person'
+        effective_pop = r.get('popularity', 0) * (3 if is_person else 1)
+        return (not exact, -effective_pop)
     raw = sorted(raw, key=sort_key)
 
     COUNTRY_ISO = {
@@ -432,7 +515,7 @@ class FilmDetail(LoginRequiredMixin, TemplateView):
         film_cache_key = f'tmdb_film_{movie_id}'
         film_data = cache.get(film_cache_key)
         if not film_data:
-            film_data = get_tmdb_data(f"https://api.themoviedb.org/3/movie/{movie_id}?append_to_response=credits,keywords,similar,videos&language=en-US")
+            film_data = get_tmdb_data(f"https://api.themoviedb.org/3/movie/{movie_id}?append_to_response=credits,keywords,videos&language=en-US")
             cache.set(film_cache_key, film_data, timeout=3600)
 
         providers_cache_key = f'tmdb_providers_{movie_id}'
@@ -503,6 +586,9 @@ class FilmDetail(LoginRequiredMixin, TemplateView):
         except WatchedFilm.DoesNotExist:
             watched = None
                 
+        film_obj = Film.objects.filter(pk=movie_id).first()
+        context["similar_films"] = get_similar_films(movie_id, film_obj)
+
         context["my_lists"] = my_lists
         context["guest_lists"] = guest_lists
         context["film"] = film_data
