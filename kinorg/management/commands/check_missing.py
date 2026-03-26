@@ -107,9 +107,16 @@ def parse_xls(path):
 
 SOURCES = [
     # (relative_path, collection_tag, parser_fn)
-    ('collections/sight-and-sound-2022.xlsx',                          'sight_and_sound_2022', parse_xlsx),
-    ('collections/tspdt-100-greatest-films.xls',                       'tspdt_1000',           parse_xls),
-    ('collections/tspdt-the-21st-centurys-1000-most-acclaimed-films.csv', 'tspdt_21c',          parse_tspdt_csv),
+    ('collections/sight-and-sound-2022.xlsx',                             'sight_and_sound_2022',       parse_xlsx),
+    ('collections/tspdt-100-greatest-films.xls',                          'tspdt_1000',                 parse_xls),
+    ('collections/tspdt-the-21st-centurys-1000-most-acclaimed-films.csv', 'tspdt_21c',                  parse_tspdt_csv),
+    ('collections/criterion.csv',                                          'criterion',                  parse_letterboxd_csv),
+    ('collections/janus.csv',                                              'janus',                      parse_letterboxd_csv),
+    ('collections/letterboxds-top-500-films-march26.csv',                  'letterboxd_top_500',         parse_letterboxd_csv),
+    ('collections/oscar-winning-films-international-feature.csv',          'oscar_international_feature',parse_letterboxd_csv),
+    ('collections/vinegar-syndrome-filmography.csv',                       'vinegar_syndrome',           parse_letterboxd_csv),
+    ('lists/my-top-10-movies.csv',   None, parse_letterboxd_csv),
+    ('lists/favorite-films.csv',     None, parse_letterboxd_csv),
     ('my_lists/liked-films.csv',     None, parse_letterboxd_csv),
     ('my_lists/yeah-these-ones.csv', None, parse_letterboxd_csv),
     ('my_lists/watchlist.csv',       None, parse_letterboxd_csv),
