@@ -274,6 +274,14 @@ class PCCScreening(models.Model):
 	title = models.CharField(max_length=255)
 	year = models.IntegerField(null=True, blank=True)
 	pcc_url = models.URLField()
+	film = models.ForeignKey(
+		'Film',
+		null=True,
+		blank=True,
+		on_delete=models.SET_NULL,
+		related_name='pcc_screenings',
+	)
+	hidden = models.BooleanField(default=False)
 
 	def __str__(self):
 		return f"PCC: {self.title} ({self.year})"

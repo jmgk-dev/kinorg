@@ -79,11 +79,17 @@ class Command(BaseCommand):
                 )
             return
 
-        PCCScreening.objects.all().delete()
-        PCCScreening.objects.bulk_create([
-            PCCScreening(title=title, year=year, pcc_url=url)
-            for (title, year), url in seen.items()
-        ])
+        seen_urls = set()
+        for (title, year), url in seen.items():
+            PCCScreening.objects.update_or_create(
+                pcc_url=url,
+                defaults={'title': title, 'year': year},
+            )
+            seen_urls.add(url)
+
+        # Remove screenings no longer on the PCC page (but preserve hidden/manual ones)
+        PCCScreening.objects.exclude(pcc_url__in=seen_urls).delete()
+
         self.stdout.write(self.style.SUCCESS(f"{len(seen)} screenings saved."))
 
         # Import any films not already in the DB
@@ -128,3 +134,19 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(
             f"Done — {imported} films imported, {skipped} skipped."
         ))
+
+        # Auto-link screenings to Film records by title match (don't overwrite manual links)
+        self.stdout.write("Auto-linking screenings to films...")
+        unlinked = PCCScreening.objects.filter(film__isnull=True)
+        linked = 0
+        for screening in unlinked:
+            qs = Film.objects.filter(title__iexact=screening.title)
+            if screening.year:
+                film = qs.filter(release_date__year=screening.year).first() or qs.first()
+            else:
+                film = qs.first()
+            if film:
+                screening.film = film
+                screening.save(update_fields=['film'])
+                linked += 1
+        self.stdout.write(self.style.SUCCESS(f"Linked {linked} screenings."))

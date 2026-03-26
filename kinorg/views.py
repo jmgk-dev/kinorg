@@ -616,17 +616,20 @@ class PCCSchedule(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        screenings = list(PCCScreening.objects.all().order_by('title'))
+        screenings = list(
+            PCCScreening.objects.filter(hidden=False).select_related('film').order_by('title')
+        )
 
-        # Bulk-match screenings to Films in the DB by title
-        if screenings:
-            q = functools.reduce(operator.or_, [Q(title__iexact=s.title) for s in screenings])
+        # Use manually linked film if set, otherwise fall back to title match
+        unlinked = [s for s in screenings if s.film is None]
+        if unlinked:
+            q = functools.reduce(operator.or_, [Q(title__iexact=s.title) for s in unlinked])
             films_by_title = {f.title.lower(): f for f in Film.objects.filter(q)}
         else:
             films_by_title = {}
 
         matched = [
-            {'screening': s, 'film': films_by_title.get(s.title.lower())}
+            {'screening': s, 'film': s.film or films_by_title.get(s.title.lower())}
             for s in screenings
         ]
 
@@ -702,11 +705,14 @@ class FilmDetail(LoginRequiredMixin, TemplateView):
 
         film_title = film_data.get('title', '')
         release_year = film_data.get('release_date', '')[:4]
-        pcc_matches = PCCScreening.objects.filter(title__iexact=film_title)
-        if pcc_matches.count() > 1 and release_year:
-            pcc = pcc_matches.filter(year=release_year).first()
-        else:
-            pcc = pcc_matches.first()
+        # Check manual FK link first, then fall back to title match
+        pcc = PCCScreening.objects.filter(film_id=film_id, hidden=False).first()
+        if not pcc:
+            pcc_matches = PCCScreening.objects.filter(title__iexact=film_title, hidden=False)
+            if pcc_matches.count() > 1 and release_year:
+                pcc = pcc_matches.filter(year=release_year).first()
+            else:
+                pcc = pcc_matches.first()
         context['pcc_url'] = pcc.pcc_url if pcc else None
 
         # Sort videos: trailers first, then everything else

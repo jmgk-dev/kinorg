@@ -34,5 +34,9 @@ class FilmListAdmin(admin.ModelAdmin):
 
 @admin.register(PCCScreening)
 class PCCScreeningAdmin(admin.ModelAdmin):
-    list_display = ('title', 'year', 'pcc_url')
+    list_display = ('title', 'year', 'film', 'hidden')
+    list_editable = ('film', 'hidden')
+    list_filter = ('hidden', ('film', admin.EmptyFieldListFilter))
     search_fields = ('title',)
+    autocomplete_fields = ('film',)
+    ordering = ('title',)

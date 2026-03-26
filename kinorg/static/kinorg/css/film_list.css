@@ -44,6 +44,14 @@
     box-sizing: border-box;
 }
 
+@media (max-width: 600px) {
+    .content_list_container {
+        padding: 8px;
+        width: calc(100% - 16px);
+        margin: 8px auto;
+    }
+}
+
 .invite_user {
     display: flex;
     justify-content: center;
