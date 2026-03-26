@@ -105,6 +105,12 @@ class Film(models.Model):
 		blank=True,
 	)
 
+	media_type = models.CharField(
+		max_length=10,
+		default='movie',
+		blank=True,
+	)
+
 
 class FilmList(models.Model):
 

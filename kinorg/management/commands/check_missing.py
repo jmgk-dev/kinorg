@@ -4,37 +4,17 @@ Outputs a CSV of every film that is either not findable on TMDB
 or found on TMDB but not yet imported into the DB.
 """
 import csv
-import os
 import time
 from pathlib import Path
 
 import openpyxl
-import requests
 import xlrd
 from django.core.management.base import BaseCommand
 
 from kinorg.models import Film
+from .tmdb_helpers import search_tmdb
 
 BASE_DIR = Path(__file__).parent
-
-TMDB_SEARCH = "https://api.themoviedb.org/3/search/movie"
-
-
-def tmdb_headers():
-    return {
-        "accept": "application/json",
-        "Authorization": f"Bearer {os.environ.get('TMDB_KEY', '')}",
-    }
-
-
-def search_tmdb(title, year):
-    r = requests.get(TMDB_SEARCH, headers=tmdb_headers(), params={
-        'query': title,
-        'year': int(year),
-        'language': 'en-US',
-    }, timeout=10)
-    results = r.json().get('results', [])
-    return results[0] if results else None
 
 
 # ---------------------------------------------------------------------------
@@ -158,10 +138,10 @@ class Command(BaseCommand):
                 self.stdout.flush()
 
                 try:
-                    result = search_tmdb(film['title'], film['year'])
+                    tmdb_id, media_type, _prefetched = search_tmdb(film['title'], film['year'])
                     time.sleep(0.25)
 
-                    if not result:
+                    if not tmdb_id:
                         missing.append({
                             'source_file': rel_path,
                             'collection_tag': collection_tag or '',
@@ -174,7 +154,6 @@ class Command(BaseCommand):
                         no_tmdb += 1
                         continue
 
-                    tmdb_id = result['id']
                     if not Film.objects.filter(pk=tmdb_id).exists():
                         missing.append({
                             'source_file': rel_path,

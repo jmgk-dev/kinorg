@@ -1,61 +1,23 @@
 import csv
-import os
 import time
+from pathlib import Path
 
-import requests
 from django.core.management.base import BaseCommand
 
 from kinorg.models import Film
-
-TMDB_SEARCH = "https://api.themoviedb.org/3/search/movie"
-TMDB_DETAIL = "https://api.themoviedb.org/3/movie/{}"
+from .tmdb_helpers import search_tmdb, fetch_tmdb_detail, build_defaults
 
 
-def tmdb_headers():
-    return {
-        "accept": "application/json",
-        "Authorization": f"Bearer {os.environ.get('TMDB_KEY', '')}",
-    }
-
-
-def search_tmdb(title, year):
-    r = requests.get(TMDB_SEARCH, headers=tmdb_headers(), params={
-        'query': title,
-        'year': int(year),
-        'language': 'en-US',
-    }, timeout=10)
-    results = r.json().get('results', [])
-    return results[0] if results else None
-
-
-def fetch_tmdb_detail(tmdb_id):
-    r = requests.get(
-        TMDB_DETAIL.format(tmdb_id) + "?append_to_response=credits,keywords&language=en-US",
-        headers=tmdb_headers(), timeout=10
-    )
-    return r.json() if r.status_code == 200 else None
-
-
-def build_defaults(data):
-    crew = data.get('credits', {}).get('crew', [])
-    cast = data.get('credits', {}).get('cast', [])
-    keywords = data.get('keywords', {}).get('keywords', [])
-    countries = [c['iso_3166_1'] for c in data.get('production_countries', [])]
-    return {
-        'title': data.get('title', ''),
-        'release_date': data.get('release_date') or None,
-        'poster_path': data.get('poster_path', '') or '',
-        'backdrop_path': data.get('backdrop_path', '') or '',
-        'overview': data.get('overview', ''),
-        'genres': [g['name'] for g in data.get('genres', [])],
-        'cast': [a['name'] for a in cast[:5]],
-        'crew': [{'name': c['name'], 'job': c['job']} for c in crew if c['job'] in ('Director', 'Screenplay', 'Writer')],
-        'keywords': [k['name'] for k in keywords],
-        'runtime': data.get('runtime'),
-        'production_companies': [c['name'] for c in data.get('production_companies', [])[:3]],
-        'production_countries': countries,
-        'primary_country': countries[0] if countries else '',
-    }
+def parse_letterboxd_csv(path):
+    with open(path, newline='', encoding='utf-8') as f:
+        first_line = f.readline()
+        if first_line.startswith('Letterboxd list export'):
+            f.readline()  # Date,Name,Tags,URL,Description
+            f.readline()  # list metadata row
+            f.readline()  # blank line
+        else:
+            f.seek(0)
+        return list(csv.DictReader(f))
 
 
 class Command(BaseCommand):
@@ -73,17 +35,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         csv_path = options['csv_path']
         collection_tag = options['collection']
-
-        with open(csv_path, newline='', encoding='utf-8') as f:
-            first_line = f.readline()
-            if first_line.startswith('Letterboxd list export'):
-                f.readline()  # Date,Name,Tags,URL,Description
-                f.readline()  # list metadata row
-                f.readline()  # blank line
-            else:
-                f.seek(0)
-
-            rows = list(csv.DictReader(f))
+        rows = parse_letterboxd_csv(csv_path)
 
         created = updated = skipped = 0
         total = len(rows)
@@ -103,15 +55,14 @@ class Command(BaseCommand):
             self.stdout.flush()
 
             try:
-                result = search_tmdb(title, year_int)
+                tmdb_id, media_type, prefetched = search_tmdb(title, year_int)
                 time.sleep(0.25)
 
-                if not result:
+                if not tmdb_id:
                     self.stderr.write(f"\nNo TMDB match: {title} ({year_int})")
                     skipped += 1
                     continue
 
-                tmdb_id = result['id']
                 film = Film.objects.filter(pk=tmdb_id).first()
 
                 if film:
@@ -126,14 +77,17 @@ class Command(BaseCommand):
                         film.save(update_fields=changed)
                     updated += 1
                 else:
-                    data = fetch_tmdb_detail(tmdb_id)
-                    time.sleep(0.25)
+                    if prefetched:
+                        data = prefetched
+                    else:
+                        data = fetch_tmdb_detail(tmdb_id, media_type)
+                        time.sleep(0.25)
 
                     if not data or not data.get('release_date'):
                         skipped += 1
                         continue
 
-                    defaults = build_defaults(data)
+                    defaults = build_defaults(data, media_type)
                     if collection_tag:
                         defaults['collections'] = [collection_tag]
                         if rank:
