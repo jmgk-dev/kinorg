@@ -1,0 +1,64 @@
+{% extends "kinorg/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'kinorg/css/film_list.css' %}">
+<link rel="stylesheet" href="{% static 'kinorg/css/content_list.css' %}">
+{% endblock %}
+
+{% block content %}
+
+    <div class="list_title">
+        <h4>{{ collection_name }}</h4>
+    </div>
+
+    <div class="list_controls">
+        <form method="get" id="list_controls_form">
+            <select name="sort" onchange="document.getElementById('list_controls_form').submit()">
+                {% if is_ranked %}
+                <option value="rank" {% if current_sort == 'rank' %}selected{% endif %}>Rank</option>
+                {% endif %}
+                <option value="title_asc" {% if current_sort == 'title_asc' %}selected{% endif %}>Title (A–Z)</option>
+                <option value="title_desc" {% if current_sort == 'title_desc' %}selected{% endif %}>Title (Z–A)</option>
+                <option value="release_desc" {% if current_sort == 'release_desc' %}selected{% endif %}>Release date (newest first)</option>
+                <option value="release_asc" {% if current_sort == 'release_asc' %}selected{% endif %}>Release date (oldest first)</option>
+            </select>
+        </form>
+    </div>
+
+    <div class="content_list_container">
+        <ul class="list_of_content"
+            id="film_grid"
+            data-base-url="{{ config_data.secure_base_url }}"
+            data-placeholder-url="{% static 'images/placeholder.jpg' %}"
+            data-film-url="{% url 'kinorg:film_detail' 0 %}"
+            data-films-url="{% url 'kinorg:collection_films_json' tag %}"
+            data-is-ranked="{{ is_ranked|yesno:'true,false' }}">
+            {% for film in films %}
+            <li class="results_item collection_result_item">
+                <a class="poster_link" href="{% url 'kinorg:film_detail' film.id %}" data-film-id="{{ film.id }}" data-film-title="{{ film.title }}" data-poster-path="{{ film.poster_path }}" data-media-type="movie">
+                    {% if film.poster_path and film.poster_path != 'None' %}
+                    <img class="poster" src="{{ config_data.secure_base_url }}w200{{ film.poster_path }}" alt="{{ film.title }}">
+                    {% else %}
+                    <img class="poster" src="{% static 'images/placeholder.jpg' %}" alt="{{ film.title }}">
+                    {% endif %}
+                    {% if film.rank %}<span class="rank_badge">{{ film.rank }}</span>{% endif %}
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    {% if has_more %}
+    <div class="load_more_container">
+        <button id="load_more_btn"
+                data-offset="{{ next_offset }}"
+                data-sort="{{ current_sort }}">Load more</button>
+    </div>
+    {% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'kinorg/js/collection_detail.js' %}"></script>
+{% endblock %}

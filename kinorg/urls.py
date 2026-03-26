@@ -33,4 +33,7 @@ urlpatterns = [
     path("flag-review/<int:review_id>/", views.flag_review, name="flag_review"),
     path("like/<int:tmdb_id>/", views.toggle_like, name="toggle_like"),
     path("liked/", views.LikedFilms.as_view(), name="liked_films"),
+    path("collections/<str:tag>/", views.CollectionDetail.as_view(), name="collection_detail"),
+    path("collections/<str:tag>/films/", views.collection_films_json, name="collection_films_json"),
+    path("pcc/", views.PCCSchedule.as_view(), name="pcc_schedule"),
     ]

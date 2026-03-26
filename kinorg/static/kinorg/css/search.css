@@ -107,6 +107,38 @@
     font-style: italic;
 }
 
+.collections_browse {
+    width: 100%;
+}
+
+.collections_browse_header {
+    font-size: 0.75rem;
+    opacity: 0.5;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+.collections_list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.collection_browse_item a {
+    display: flex;
+    align-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.95rem;
+    transition: opacity 0.2s ease;
+}
+
+.collection_browse_item a:hover {
+    opacity: 0.7;
+}
+
 @media (max-width: 600px) {
     .search_page {
         padding: 10px;

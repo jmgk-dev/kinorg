@@ -47,6 +47,20 @@
         {% endfor %}
     </ul>
 
+    <div id="collections_browse" class="collections_browse">
+        <p class="collections_browse_header">Browse collections</p>
+        <ul class="collections_list">
+            <li class="collection_browse_item">
+                <a href="{% url 'kinorg:pcc_schedule' %}">Showing At The PCC</a>
+            </li>
+            {% for tag, name in collections.items %}
+            <li class="collection_browse_item">
+                <a href="{% url 'kinorg:collection_detail' tag %}">{{ name }}</a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
 </div>
 
 {% endblock %}

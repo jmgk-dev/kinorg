@@ -149,3 +149,22 @@
     display: block;
     border: 1px solid red;
 }
+
+.collection_result_item .poster_link {
+    position: relative;
+    display: inline-block;
+}
+
+.rank_badge {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    background: rgba(0, 0, 0, 0.82);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 5px;
+    border-radius: 3px;
+    line-height: 1.4;
+    pointer-events: none;
+}

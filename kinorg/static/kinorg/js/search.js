@@ -1,7 +1,16 @@
 const input = document.getElementById('live_search_input');
 const resultsList = document.getElementById('live_search_results');
+const collectionsBrowse = document.getElementById('collections_browse');
 const baseUrl = resultsList.dataset.baseUrl;
 const placeholderUrl = resultsList.dataset.placeholderUrl;
+
+function showCollections() {
+    if (collectionsBrowse) collectionsBrowse.style.display = '';
+}
+
+function hideCollections() {
+    if (collectionsBrowse) collectionsBrowse.style.display = 'none';
+}
 
 let debounceTimer;
 let activeFilter = 'all';
@@ -80,11 +89,14 @@ input.addEventListener('input', () => {
         clearTimeout(debounceTimer);
         if (currentController) { currentController.abort(); currentController = null; }
         resultsList.innerHTML = '';
+        showCollections();
         return;
     }
+    hideCollections();
     runSearch(query);
 });
 
 if (input.value.trim().length >= 2) {
+    hideCollections();
     runSearch(input.value.trim());
 }

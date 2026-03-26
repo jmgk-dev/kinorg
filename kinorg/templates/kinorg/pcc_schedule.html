@@ -1,0 +1,49 @@
+{% extends "kinorg/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'kinorg/css/film_list.css' %}">
+<link rel="stylesheet" href="{% static 'kinorg/css/content_list.css' %}">
+{% endblock %}
+
+{% block content %}
+
+    <div class="list_title">
+        <h4>Showing At The PCC</h4>
+    </div>
+
+    <div class="content_list_container">
+        {% if screenings %}
+        <ul class="list_of_content"
+            id="film_grid"
+            data-base-url="{{ config_data.secure_base_url }}"
+            data-placeholder-url="{% static 'images/placeholder.jpg' %}">
+            {% for item in screenings %}
+            <li class="results_item">
+                {% if item.film %}
+                <a class="poster_link"
+                   href="{% url 'kinorg:film_detail' item.film.id %}"
+                   data-film-id="{{ item.film.id }}"
+                   data-film-title="{{ item.film.title }}"
+                   data-poster-path="{{ item.film.poster_path }}"
+                   data-media-type="movie">
+                    {% if item.film.poster_path and item.film.poster_path != 'None' %}
+                    <img class="poster" src="{{ config_data.secure_base_url }}w200{{ item.film.poster_path }}" alt="{{ item.film.title }}">
+                    {% else %}
+                    <img class="poster" src="{% static 'images/placeholder.jpg' %}" alt="{{ item.film.title }}">
+                    {% endif %}
+                </a>
+                {% else %}
+                <a href="{{ item.screening.pcc_url }}" target="_blank" rel="noopener" title="{{ item.screening.title }}">
+                    <img class="poster" src="{% static 'images/placeholder.jpg' %}" alt="{{ item.screening.title }}">
+                </a>
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="empty_state">No screenings found — check back soon.</p>
+        {% endif %}
+    </div>
+
+{% endblock %}

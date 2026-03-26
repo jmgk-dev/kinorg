@@ -1,12 +1,19 @@
+import functools
+import operator
 import os
 import re
-import requests
 import json
 from urllib.parse import quote
 
+import requests
+
 from django.shortcuts import render, redirect
 from django.conf import settings
-from django.http import HttpResponse, JsonResponse
+from django.http import Http404, HttpResponse, JsonResponse
+from django.db import connection
+from django.db.models.fields.json import KeyTransform
+from django.db.models.functions import Cast
+from django.db.models import IntegerField, F, Q
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
@@ -344,6 +351,7 @@ class Search(LoginRequiredMixin, TemplateView):
         query = self.request.GET.get('query', '').strip()
         context["query"] = query
         context["results_list"] = []
+        context["collections"] = COLLECTIONS
         return context
 
 
@@ -390,6 +398,33 @@ SORT_MAP = {
     'release_desc': '-film__release_date',
     'release_asc': 'film__release_date',
 }
+
+COLLECTIONS = {
+    'sight_and_sound_2022': 'Sight & Sound 2022 Poll',
+    'tspdt_1000': "TSPDT 1000 Greatest Films",
+    'tspdt_21c': "TSPDT 21st Century 1000 Most Acclaimed",
+    'criterion': 'Criterion Collection',
+    'janus': 'Janus Films',
+    'letterboxd_top_500': 'Letterboxd Top 500',
+    'oscar_international_feature': 'Oscar International Feature',
+    'vinegar_syndrome': 'Vinegar Syndrome',
+}
+
+RANKED_COLLECTIONS = {'tspdt_1000', 'tspdt_21c', 'sight_and_sound_2022', 'letterboxd_top_500'}
+
+COLLECTION_SORT_MAP = {
+    'title_asc': 'title',
+    'title_desc': '-title',
+    'release_desc': '-release_date',
+    'release_asc': 'release_date',
+}
+
+
+def films_in_collection(tag):
+    """Filter Films by collection tag, using the most efficient method for the current DB."""
+    if connection.vendor == 'postgresql':
+        return Film.objects.filter(collections__contains=[tag])
+    return Film.objects.extra(where=["collections LIKE %s"], params=[f'%"{tag}"%'])
 
 
 class ListDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
@@ -490,6 +525,109 @@ def list_additions_json(request, slug):
         'has_more': (offset + limit) < total,
         'next_offset': offset + limit,
     })
+
+
+class CollectionDetail(LoginRequiredMixin, TemplateView):
+
+    login_url = "user_admin:login"
+    template_name = "kinorg/collection_detail.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        tag = self.kwargs['tag']
+
+        if tag not in COLLECTIONS:
+            raise Http404
+
+        default_sort = 'rank' if tag in RANKED_COLLECTIONS else 'title_asc'
+        sort = self.request.GET.get('sort', default_sort)
+
+        qs = films_in_collection(tag).annotate(
+            rank=Cast(KeyTransform(tag, 'collection_ranks'), IntegerField())
+        )
+
+        if sort == 'rank':
+            qs = qs.order_by(F('rank').asc(nulls_last=True))
+        else:
+            qs = qs.order_by(COLLECTION_SORT_MAP.get(sort, 'title'))
+
+        limit = 48
+        total = qs.count()
+
+        context['tag'] = tag
+        context['collection_name'] = COLLECTIONS[tag]
+        context['films'] = list(qs[:limit])
+        context['total'] = total
+        context['has_more'] = total > limit
+        context['next_offset'] = limit
+        context['current_sort'] = sort
+        context['is_ranked'] = tag in RANKED_COLLECTIONS
+
+        return context
+
+
+@login_required(login_url='user_admin:login')
+def collection_films_json(request, tag):
+    if tag not in COLLECTIONS:
+        return JsonResponse({'error': 'Not found'}, status=404)
+
+    sort = request.GET.get('sort', 'rank')
+    offset = int(request.GET.get('offset', 0))
+    limit = 48
+
+    qs = Film.objects.extra(
+        where=["collections LIKE %s"],
+        params=[f'%"{tag}"%']
+    ).annotate(
+        rank=Cast(KeyTransform(tag, 'collection_ranks'), IntegerField())
+    )
+
+    if sort == 'rank':
+        qs = qs.order_by(F('rank').asc(nulls_last=True))
+    else:
+        qs = qs.order_by(COLLECTION_SORT_MAP.get(sort, 'title'))
+
+    total = qs.count()
+    batch = list(qs[offset:offset + limit])
+
+    films = [
+        {
+            'id': f.id,
+            'title': f.title,
+            'poster_path': f.poster_path,
+            'rank': f.rank,
+        }
+        for f in batch
+    ]
+
+    return JsonResponse({
+        'films': films,
+        'has_more': (offset + limit) < total,
+        'next_offset': offset + limit,
+    })
+
+
+class PCCSchedule(LoginRequiredMixin, TemplateView):
+
+    login_url = "user_admin:login"
+    template_name = "kinorg/pcc_schedule.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        screenings = list(PCCScreening.objects.all().order_by('title'))
+
+        # Bulk-match screenings to Films in the DB by title
+        if screenings:
+            q = functools.reduce(operator.or_, [Q(title__iexact=s.title) for s in screenings])
+            films_by_title = {f.title.lower(): f for f in Film.objects.filter(q)}
+        else:
+            films_by_title = {}
+
+        context['screenings'] = [
+            {'screening': s, 'film': films_by_title.get(s.title.lower())}
+            for s in screenings
+        ]
+        return context
 
 
 class FilmDetail(LoginRequiredMixin, TemplateView):
