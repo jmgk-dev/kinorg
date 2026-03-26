@@ -147,9 +147,9 @@ class Command(BaseCommand):
                 self.stdout.write(f"\n{filename} ({total} films){f' → {collection_tag}' if collection_tag else ''}")
 
                 for i, row in enumerate(rows, 1):
-                    title = row.get('Name', '').strip()
+                    title = (row.get('Name') or row.get('Title') or '').strip()
                     year_raw = row.get('Year', '').strip()
-                    rank = int(row.get('Position', 0) or 0)
+                    rank = int(row.get('Position') or row.get('Pos') or 0)
 
                     if not title or not year_raw:
                         skipped += 1
