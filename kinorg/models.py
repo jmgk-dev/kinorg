@@ -100,6 +100,11 @@ class Film(models.Model):
 		blank=True,
 	)
 
+	collection_ranks = models.JSONField(
+		default=dict,
+		blank=True,
+	)
+
 
 class FilmList(models.Model):
 

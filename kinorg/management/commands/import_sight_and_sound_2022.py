@@ -73,6 +73,7 @@ class Command(BaseCommand):
         for i, row in enumerate(rows[1:], start=1):
             title = row[2]
             year = row[3]
+            rank = i
 
             if not title or not year:
                 skipped += 1
@@ -93,9 +94,15 @@ class Command(BaseCommand):
                 film = Film.objects.filter(pk=tmdb_id).first()
 
                 if film:
+                    changed = []
                     if COLLECTION_TAG not in (film.collections or []):
-                        film.collections = film.collections + [COLLECTION_TAG]
-                        film.save(update_fields=['collections'])
+                        film.collections = (film.collections or []) + [COLLECTION_TAG]
+                        changed.append('collections')
+                    if film.collection_ranks.get(COLLECTION_TAG) != rank:
+                        film.collection_ranks = {**(film.collection_ranks or {}), COLLECTION_TAG: rank}
+                        changed.append('collection_ranks')
+                    if changed:
+                        film.save(update_fields=changed)
                     updated += 1
                 else:
                     data = fetch_tmdb_detail(tmdb_id)
@@ -107,6 +114,7 @@ class Command(BaseCommand):
 
                     defaults = build_defaults(data)
                     defaults['collections'] = [COLLECTION_TAG]
+                    defaults['collection_ranks'] = {COLLECTION_TAG: rank}
                     Film.objects.create(id=tmdb_id, **defaults)
                     created += 1
 
