@@ -3,6 +3,7 @@ import operator
 import os
 import re
 import json
+from datetime import date as _date
 from urllib.parse import quote
 
 import requests
@@ -402,7 +403,7 @@ SORT_MAP = {
 COLLECTIONS = {
     'sight_and_sound_2022': 'Sight & Sound 2022 Poll',
     'tspdt_1000': "TSPDT 1000 Greatest Films",
-    'tspdt_21c': "TSPDT 21st Century 1000 Most Acclaimed",
+    'tspdt_21c': "TSPDT 21st Century 1000",
     'criterion': 'Criterion Collection',
     'janus': 'Janus Films',
     'letterboxd_top_500': 'Letterboxd Top 500',
@@ -556,6 +557,7 @@ class CollectionDetail(LoginRequiredMixin, TemplateView):
 
         context['tag'] = tag
         context['collection_name'] = COLLECTIONS[tag]
+        context['collections'] = COLLECTIONS
         context['films'] = list(qs[:limit])
         context['total'] = total
         context['has_more'] = total > limit
@@ -623,10 +625,24 @@ class PCCSchedule(LoginRequiredMixin, TemplateView):
         else:
             films_by_title = {}
 
-        context['screenings'] = [
+        matched = [
             {'screening': s, 'film': films_by_title.get(s.title.lower())}
             for s in screenings
         ]
+
+        sort = self.request.GET.get('sort', 'title_asc')
+        if sort == 'title_asc':
+            matched.sort(key=lambda x: (x['film'].title if x['film'] else x['screening'].title).lower())
+        elif sort == 'title_desc':
+            matched.sort(key=lambda x: (x['film'].title if x['film'] else x['screening'].title).lower(), reverse=True)
+        elif sort == 'release_desc':
+            matched.sort(key=lambda x: x['film'].release_date if (x['film'] and x['film'].release_date) else _date.min, reverse=True)
+        elif sort == 'release_asc':
+            matched.sort(key=lambda x: x['film'].release_date if (x['film'] and x['film'].release_date) else _date.max)
+
+        context['screenings'] = matched
+        context['current_sort'] = sort
+        context['collections'] = COLLECTIONS
         return context
 
 

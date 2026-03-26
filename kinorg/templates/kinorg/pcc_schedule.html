@@ -8,8 +8,32 @@
 
 {% block content %}
 
-    <div class="list_title">
-        <h4>Showing At The PCC</h4>
+    <div class="collection_title_wrap">
+        <button class="collection_title_btn" id="collection_picker_btn" aria-expanded="false">
+            <h4>Showing At The PCC</h4>
+            <span class="collection_picker_chevron"></span>
+        </button>
+        <ul class="collection_picker_dropdown" id="collection_picker_dropdown">
+            <li class="collection_picker_item collection_picker_active">
+                <a href="{% url 'kinorg:pcc_schedule' %}">Showing At The PCC</a>
+            </li>
+            {% for t, name in collections.items %}
+            <li class="collection_picker_item">
+                <a href="{% url 'kinorg:collection_detail' t %}">{{ name }}</a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="list_controls">
+        <form method="get" id="list_controls_form">
+            <select name="sort" onchange="document.getElementById('list_controls_form').submit()">
+                <option value="title_asc" {% if current_sort == 'title_asc' %}selected{% endif %}>Title (A–Z)</option>
+                <option value="title_desc" {% if current_sort == 'title_desc' %}selected{% endif %}>Title (Z–A)</option>
+                <option value="release_desc" {% if current_sort == 'release_desc' %}selected{% endif %}>Release date (newest first)</option>
+                <option value="release_asc" {% if current_sort == 'release_asc' %}selected{% endif %}>Release date (oldest first)</option>
+            </select>
+        </form>
     </div>
 
     <div class="content_list_container">
@@ -46,4 +70,8 @@
         {% endif %}
     </div>
 
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'kinorg/js/collection_detail.js' %}"></script>
 {% endblock %}

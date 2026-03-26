@@ -1,10 +1,12 @@
 import os
 import re
+import time
 import requests
 from bs4 import BeautifulSoup
 from django.core.management.base import BaseCommand
 from django.core.mail import send_mail
-from kinorg.models import PCCScreening
+from kinorg.models import Film, PCCScreening
+from .tmdb_helpers import search_tmdb, fetch_tmdb_detail, build_defaults
 
 PCC_URL = "https://princecharlescinema.com/whats-on/"
 YEAR_RE = re.compile(r"\((\d{4})\)$")
@@ -82,5 +84,47 @@ class Command(BaseCommand):
             PCCScreening(title=title, year=year, pcc_url=url)
             for (title, year), url in seen.items()
         ])
+        self.stdout.write(self.style.SUCCESS(f"{len(seen)} screenings saved."))
 
-        self.stdout.write(self.style.SUCCESS(f"Done — {len(seen)} films saved."))
+        # Import any films not already in the DB
+        self.stdout.write("Importing missing films from TMDB...")
+        imported = skipped = 0
+
+        for (title, year), _ in seen.items():
+            if not year:
+                continue  # can't search TMDB reliably without a year
+
+            if Film.objects.filter(title__iexact=title).exists():
+                continue  # already in DB
+
+            try:
+                tmdb_id, media_type, prefetched = search_tmdb(title, year)
+                time.sleep(0.25)
+
+                if not tmdb_id:
+                    self.stderr.write(f"No TMDB match: {title} ({year})")
+                    skipped += 1
+                    continue
+
+                if Film.objects.filter(pk=tmdb_id).exists():
+                    continue  # in DB under a different title
+
+                data = prefetched or fetch_tmdb_detail(tmdb_id, media_type)
+                if not prefetched:
+                    time.sleep(0.25)
+
+                if not data or not data.get('release_date'):
+                    skipped += 1
+                    continue
+
+                defaults = build_defaults(data, media_type)
+                Film.objects.create(id=tmdb_id, **defaults)
+                imported += 1
+                self.stdout.write(f"  Imported: {title} ({year})")
+
+            except Exception as e:
+                self.stderr.write(f"Error importing {title}: {e}")
+
+        self.stdout.write(self.style.SUCCESS(
+            f"Done — {imported} films imported, {skipped} skipped."
+        ))

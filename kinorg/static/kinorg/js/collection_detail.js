@@ -1,3 +1,20 @@
+// Collection picker dropdown
+const pickerBtn = document.getElementById('collection_picker_btn');
+const pickerDropdown = document.getElementById('collection_picker_dropdown');
+
+if (pickerBtn && pickerDropdown) {
+    pickerBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const open = pickerDropdown.classList.toggle('open');
+        pickerBtn.setAttribute('aria-expanded', open);
+    });
+
+    document.addEventListener('click', () => {
+        pickerDropdown.classList.remove('open');
+        pickerBtn.setAttribute('aria-expanded', 'false');
+    });
+}
+
 const filmGrid = document.getElementById('film_grid');
 const loadMoreBtn = document.getElementById('load_more_btn');
 

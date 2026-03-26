@@ -8,8 +8,21 @@
 
 {% block content %}
 
-    <div class="list_title">
-        <h4>{{ collection_name }}</h4>
+    <div class="collection_title_wrap">
+        <button class="collection_title_btn" id="collection_picker_btn" aria-expanded="false">
+            <h4>{{ collection_name }}</h4>
+            <span class="collection_picker_chevron"></span>
+        </button>
+        <ul class="collection_picker_dropdown" id="collection_picker_dropdown">
+            <li class="collection_picker_item">
+                <a href="{% url 'kinorg:pcc_schedule' %}">Showing At The PCC</a>
+            </li>
+            {% for t, name in collections.items %}
+            <li class="collection_picker_item {% if t == tag %}collection_picker_active{% endif %}">
+                <a href="{% url 'kinorg:collection_detail' t %}">{{ name }}</a>
+            </li>
+            {% endfor %}
+        </ul>
     </div>
 
     <div class="list_controls">
@@ -42,7 +55,7 @@
                     {% else %}
                     <img class="poster" src="{% static 'images/placeholder.jpg' %}" alt="{{ film.title }}">
                     {% endif %}
-                    {% if film.rank %}<span class="rank_badge">{{ film.rank }}</span>{% endif %}
+                    {% if is_ranked and film.rank %}<span class="rank_badge">{{ film.rank }}</span>{% endif %}
                 </a>
             </li>
             {% endfor %}
