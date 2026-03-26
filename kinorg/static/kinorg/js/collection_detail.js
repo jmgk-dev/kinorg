@@ -24,6 +24,7 @@ if (loadMoreBtn && filmGrid) {
     const filmUrlTemplate = filmGrid.dataset.filmUrl;
     const filmsUrl = filmGrid.dataset.filmsUrl;
     const isRanked = filmGrid.dataset.isRanked === 'true';
+    const isPcc = filmGrid.dataset.isPcc === 'true';
 
     loadMoreBtn.addEventListener('click', () => {
         const offset = loadMoreBtn.dataset.offset;
@@ -36,23 +37,34 @@ if (loadMoreBtn && filmGrid) {
             .then(res => res.json())
             .then(data => {
                 data.films.forEach(film => {
-                    const filmUrl = filmUrlTemplate.replace('/0', '/' + film.id);
                     const posterSrc = film.poster_path && film.poster_path !== 'None'
                         ? `${baseUrl}w200${film.poster_path}`
                         : placeholderUrl;
+                    const safeTitle = film.title.replace(/"/g, '&quot;');
                     const rankBadge = (isRanked && film.rank)
                         ? `<span class="rank_badge">${film.rank}</span>`
                         : '';
+
+                    let anchor;
+                    if (isPcc && !film.id) {
+                        anchor = `<a href="${film.pcc_url}" target="_blank" rel="noopener" title="${safeTitle}">
+                            <img class="poster" src="${posterSrc}" alt="${safeTitle}">
+                        </a>`;
+                    } else {
+                        const filmUrl = filmUrlTemplate.replace('/0', '/' + film.id);
+                        anchor = `<a class="poster_link" href="${filmUrl}"
+                            data-film-id="${film.id}"
+                            data-film-title="${safeTitle}"
+                            data-poster-path="${film.poster_path}"
+                            data-media-type="movie">
+                            <img class="poster" src="${posterSrc}" alt="${safeTitle}">
+                            ${rankBadge}
+                        </a>`;
+                    }
+
                     const li = document.createElement('li');
                     li.className = 'results_item collection_result_item';
-                    li.innerHTML = `<a class="poster_link" href="${filmUrl}"
-                        data-film-id="${film.id}"
-                        data-film-title="${film.title.replace(/"/g, '&quot;')}"
-                        data-poster-path="${film.poster_path}"
-                        data-media-type="movie">
-                        <img class="poster" src="${posterSrc}" alt="${film.title.replace(/"/g, '&quot;')}">
-                        ${rankBadge}
-                    </a>`;
+                    li.innerHTML = anchor;
                     filmGrid.appendChild(li);
                 });
 

@@ -41,7 +41,10 @@
         <ul class="list_of_content"
             id="film_grid"
             data-base-url="{{ config_data.secure_base_url }}"
-            data-placeholder-url="{% static 'images/placeholder.jpg' %}">
+            data-placeholder-url="{% static 'images/placeholder.jpg' %}"
+            data-film-url="{% url 'kinorg:film_detail' 0 %}"
+            data-films-url="{% url 'kinorg:pcc_schedule_json' %}"
+            data-is-pcc="true">
             {% for item in screenings %}
             <li class="results_item">
                 {% if item.film %}
@@ -69,6 +72,14 @@
         <p class="empty_state">No screenings found — check back soon.</p>
         {% endif %}
     </div>
+
+    {% if has_more %}
+    <div class="load_more_container">
+        <button id="load_more_btn"
+                data-offset="{{ next_offset }}"
+                data-sort="{{ current_sort }}">Load more</button>
+    </div>
+    {% endif %}
 
 {% endblock %}
 

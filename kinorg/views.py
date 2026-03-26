@@ -609,6 +609,62 @@ def collection_films_json(request, tag):
     })
 
 
+PCC_PAGE_SIZE = 48
+
+
+def _get_sorted_pcc_screenings(sort):
+    """Return all non-hidden PCC screenings as sorted list of {screening, film} dicts."""
+    screenings = list(
+        PCCScreening.objects.filter(hidden=False).select_related('film').order_by('title')
+    )
+    unlinked = [s for s in screenings if s.film is None]
+    if unlinked:
+        q = functools.reduce(operator.or_, [Q(title__iexact=s.title) for s in unlinked])
+        films_by_title = {f.title.lower(): f for f in Film.objects.filter(q)}
+    else:
+        films_by_title = {}
+
+    matched = [
+        {'screening': s, 'film': s.film or films_by_title.get(s.title.lower())}
+        for s in screenings
+    ]
+
+    if sort == 'title_asc':
+        matched.sort(key=lambda x: (x['film'].title if x['film'] else x['screening'].title).lower())
+    elif sort == 'title_desc':
+        matched.sort(key=lambda x: (x['film'].title if x['film'] else x['screening'].title).lower(), reverse=True)
+    elif sort == 'release_desc':
+        matched.sort(key=lambda x: x['film'].release_date if (x['film'] and x['film'].release_date) else _date.min, reverse=True)
+    elif sort == 'release_asc':
+        matched.sort(key=lambda x: x['film'].release_date if (x['film'] and x['film'].release_date) else _date.max)
+
+    return matched
+
+
+def pcc_schedule_json(request):
+    sort = request.GET.get('sort', 'title_asc')
+    offset = int(request.GET.get('offset', 0))
+    matched = _get_sorted_pcc_screenings(sort)
+    total = len(matched)
+    batch = matched[offset:offset + PCC_PAGE_SIZE]
+
+    items = [
+        {
+            'id': item['film'].id if item['film'] else None,
+            'title': item['film'].title if item['film'] else item['screening'].title,
+            'poster_path': item['film'].poster_path if item['film'] else None,
+            'pcc_url': item['screening'].pcc_url,
+        }
+        for item in batch
+    ]
+
+    return JsonResponse({
+        'films': items,
+        'has_more': (offset + PCC_PAGE_SIZE) < total,
+        'next_offset': offset + PCC_PAGE_SIZE,
+    })
+
+
 class PCCSchedule(LoginRequiredMixin, TemplateView):
 
     login_url = "user_admin:login"
@@ -616,34 +672,13 @@ class PCCSchedule(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        screenings = list(
-            PCCScreening.objects.filter(hidden=False).select_related('film').order_by('title')
-        )
-
-        # Use manually linked film if set, otherwise fall back to title match
-        unlinked = [s for s in screenings if s.film is None]
-        if unlinked:
-            q = functools.reduce(operator.or_, [Q(title__iexact=s.title) for s in unlinked])
-            films_by_title = {f.title.lower(): f for f in Film.objects.filter(q)}
-        else:
-            films_by_title = {}
-
-        matched = [
-            {'screening': s, 'film': s.film or films_by_title.get(s.title.lower())}
-            for s in screenings
-        ]
-
         sort = self.request.GET.get('sort', 'title_asc')
-        if sort == 'title_asc':
-            matched.sort(key=lambda x: (x['film'].title if x['film'] else x['screening'].title).lower())
-        elif sort == 'title_desc':
-            matched.sort(key=lambda x: (x['film'].title if x['film'] else x['screening'].title).lower(), reverse=True)
-        elif sort == 'release_desc':
-            matched.sort(key=lambda x: x['film'].release_date if (x['film'] and x['film'].release_date) else _date.min, reverse=True)
-        elif sort == 'release_asc':
-            matched.sort(key=lambda x: x['film'].release_date if (x['film'] and x['film'].release_date) else _date.max)
+        matched = _get_sorted_pcc_screenings(sort)
+        total = len(matched)
 
-        context['screenings'] = matched
+        context['screenings'] = matched[:PCC_PAGE_SIZE]
+        context['has_more'] = total > PCC_PAGE_SIZE
+        context['next_offset'] = PCC_PAGE_SIZE
         context['current_sort'] = sort
         context['collections'] = COLLECTIONS
         return context
@@ -706,7 +741,7 @@ class FilmDetail(LoginRequiredMixin, TemplateView):
         film_title = film_data.get('title', '')
         release_year = film_data.get('release_date', '')[:4]
         # Check manual FK link first, then fall back to title match
-        pcc = PCCScreening.objects.filter(film_id=film_id, hidden=False).first()
+        pcc = PCCScreening.objects.filter(film_id=movie_id, hidden=False).first()
         if not pcc:
             pcc_matches = PCCScreening.objects.filter(title__iexact=film_title, hidden=False)
             if pcc_matches.count() > 1 and release_year:
