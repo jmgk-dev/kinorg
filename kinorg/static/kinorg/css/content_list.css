@@ -146,6 +146,10 @@
 }
 
 @media (max-width: 600px) {
+    .person_page {
+        margin-top: 0;
+    }
+
     .person_photo {
         width: 90px;
     }

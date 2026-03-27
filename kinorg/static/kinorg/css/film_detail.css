@@ -8,7 +8,7 @@ p.italic {
 .film_header_wrap {
     display: flex;
     justify-content: center;
-    margin-top: -40px;
+    margin-top: -70px;
     margin-bottom: 20px;
     padding: 0 16px;
 }
@@ -545,6 +545,10 @@ p.italic {
 /* ===== MOBILE ===== */
 
 @media (max-width: 600px) {
+
+    .film_header_wrap {
+        margin-top: -10px;
+    }
 
     .film_header_wrap,
     .film_tabs_wrap {
