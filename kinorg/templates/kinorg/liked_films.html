@@ -5,6 +5,7 @@
 <link rel="stylesheet" type="text/css" href="{% static 'kinorg/css/my_lists.css' %}">
 {% endblock %}
 
+{% block page_top %}<p class="welcome_banner">Welcome, {{ user.username }}</p>{% endblock %}
 {% block content %}
 
 <div class="lists_page_container">

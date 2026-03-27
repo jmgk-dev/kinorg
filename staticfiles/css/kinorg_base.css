@@ -186,6 +186,13 @@ p {
     padding-top: 0;
 }
 
+.welcome_banner {
+    text-align: center;
+    font-size: 0.95rem;
+    opacity: 0.5;
+    padding: 10px 0 20px;
+}
+
 .bar_item {
   display: flex;
   justify-content: center;
@@ -666,7 +673,11 @@ p {
 
 @media (max-width: 600px) {
   .page_content {
-      padding-top: 58px;
+      padding-top: 20px;
+  }
+
+  .welcome_banner {
+      padding-bottom: 20px;
   }
 
   .search_btn_text {

@@ -6,6 +6,7 @@
 <link rel="stylesheet" href="{% static 'kinorg/css/film_detail.css' %}">
 {% endblock %}
 
+{% block page_top %}<p class="welcome_banner">Welcome, {{ user.username }}</p>{% endblock %}
 {% block content %}
 
 <div class="lists_page_container">

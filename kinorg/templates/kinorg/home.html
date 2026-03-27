@@ -9,6 +9,7 @@
 <script src="{% static 'kinorg/js/carousels.js' %}"></script>
 {% endblock %}
 
+{% block page_top %}{% if user.is_authenticated %}<p class="welcome_banner">Welcome, {{ user.username }}</p>{% endif %}{% endblock %}
 {% block content %}
 
 	<div class="home_page_container">

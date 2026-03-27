@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="{% static 'film_games/css/hub.css' %}">
 {% endblock %}
 
+{% block page_top %}<p class="welcome_banner">Welcome, {{ user.username }}</p>{% endblock %}
 {% block content %}
 
 <div class="game_hub_container">

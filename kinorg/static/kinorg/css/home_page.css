@@ -1,6 +1,7 @@
 .home_page_container {
   width: 100%;
   flex: 1;
+  padding-top: 10px;
 }
 
 .blurb {
