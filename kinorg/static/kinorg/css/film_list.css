@@ -260,3 +260,14 @@
     line-height: 1.4;
     pointer-events: none;
 }
+
+/* ===== MOBILE ===== */
+
+@media (max-width: 600px) {
+
+    .list_title {
+        margin-top: 10px;
+    }
+
+}
+
