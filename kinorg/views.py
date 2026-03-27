@@ -357,15 +357,17 @@ class Home(ListView):
     template_name = "kinorg/home.html"
 
     def get_queryset(self):
-        films = cache.get('carousel_films')
-        if films is None:
-            import random
-            films = list(Film.objects.extra(
+        import random
+        film_ids = cache.get('carousel_film_ids')
+        if film_ids is None:
+            film_ids = list(Film.objects.extra(
                 where=["collections IS NOT NULL AND collections != 'null' AND collections != '[]'"]
-            ).exclude(poster_path=''))
-            random.shuffle(films)
-            cache.set('carousel_films', films, 60 * 60 * 24)
-        return films
+            ).exclude(poster_path='').values_list('id', flat=True))
+            random.shuffle(film_ids)
+            film_ids = film_ids[:60]
+            cache.set('carousel_film_ids', film_ids, 60 * 60 * 24)
+        films_by_id = {f.id: f for f in Film.objects.filter(id__in=film_ids)}
+        return [films_by_id[fid] for fid in film_ids if fid in films_by_id]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
