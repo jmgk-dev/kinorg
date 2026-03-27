@@ -356,6 +356,11 @@ class Home(ListView):
     model = Film
     template_name = "kinorg/home.html"
 
+    def get_queryset(self):
+        return Film.objects.extra(
+            where=["collections IS NOT NULL AND collections != 'null' AND collections != '[]'"]
+        ).exclude(poster_path='').order_by('?')
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.request.user.is_authenticated:
