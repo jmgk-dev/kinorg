@@ -29,17 +29,46 @@ from better_profanity import profanity
 
 
 COUNTRY_ISO = {
-    'US': 'USA', 'GB': 'UK', 'FR': 'France', 'DE': 'Germany',
-    'IT': 'Italy', 'JP': 'Japan', 'KR': 'South Korea', 'CN': 'China',
-    'IN': 'India', 'ES': 'Spain', 'SE': 'Sweden', 'DK': 'Denmark',
-    'NO': 'Norway', 'FI': 'Finland', 'AU': 'Australia', 'CA': 'Canada',
-    'BR': 'Brazil', 'MX': 'Mexico', 'AR': 'Argentina', 'RU': 'Russia',
-    'IR': 'Iran', 'TR': 'Turkey', 'PL': 'Poland', 'HU': 'Hungary',
-    'RO': 'Romania', 'CZ': 'Czech Republic', 'AT': 'Austria',
-    'BE': 'Belgium', 'NL': 'Netherlands', 'PT': 'Portugal',
-    'HK': 'Hong Kong', 'TW': 'Taiwan', 'TH': 'Thailand',
-    'GR': 'Greece', 'CH': 'Switzerland', 'IL': 'Israel',
-    'PH': 'Philippines', 'ZA': 'South Africa', 'NG': 'Nigeria',
+    # Major English-speaking
+    'US': 'USA', 'GB': 'UK', 'AU': 'Australia', 'CA': 'Canada',
+    'NZ': 'New Zealand', 'IE': 'Ireland',
+    # Europe
+    'FR': 'France', 'DE': 'Germany', 'IT': 'Italy', 'ES': 'Spain',
+    'PT': 'Portugal', 'NL': 'Netherlands', 'BE': 'Belgium', 'CH': 'Switzerland',
+    'AT': 'Austria', 'SE': 'Sweden', 'NO': 'Norway', 'DK': 'Denmark',
+    'FI': 'Finland', 'PL': 'Poland', 'CZ': 'Czech Republic', 'SK': 'Slovakia',
+    'HU': 'Hungary', 'RO': 'Romania', 'BG': 'Bulgaria', 'GR': 'Greece',
+    'HR': 'Croatia', 'SI': 'Slovenia', 'RS': 'Serbia', 'BA': 'Bosnia and Herzegovina',
+    'ME': 'Montenegro', 'MK': 'North Macedonia', 'AL': 'Albania', 'XK': 'Kosovo',
+    'LT': 'Lithuania', 'LV': 'Latvia', 'EE': 'Estonia', 'IS': 'Iceland',
+    'LU': 'Luxembourg', 'MT': 'Malta', 'CY': 'Cyprus',
+    # Eastern Europe / former USSR
+    'RU': 'Russia', 'UA': 'Ukraine', 'BY': 'Belarus', 'MD': 'Moldova',
+    'GE': 'Georgia', 'AM': 'Armenia', 'AZ': 'Azerbaijan',
+    'KZ': 'Kazakhstan', 'UZ': 'Uzbekistan',
+    # Historical
+    'SU': 'Soviet Union', 'YU': 'Yugoslavia', 'CS': 'Czechoslovakia', 'DD': 'East Germany',
+    # Middle East
+    'IL': 'Israel', 'IR': 'Iran', 'IQ': 'Iraq', 'SY': 'Syria',
+    'LB': 'Lebanon', 'JO': 'Jordan', 'TR': 'Turkey',
+    'SA': 'Saudi Arabia', 'AE': 'UAE', 'QA': 'Qatar', 'KW': 'Kuwait',
+    # Asia
+    'JP': 'Japan', 'KR': 'South Korea', 'CN': 'China', 'HK': 'Hong Kong',
+    'TW': 'Taiwan', 'IN': 'India', 'TH': 'Thailand', 'VN': 'Vietnam',
+    'KH': 'Cambodia', 'PH': 'Philippines', 'ID': 'Indonesia', 'MY': 'Malaysia',
+    'SG': 'Singapore', 'MM': 'Myanmar', 'MN': 'Mongolia',
+    'PK': 'Pakistan', 'BD': 'Bangladesh', 'LK': 'Sri Lanka', 'NP': 'Nepal',
+    # Africa
+    'ZA': 'South Africa', 'NG': 'Nigeria', 'EG': 'Egypt', 'MA': 'Morocco',
+    'TN': 'Tunisia', 'DZ': 'Algeria', 'KE': 'Kenya', 'GH': 'Ghana',
+    'SN': 'Senegal', 'CI': "Côte d'Ivoire", 'CM': 'Cameroon',
+    'ET': 'Ethiopia', 'TZ': 'Tanzania', 'UG': 'Uganda',
+    # Latin America
+    'MX': 'Mexico', 'BR': 'Brazil', 'AR': 'Argentina', 'CL': 'Chile',
+    'CO': 'Colombia', 'VE': 'Venezuela', 'PE': 'Peru', 'CU': 'Cuba',
+    'UY': 'Uruguay', 'EC': 'Ecuador', 'BO': 'Bolivia', 'PY': 'Paraguay',
+    'CR': 'Costa Rica', 'GT': 'Guatemala', 'PA': 'Panama',
+    'DO': 'Dominican Republic', 'JM': 'Jamaica',
 }
 
 
