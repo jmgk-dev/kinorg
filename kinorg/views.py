@@ -47,7 +47,7 @@ COUNTRY_ISO = {
     'GE': 'Georgia', 'AM': 'Armenia', 'AZ': 'Azerbaijan',
     'KZ': 'Kazakhstan', 'UZ': 'Uzbekistan',
     # Historical
-    'SU': 'Soviet Union', 'YU': 'Yugoslavia', 'CS': 'Czechoslovakia', 'DD': 'East Germany',
+    'SU': 'Soviet Union', 'YU': 'Yugoslavia', 'CS': 'Czechoslovakia', 'XC': 'Czechoslovakia', 'DD': 'East Germany',
     # Middle East
     'IL': 'Israel', 'IR': 'Iran', 'IQ': 'Iraq', 'SY': 'Syria',
     'LB': 'Lebanon', 'JO': 'Jordan', 'TR': 'Turkey',
