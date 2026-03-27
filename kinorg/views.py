@@ -41,7 +41,7 @@ COUNTRY_ISO = {
     'HR': 'Croatia', 'SI': 'Slovenia', 'RS': 'Serbia', 'BA': 'Bosnia and Herzegovina',
     'ME': 'Montenegro', 'MK': 'North Macedonia', 'AL': 'Albania', 'XK': 'Kosovo',
     'LT': 'Lithuania', 'LV': 'Latvia', 'EE': 'Estonia', 'IS': 'Iceland',
-    'LU': 'Luxembourg', 'MT': 'Malta', 'CY': 'Cyprus',
+    'LU': 'Luxembourg', 'MT': 'Malta', 'CY': 'Cyprus', 'LI': 'Liechtenstein',
     # Eastern Europe / former USSR
     'RU': 'Russia', 'UA': 'Ukraine', 'BY': 'Belarus', 'MD': 'Moldova',
     'GE': 'Georgia', 'AM': 'Armenia', 'AZ': 'Azerbaijan',
@@ -63,6 +63,7 @@ COUNTRY_ISO = {
     'TN': 'Tunisia', 'DZ': 'Algeria', 'KE': 'Kenya', 'GH': 'Ghana',
     'SN': 'Senegal', 'CI': "Côte d'Ivoire", 'CM': 'Cameroon',
     'ET': 'Ethiopia', 'TZ': 'Tanzania', 'UG': 'Uganda',
+    'AO': 'Angola', 'BF': 'Burkina Faso', 'CD': 'DR Congo',
     # Latin America
     'MX': 'Mexico', 'BR': 'Brazil', 'AR': 'Argentina', 'CL': 'Chile',
     'CO': 'Colombia', 'VE': 'Venezuela', 'PE': 'Peru', 'CU': 'Cuba',
