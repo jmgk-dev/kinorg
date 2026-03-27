@@ -28,6 +28,21 @@ from .models import Film, FilmList, Addition, Invitation, WatchedFilm, PCCScreen
 from better_profanity import profanity
 
 
+COUNTRY_ISO = {
+    'US': 'USA', 'GB': 'UK', 'FR': 'France', 'DE': 'Germany',
+    'IT': 'Italy', 'JP': 'Japan', 'KR': 'South Korea', 'CN': 'China',
+    'IN': 'India', 'ES': 'Spain', 'SE': 'Sweden', 'DK': 'Denmark',
+    'NO': 'Norway', 'FI': 'Finland', 'AU': 'Australia', 'CA': 'Canada',
+    'BR': 'Brazil', 'MX': 'Mexico', 'AR': 'Argentina', 'RU': 'Russia',
+    'IR': 'Iran', 'TR': 'Turkey', 'PL': 'Poland', 'HU': 'Hungary',
+    'RO': 'Romania', 'CZ': 'Czech Republic', 'AT': 'Austria',
+    'BE': 'Belgium', 'NL': 'Netherlands', 'PT': 'Portugal',
+    'HK': 'Hong Kong', 'TW': 'Taiwan', 'TH': 'Thailand',
+    'GR': 'Greece', 'CH': 'Switzerland', 'IL': 'Israel',
+    'PH': 'Philippines', 'ZA': 'South Africa', 'NG': 'Nigeria',
+}
+
+
 def _to_str_set(lst, key='name'):
     """Normalise a JSONField that may contain strings or dicts."""
     result = set()
@@ -227,20 +242,6 @@ def film_autocomplete(request):
         effective_pop = r.get('popularity', 0) * (3 if is_person else 1)
         return (not exact, -effective_pop)
     raw = sorted(raw, key=sort_key)
-
-    COUNTRY_ISO = {
-        'US': 'USA', 'GB': 'UK', 'FR': 'France', 'DE': 'Germany',
-        'IT': 'Italy', 'JP': 'Japan', 'KR': 'South Korea', 'CN': 'China',
-        'IN': 'India', 'ES': 'Spain', 'SE': 'Sweden', 'DK': 'Denmark',
-        'NO': 'Norway', 'FI': 'Finland', 'AU': 'Australia', 'CA': 'Canada',
-        'BR': 'Brazil', 'MX': 'Mexico', 'AR': 'Argentina', 'RU': 'Russia',
-        'IR': 'Iran', 'TR': 'Turkey', 'PL': 'Poland', 'HU': 'Hungary',
-        'RO': 'Romania', 'CZ': 'Czech Republic', 'AT': 'Austria',
-        'BE': 'Belgium', 'NL': 'Netherlands', 'PT': 'Portugal',
-        'HK': 'Hong Kong', 'TW': 'Taiwan', 'TH': 'Thailand',
-        'GR': 'Greece', 'CH': 'Switzerland', 'IL': 'Israel',
-        'PH': 'Philippines', 'ZA': 'South Africa', 'NG': 'Nigeria',
-    }
 
     LANG_TO_COUNTRY = {
         'fr': 'France', 'de': 'Germany', 'it': 'Italy', 'ja': 'Japan',
@@ -448,15 +449,10 @@ def _filter_films_by_genre(qs, genre):
 def _build_country_map(qs):
     """Return sorted list of (code, name) tuples from a Film queryset."""
     country_map = {}
-    for film in qs.only('primary_country', 'production_countries').exclude(primary_country=''):
+    for film in qs.only('primary_country').exclude(primary_country=''):
         code = film.primary_country
         if code and code not in country_map:
-            for c in (film.production_countries or []):
-                if isinstance(c, dict) and c.get('iso_3166_1') == code:
-                    country_map[code] = c.get('name', code)
-                    break
-            else:
-                country_map[code] = code
+            country_map[code] = COUNTRY_ISO.get(code, code)
     return sorted(country_map.items(), key=lambda x: x[1])
 
 
@@ -731,12 +727,7 @@ def _build_pcc_filter_lists(matched, country='', genre=''):
             continue
         code = film.primary_country
         if code not in country_map:
-            for c in (film.production_countries or []):
-                if isinstance(c, dict) and c.get('iso_3166_1') == code:
-                    country_map[code] = c.get('name', code)
-                    break
-            else:
-                country_map[code] = code
+            country_map[code] = COUNTRY_ISO.get(code, code)
     countries = sorted(country_map.items(), key=lambda x: x[1])
     return genres, countries
 
