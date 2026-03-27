@@ -81,10 +81,12 @@ class Command(BaseCommand):
 
         seen_urls = set()
         for (title, year), url in seen.items():
-            PCCScreening.objects.update_or_create(
+            _, created = PCCScreening.objects.update_or_create(
                 pcc_url=url,
                 defaults={'title': title, 'year': year},
             )
+            if created:
+                PCCScreening.objects.filter(pcc_url=url).update(hidden=True)
             seen_urls.add(url)
 
         # Remove screenings no longer on the PCC page (but preserve hidden/manual ones)
@@ -147,6 +149,7 @@ class Command(BaseCommand):
                 film = qs.first()
             if film:
                 screening.film = film
-                screening.save(update_fields=['film'])
+                screening.hidden = False
+                screening.save(update_fields=['film', 'hidden'])
                 linked += 1
         self.stdout.write(self.style.SUCCESS(f"Linked {linked} screenings."))

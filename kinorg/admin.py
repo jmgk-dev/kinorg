@@ -32,11 +32,28 @@ class FilmListAdmin(admin.ModelAdmin):
     search_fields = ('title', 'owner__username')
 
 
+class UnmatchedFilter(admin.SimpleListFilter):
+    title = 'match status'
+    parameter_name = 'matched'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('no', 'Unmatched'),
+            ('yes', 'Matched'),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == 'no':
+            return queryset.filter(film__isnull=True)
+        if self.value() == 'yes':
+            return queryset.filter(film__isnull=False)
+
+
 @admin.register(PCCScreening)
 class PCCScreeningAdmin(admin.ModelAdmin):
     list_display = ('title', 'year', 'film', 'hidden')
     list_editable = ('film', 'hidden')
-    list_filter = ('hidden', ('film', admin.EmptyFieldListFilter))
+    list_filter = ('hidden', UnmatchedFilter)
     search_fields = ('title',)
     autocomplete_fields = ('film',)
     ordering = ('title',)
