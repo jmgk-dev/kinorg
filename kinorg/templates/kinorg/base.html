@@ -41,7 +41,7 @@
     {% endblock %}
 
 </head>
-<body>
+<body {% if not user.is_authenticated %}class="logged-out"{% endif %}>
 
 <header>
 <div class="header_inner {% if not user.is_authenticated %}header_inner--logged-out{% endif %}">

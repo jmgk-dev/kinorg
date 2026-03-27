@@ -29,11 +29,17 @@ if (loadMoreBtn && filmGrid) {
     loadMoreBtn.addEventListener('click', () => {
         const offset = loadMoreBtn.dataset.offset;
         const sort = loadMoreBtn.dataset.sort;
+        const country = loadMoreBtn.dataset.country || '';
+        const genre = loadMoreBtn.dataset.genre || '';
 
         loadMoreBtn.disabled = true;
         loadMoreBtn.textContent = 'Loading...';
 
-        fetch(`${filmsUrl}?offset=${offset}&sort=${encodeURIComponent(sort)}`)
+        const params = new URLSearchParams({ offset, sort });
+        if (country) params.set('country', country);
+        if (genre) params.set('genre', genre);
+
+        fetch(`${filmsUrl}?${params}`)
             .then(res => res.json())
             .then(data => {
                 data.films.forEach(film => {

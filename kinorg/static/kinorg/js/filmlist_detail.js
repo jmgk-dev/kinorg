@@ -12,12 +12,14 @@ if (loadMoreBtn && filmGrid) {
         const offset = loadMoreBtn.dataset.offset;
         const sort = loadMoreBtn.dataset.sort;
         const country = loadMoreBtn.dataset.country;
+        const genre = loadMoreBtn.dataset.genre;
 
         loadMoreBtn.disabled = true;
         loadMoreBtn.textContent = 'Loading...';
 
         const params = new URLSearchParams({ offset, sort });
         if (country) params.set('country', country);
+        if (genre) params.set('genre', genre);
 
         fetch(`${additionsUrl}?${params}`)
             .then(res => res.json())

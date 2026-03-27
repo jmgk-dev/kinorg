@@ -182,6 +182,10 @@ p {
     flex-direction: column;
 }
 
+.logged-out .page_content {
+    padding-top: 0;
+}
+
 .bar_item {
   display: flex;
   justify-content: center;

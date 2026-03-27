@@ -33,6 +33,22 @@
                 <option value="release_desc" {% if current_sort == 'release_desc' %}selected{% endif %}>Release date (newest first)</option>
                 <option value="release_asc" {% if current_sort == 'release_asc' %}selected{% endif %}>Release date (oldest first)</option>
             </select>
+            {% if countries %}
+            <select name="country" onchange="document.getElementById('list_controls_form').submit()">
+                <option value="">All countries</option>
+                {% for code, name in countries %}
+                <option value="{{ code }}" {% if current_country == code %}selected{% endif %}>{{ name }}</option>
+                {% endfor %}
+            </select>
+            {% endif %}
+            {% if genres %}
+            <select name="genre" onchange="document.getElementById('list_controls_form').submit()">
+                <option value="">All genres</option>
+                {% for g in genres %}
+                <option value="{{ g }}" {% if current_genre == g %}selected{% endif %}>{{ g }}</option>
+                {% endfor %}
+            </select>
+            {% endif %}
         </form>
     </div>
 
@@ -77,7 +93,9 @@
     <div class="load_more_container">
         <button id="load_more_btn"
                 data-offset="{{ next_offset }}"
-                data-sort="{{ current_sort }}">Load more</button>
+                data-sort="{{ current_sort }}"
+                data-country="{{ current_country }}"
+                data-genre="{{ current_genre }}">Load more</button>
     </div>
     {% endif %}
 

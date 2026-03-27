@@ -428,6 +428,38 @@ def films_in_collection(tag):
     return Film.objects.extra(where=["collections LIKE %s"], params=[f'%"{tag}"%'])
 
 
+def _build_genre_list(qs):
+    """Return sorted list of genre name strings from a Film queryset."""
+    genres = set()
+    for genres_val in qs.values_list('genres', flat=True):
+        for g in (genres_val or []):
+            if isinstance(g, dict) and g.get('name'):
+                genres.add(g['name'])
+    return sorted(genres)
+
+
+def _filter_films_by_genre(qs, genre):
+    """Filter a Film queryset by genre name, compatible with SQLite and PostgreSQL."""
+    if connection.vendor == 'postgresql':
+        return qs.filter(genres__contains=[{"name": genre}])
+    return qs.extra(where=["genres LIKE %s"], params=[f'%"name": "{genre}"%'])
+
+
+def _build_country_map(qs):
+    """Return sorted list of (code, name) tuples from a Film queryset."""
+    country_map = {}
+    for film in qs.only('primary_country', 'production_countries').exclude(primary_country=''):
+        code = film.primary_country
+        if code and code not in country_map:
+            for c in (film.production_countries or []):
+                if isinstance(c, dict) and c.get('iso_3166_1') == code:
+                    country_map[code] = c.get('name', code)
+                    break
+            else:
+                country_map[code] = code
+    return sorted(country_map.items(), key=lambda x: x[1])
+
+
 class ListDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
 
     login_url = "user_admin:login"
@@ -453,6 +485,7 @@ class ListDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
 
         sort = self.request.GET.get('sort', 'date_desc')
         country = self.request.GET.get('country', '')
+        genre = self.request.GET.get('genre', '')
 
         additions = self.object.addition_set.select_related('film').order_by(
             SORT_MAP.get(sort, '-date_added')
@@ -460,18 +493,16 @@ class ListDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
 
         if country:
             additions = additions.filter(film__primary_country=country)
+        if genre:
+            genre_film_ids = _filter_films_by_genre(Film.objects.all(), genre).values_list('id', flat=True)
+            additions = additions.filter(film_id__in=genre_film_ids)
 
-        # Build country list from all films in this list (before filtering)
-        country_map = {}
-        for addition in self.object.addition_set.select_related('film').exclude(film__primary_country=''):
-            code = addition.film.primary_country
-            if code not in country_map:
-                for c in (addition.film.production_countries or []):
-                    if isinstance(c, dict) and c.get('iso_3166_1') == code:
-                        country_map[code] = c.get('name', code)
-                        break
-                else:
-                    country_map[code] = code
+        # Build each filter list with the other filter applied, so they stay in sync
+        all_films_qs = Film.objects.filter(addition__film_list=self.object)
+        genres_qs = all_films_qs.filter(primary_country=country) if country else all_films_qs
+        countries_qs = _filter_films_by_genre(all_films_qs, genre) if genre else all_films_qs
+        genres = _build_genre_list(genres_qs)
+        countries = _build_country_map(countries_qs)
 
         limit = 48
         total = additions.count()
@@ -480,9 +511,11 @@ class ListDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
         context['additions'] = additions[:limit]
         context['has_more'] = total > limit
         context['next_offset'] = limit
-        context['countries'] = sorted(country_map.items(), key=lambda x: x[1])
+        context['genres'] = genres
+        context['countries'] = countries
         context['current_sort'] = sort
         context['current_country'] = country
+        context['current_genre'] = genre
 
         return context
 
@@ -499,6 +532,7 @@ def list_additions_json(request, slug):
 
     sort = request.GET.get('sort', 'date_desc')
     country = request.GET.get('country', '')
+    genre = request.GET.get('genre', '')
     offset = int(request.GET.get('offset', 0))
     limit = 48
 
@@ -508,6 +542,9 @@ def list_additions_json(request, slug):
 
     if country:
         additions = additions.filter(film__primary_country=country)
+    if genre:
+        genre_film_ids = _filter_films_by_genre(Film.objects.all(), genre).values_list('id', flat=True)
+        additions = additions.filter(film_id__in=genre_film_ids)
 
     total = additions.count()
     batch = additions[offset:offset + limit]
@@ -542,10 +579,25 @@ class CollectionDetail(LoginRequiredMixin, TemplateView):
 
         default_sort = 'rank' if tag in RANKED_COLLECTIONS else 'title_asc'
         sort = self.request.GET.get('sort', default_sort)
+        country = self.request.GET.get('country', '')
+        genre = self.request.GET.get('genre', '')
 
-        qs = films_in_collection(tag).annotate(
+        base_qs = films_in_collection(tag)
+
+        # Build each filter list with the other filter applied, so they stay in sync
+        genres_qs = base_qs.filter(primary_country=country) if country else base_qs
+        countries_qs = _filter_films_by_genre(base_qs, genre) if genre else base_qs
+        genres = _build_genre_list(genres_qs)
+        countries = _build_country_map(countries_qs)
+
+        qs = base_qs.annotate(
             rank=Cast(KeyTransform(tag, 'collection_ranks'), IntegerField())
         )
+
+        if country:
+            qs = qs.filter(primary_country=country)
+        if genre:
+            qs = _filter_films_by_genre(qs, genre)
 
         if sort == 'rank':
             qs = qs.order_by(F('rank').asc(nulls_last=True))
@@ -562,7 +614,11 @@ class CollectionDetail(LoginRequiredMixin, TemplateView):
         context['total'] = total
         context['has_more'] = total > limit
         context['next_offset'] = limit
+        context['genres'] = genres
+        context['countries'] = countries
         context['current_sort'] = sort
+        context['current_country'] = country
+        context['current_genre'] = genre
         context['is_ranked'] = tag in RANKED_COLLECTIONS
 
         return context
@@ -574,15 +630,19 @@ def collection_films_json(request, tag):
         return JsonResponse({'error': 'Not found'}, status=404)
 
     sort = request.GET.get('sort', 'rank')
+    country = request.GET.get('country', '')
+    genre = request.GET.get('genre', '')
     offset = int(request.GET.get('offset', 0))
     limit = 48
 
-    qs = Film.objects.extra(
-        where=["collections LIKE %s"],
-        params=[f'%"{tag}"%']
-    ).annotate(
+    qs = films_in_collection(tag).annotate(
         rank=Cast(KeyTransform(tag, 'collection_ranks'), IntegerField())
     )
+
+    if country:
+        qs = qs.filter(primary_country=country)
+    if genre:
+        qs = _filter_films_by_genre(qs, genre)
 
     if sort == 'rank':
         qs = qs.order_by(F('rank').asc(nulls_last=True))
@@ -641,10 +701,54 @@ def _get_sorted_pcc_screenings(sort):
     return matched
 
 
+def _filter_pcc_matched(matched, country='', genre=''):
+    """Filter a matched PCC list by country and/or genre (only items with a film are kept)."""
+    if country:
+        matched = [x for x in matched if x['film'] and x['film'].primary_country == country]
+    if genre:
+        matched = [x for x in matched if x['film'] and any(
+            isinstance(g, dict) and g.get('name') == genre
+            for g in (x['film'].genres or [])
+        )]
+    return matched
+
+
+def _build_pcc_filter_lists(matched, country='', genre=''):
+    """Return (genres, countries) filter lists, each aware of the other active filter."""
+    for_genres = _filter_pcc_matched(matched, country=country) if country else matched
+    for_countries = _filter_pcc_matched(matched, genre=genre) if genre else matched
+
+    genres = sorted({
+        g['name']
+        for item in for_genres if item['film']
+        for g in (item['film'].genres or [])
+        if isinstance(g, dict) and g.get('name')
+    })
+    country_map = {}
+    for item in for_countries:
+        film = item['film']
+        if not film or not film.primary_country:
+            continue
+        code = film.primary_country
+        if code not in country_map:
+            for c in (film.production_countries or []):
+                if isinstance(c, dict) and c.get('iso_3166_1') == code:
+                    country_map[code] = c.get('name', code)
+                    break
+            else:
+                country_map[code] = code
+    countries = sorted(country_map.items(), key=lambda x: x[1])
+    return genres, countries
+
+
 def pcc_schedule_json(request):
     sort = request.GET.get('sort', 'title_asc')
+    country = request.GET.get('country', '')
+    genre = request.GET.get('genre', '')
     offset = int(request.GET.get('offset', 0))
+
     matched = _get_sorted_pcc_screenings(sort)
+    matched = _filter_pcc_matched(matched, country=country, genre=genre)
     total = len(matched)
     batch = matched[offset:offset + PCC_PAGE_SIZE]
 
@@ -673,13 +777,22 @@ class PCCSchedule(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         sort = self.request.GET.get('sort', 'title_asc')
-        matched = _get_sorted_pcc_screenings(sort)
+        country = self.request.GET.get('country', '')
+        genre = self.request.GET.get('genre', '')
+
+        all_matched = _get_sorted_pcc_screenings(sort)
+        genres, countries = _build_pcc_filter_lists(all_matched, country=country, genre=genre)
+        matched = _filter_pcc_matched(all_matched, country=country, genre=genre)
         total = len(matched)
 
         context['screenings'] = matched[:PCC_PAGE_SIZE]
         context['has_more'] = total > PCC_PAGE_SIZE
         context['next_offset'] = PCC_PAGE_SIZE
+        context['genres'] = genres
+        context['countries'] = countries
         context['current_sort'] = sort
+        context['current_country'] = country
+        context['current_genre'] = genre
         context['collections'] = COLLECTIONS
         return context
 
