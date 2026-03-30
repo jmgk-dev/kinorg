@@ -66,6 +66,8 @@
 
                     {% endwith %}
 
+                    <button class="archive_btn archive_btn--card" data-url="{% url 'kinorg:toggle_archive_list' list.sqid %}">Archive</button>
+
                 </li>
 
             {% endfor %}
@@ -120,6 +122,35 @@
     </div>
 
  {% endif %}
+
+{% if archived_lists %}
+    <div class="my_lists_container">
+        <details class="archived_section">
+            <summary class="archived_summary">Archived ({{ archived_lists|length }})</summary>
+            <ul class="my_lists" style="margin-top: 16px;">
+                {% for list in archived_lists %}
+                <li class="list_item">
+                    <div class="list_item_header">
+                        <a href="{% url 'kinorg:list' list.sqid %}" class="list_item_title">{{ list.title|slice:":30" }}</a>
+                        <button class="archive_btn" data-url="{% url 'kinorg:toggle_archive_list' list.sqid %}" data-list-id="{{ list.id }}">Unarchive</button>
+                    </div>
+                    {% with total=list.addition_set.all|length %}
+                    {% if total > 0 %}
+                    <ul class="list_poster_stack">
+                        {% for addition in list.addition_set.all|slice:":10" %}
+                            <li class="stack_item">
+                                <img class="poster" src="{{ config_data.secure_base_url }}w200{{ addition.film.poster_path }}" style="opacity:0.5;">
+                            </li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                    {% endwith %}
+                </li>
+                {% endfor %}
+            </ul>
+        </details>
+    </div>
+{% endif %}
 
 </div>
 

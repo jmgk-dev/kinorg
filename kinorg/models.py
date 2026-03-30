@@ -145,6 +145,8 @@ class FilmList(models.Model):
 		related_query_name="guestlist",
 		)
 
+	archived = models.BooleanField(default=False)
+
 	def __str__(self):
 		return self.title
 
@@ -252,6 +254,8 @@ class WatchedFilm(models.Model):
 
 	stars = models.IntegerField(
 		choices=[(i, i) for i in range(1, 6)],
+		null=True,
+		blank=True,
 	)
 
 	mini_review = models.CharField(

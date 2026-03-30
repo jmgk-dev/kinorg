@@ -2,45 +2,132 @@
 {% load static %}
 
 {% block extra_css %}
-<link rel="stylesheet" type="text/css" href="{% static 'kinorg/css/my_lists.css' %}">
+<link rel="stylesheet" href="{% static 'kinorg/css/film_list.css' %}">
+<link rel="stylesheet" href="{% static 'kinorg/css/content_list.css' %}">
 {% endblock %}
 
 {% block page_top %}<p class="welcome_banner">Welcome, {{ user.username }}</p>{% endblock %}
+
 {% block content %}
 
-<div class="lists_page_container">
-
-    <div class="my_lists_title">
-        <span class="page_title">Liked Films</span>
+    <div class="filter_toggles">
+        <button class="filter_toggle_btn filter_toggle_liked {% if show_liked %}active{% endif %}"
+                data-param="liked"
+                data-active="{{ show_liked|yesno:'1,0' }}">Liked</button>
+        <button class="filter_toggle_btn filter_toggle_watched {% if show_watched %}active{% endif %}"
+                data-param="watched"
+                data-active="{{ show_watched|yesno:'1,0' }}">Watched</button>
     </div>
 
-    {% if liked_films %}
+    <div class="list_controls">
+        <form method="get" id="list_controls_form">
+            <input type="hidden" name="liked" id="liked_input" value="{{ show_liked|yesno:'1,0' }}">
+            <input type="hidden" name="watched" id="watched_input" value="{{ show_watched|yesno:'1,0' }}">
+            <select name="sort" onchange="document.getElementById('list_controls_form').submit()">
+                <option value="watched_desc" {% if current_sort == 'watched_desc' %}selected{% endif %}>Date watched (newest)</option>
+                <option value="watched_asc"  {% if current_sort == 'watched_asc'  %}selected{% endif %}>Date watched (oldest)</option>
+                <option value="liked_desc"   {% if current_sort == 'liked_desc'   %}selected{% endif %}>Date liked (newest)</option>
+                <option value="liked_asc"    {% if current_sort == 'liked_asc'    %}selected{% endif %}>Date liked (oldest)</option>
+                <option value="title_asc"    {% if current_sort == 'title_asc'    %}selected{% endif %}>Title (A–Z)</option>
+                <option value="title_desc"   {% if current_sort == 'title_desc'   %}selected{% endif %}>Title (Z–A)</option>
+                <option value="release_desc" {% if current_sort == 'release_desc' %}selected{% endif %}>Release date (newest)</option>
+                <option value="release_asc"  {% if current_sort == 'release_asc'  %}selected{% endif %}>Release date (oldest)</option>
+            </select>
+            {% if countries %}
+            <select name="country" onchange="document.getElementById('list_controls_form').submit()">
+                <option value="">All countries</option>
+                {% for code, name in countries %}
+                <option value="{{ code }}" {% if current_country == code %}selected{% endif %}>{{ name }}</option>
+                {% endfor %}
+            </select>
+            {% endif %}
+            {% if genres %}
+            <select name="genre" onchange="document.getElementById('list_controls_form').submit()">
+                <option value="">All genres</option>
+                {% for g in genres %}
+                <option value="{{ g }}" {% if current_genre == g %}selected{% endif %}>{{ g }}</option>
+                {% endfor %}
+            </select>
+            {% endif %}
+        </form>
+    </div>
 
-    <div class="my_lists_container">
-        <ul class="liked_films_grid">
-            {% for like in liked_films %}
-            <li class="liked_film_item">
-                <a href="{% url 'kinorg:film_detail' like.tmdb_id %}">
-                    {% if like.poster_path %}
-                    <img class="poster" src="{{ config_data.secure_base_url }}w200{{ like.poster_path }}" alt="{{ like.title }}">
+    {% if films %}
+    <div class="content_list_container">
+        <ul class="list_of_content"
+            id="film_grid"
+            data-base-url="{{ config_data.secure_base_url }}"
+            data-placeholder-url="{% static 'images/placeholder.jpg' %}"
+            data-film-url="{% url 'kinorg:film_detail' 0 %}"
+            data-films-url="{% url 'kinorg:liked_watched_json' %}"
+            data-is-ranked="false">
+            {% for film in films %}
+            <li class="results_item collection_result_item">
+                <a class="poster_link" href="{% url 'kinorg:film_detail' film.id %}" data-film-id="{{ film.id }}" data-film-title="{{ film.title }}" data-poster-path="{{ film.poster_path }}" data-media-type="movie">
+                    {% if film.poster_path and film.poster_path != 'None' %}
+                    <img class="poster" src="{{ config_data.secure_base_url }}w200{{ film.poster_path }}" alt="{{ film.title }}">
                     {% else %}
-                    <img class="poster" src="{% static 'images/placeholder.jpg' %}" alt="{{ like.title }}">
+                    <img class="poster" src="{% static 'images/placeholder.jpg' %}" alt="{{ film.title }}">
                     {% endif %}
-                    <p class="liked_film_title">{{ like.title }}</p>
                 </a>
             </li>
             {% endfor %}
         </ul>
     </div>
 
-    {% else %}
-
-    <div class="empty_state">
-        <p class="page_blurb">You haven't liked any films yet. Hit the ♡ on a film page to save it here.</p>
+    {% if has_more %}
+    <div class="load_more_container">
+        <button id="load_more_btn"
+                data-offset="{{ next_offset }}"
+                data-sort="{{ current_sort }}"
+                data-country="{{ current_country }}"
+                data-genre="{{ current_genre }}"
+                data-liked="{{ show_liked|yesno:'1,0' }}"
+                data-watched="{{ show_watched|yesno:'1,0' }}">Load more</button>
     </div>
-
     {% endif %}
 
-</div>
+    {% else %}
+    <div class="empty_state">
+        <p class="page_blurb">No films here yet. Hit the ♡ on a film page to like it, or the eye icon to mark it as watched.</p>
+    </div>
+    {% endif %}
 
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'kinorg/js/collection_detail.js' %}"></script>
+<script>
+function updateSortOptions() {
+    var likedOn = document.getElementById('liked_input').value === '1';
+    var watchedOn = document.getElementById('watched_input').value === '1';
+    var sortSelect = document.querySelector('select[name="sort"]');
+
+    ['watched_desc', 'watched_asc'].forEach(function (val) {
+        sortSelect.querySelector('option[value="' + val + '"]').disabled = likedOn && !watchedOn;
+    });
+    ['liked_desc', 'liked_asc'].forEach(function (val) {
+        sortSelect.querySelector('option[value="' + val + '"]').disabled = watchedOn && !likedOn;
+    });
+
+    // If the selected option is now disabled, switch to a sensible default
+    if (sortSelect.selectedOptions[0].disabled) {
+        sortSelect.value = (likedOn && !watchedOn) ? 'liked_desc' : 'watched_desc';
+    }
+}
+
+updateSortOptions();
+
+document.querySelectorAll('.filter_toggle_btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+        var param = btn.dataset.param;
+        var input = document.getElementById(param + '_input');
+        var isActive = input.value === '1';
+        input.value = isActive ? '0' : '1';
+        btn.classList.toggle('active', !isActive);
+        updateSortOptions();
+        document.getElementById('list_controls_form').submit();
+    });
+});
+</script>
 {% endblock %}

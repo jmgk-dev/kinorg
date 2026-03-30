@@ -78,6 +78,19 @@ listsInput.addEventListener('input', () => {
     }, 300);
 });
 
+document.querySelectorAll('.archive_btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        fetch(btn.dataset.url, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': csrfToken },
+        })
+        .then(r => r.json())
+        .then(() => {
+            window.location.reload();
+        });
+    });
+});
+
 listsForm.addEventListener('submit', e => {
     e.preventDefault();
     fetch(listsForm.action, {

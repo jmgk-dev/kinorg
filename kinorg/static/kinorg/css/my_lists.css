@@ -179,6 +179,23 @@
     -webkit-box-orient: vertical;
 }
 
+.archived_section {
+    width: 100%;
+}
+
+.archived_summary {
+    font-size: 0.85rem;
+    opacity: 0.5;
+    cursor: pointer;
+    padding: 6px 0;
+    list-style: none;
+    user-select: none;
+}
+
+.archived_summary:hover {
+    opacity: 0.8;
+}
+
 @media (max-width: 600px) {
     .lists_page_container {
         padding: 8px 10px 30px;

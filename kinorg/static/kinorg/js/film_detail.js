@@ -29,19 +29,23 @@ function toggleFilm(button) {
 }
 
 function openReviewModal() {
-    document.getElementById('review-modal').style.display = 'block';
+    document.getElementById('review-modal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
 }
 
 function closeReviewModal() {
     document.getElementById('review-modal').style.display = 'none';
+    document.body.style.overflow = '';
 }
 
 function openVideosModal() {
-    document.getElementById('videos-modal').style.display = 'block';
+    document.getElementById('videos-modal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
 }
 
 function closeVideosModal() {
     document.getElementById('videos-modal').style.display = 'none';
+    document.body.style.overflow = '';
 }
 
 window.onclick = function(event) {
@@ -50,6 +54,20 @@ window.onclick = function(event) {
     if (event.target === reviewModal) closeReviewModal();
     if (event.target === videosModal) closeVideosModal();
 };
+
+// Review form: require at least stars OR text
+const reviewForm = document.querySelector('#review-modal form');
+if (reviewForm) {
+    reviewForm.addEventListener('submit', function (e) {
+        const stars = reviewForm.querySelector('input[name="stars"]:checked');
+        const text = reviewForm.querySelector('textarea[name="mini_review"]').value.trim();
+        const hasStars = stars && stars.value !== '';
+        if (!hasStars && !text) {
+            e.preventDefault();
+            alert('Please add a star rating or write something.');
+        }
+    });
+}
 
 document.addEventListener('DOMContentLoaded', function () {
 
@@ -104,6 +122,58 @@ document.addEventListener('DOMContentLoaded', function () {
             list.classList.add('has-overflow');
         }
     });
+
+    // Watched buttons (desktop + mobile kept in sync)
+    const watchedBtns = document.querySelectorAll('.watched_btn');
+    watchedBtns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            const tmdbId = btn.dataset.tmdbId;
+            const csrfToken = document.cookie.match(/csrftoken=([^;]+)/)[1];
+            const formData = new FormData();
+            formData.append('title', btn.dataset.title);
+            formData.append('poster_path', btn.dataset.posterPath);
+            formData.append('release_date', btn.dataset.releaseDate || '');
+            fetch(`/watched/${tmdbId}/`, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': csrfToken },
+                body: formData,
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.watched !== undefined) {
+                    watchedBtns.forEach(function (b) {
+                        b.classList.toggle('is-watched', data.watched);
+                        b.title = data.watched ? 'Unwatch' : 'Mark as watched';
+                    });
+                }
+            });
+        });
+    });
+
+    // Private/public toggle for reviews
+    const privateBtn = document.querySelector('.review_private_btn');
+    if (privateBtn) {
+        privateBtn.addEventListener('click', function () {
+            const filmId = privateBtn.dataset.filmId;
+            const csrfToken = document.cookie.match(/csrftoken=([^;]+)/)[1];
+            const formData = new FormData();
+            formData.append('film_id', filmId);
+            fetch('/review-private/', {
+                method: 'POST',
+                headers: { 'X-CSRFToken': csrfToken },
+                body: formData,
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.review_visible !== undefined) {
+                    privateBtn.dataset.visible = data.review_visible ? 'true' : 'false';
+                    privateBtn.textContent = data.review_visible ? 'Make Private' : 'Make Public';
+                    const note = document.querySelector('.review_private_note');
+                    if (note) note.style.display = data.review_visible ? 'none' : 'block';
+                }
+            });
+        });
+    }
 
     // Flag buttons
     document.querySelectorAll('.flag_btn').forEach(function (btn) {

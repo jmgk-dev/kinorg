@@ -1,91 +1,109 @@
+{% load static %}
+
 <div class="review_section">
     <h4><b>Your Review</b></h4>
-    
+
     {% if watched %}
-        <!-- Show existing review -->
+        <!-- Show existing watch record -->
         <div class="review_display">
+
             {% if watched.stars %}
-                <div class="rating">
-                    Rating: 
-                    {% for i in "12345" %}
-                        <span class="star {% if i|add:0 <= watched.stars %}filled{% endif %}">★</span>
-                    {% endfor %}
-                </div>
+            <div class="rating">
+                Rating:
+                {% for i in "12345" %}
+                    <span class="star {% if i|add:0 <= watched.stars %}filled{% endif %}">★</span>
+                {% endfor %}
+            </div>
             {% endif %}
 
             {% if watched.mini_review %}
-                <p class="">"{{ watched.mini_review }}"</p>
+                <p>"{{ watched.mini_review }}"</p>
             {% endif %}
 
+            {% if not watched.stars and not watched.mini_review %}
+                <p class="review_watched_note">Marked as watched</p>
+            {% endif %}
 
-            <!-- Button to open modal -->
-            <button onclick="openReviewModal()" class="btn-secondary">Edit Review</button>
+            <div class="review_actions">
+                <button onclick="openReviewModal()" class="btn">Edit Review</button>
+
+                <!-- Private / Public toggle -->
+                <button class="btn review_private_btn"
+                        data-film-id="{{ film.id }}"
+                        data-visible="{{ watched.review_visible|yesno:'true,false' }}">
+                    {% if watched.review_visible %}Make Private{% else %}Make Public{% endif %}
+                </button>
+
+                <!-- Delete (unwatch) -->
+                <form method="POST" action="{% url 'kinorg:remove_review' %}" style="display:inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="id" value="{{ film.id }}">
+                    <button type="submit" class="btn btn-remove review_delete_btn">Delete</button>
+                </form>
+            </div>
+
+            {% if not watched.review_visible %}
+                <p class="review_private_note">Your review is private.</p>
+            {% endif %}
+
         </div>
+
     {% else %}
-        <!-- Button to open modal if no review yet -->
-        <button onclick="openReviewModal()" class="btn-primary">Add Review</button>
+        <button onclick="openReviewModal()" class="btn">Add Review</button>
     {% endif %}
 </div>
-            
 
 
-<!-- Modal (hidden by default) -->
+<!-- Review modal -->
 <div id="review-modal" class="modal">
     <div class="modal-content">
         <span class="close" onclick="closeReviewModal()">&times;</span>
 
-    <!-- Always show the form (to add or update) -->
-    <form method="POST" action="{% url 'kinorg:add_review' %}">
-        {% csrf_token %}
-        <!-- Hidden film data -->
-        <input type="hidden" name="id" value="{{ film.id }}">
-        <input type="hidden" name="title" value="{{ film.title }}">
-        <input type="hidden" name="release_date" value="{{ film.release_date }}">
-        <input type="hidden" name="poster_path" value="{{ film.poster_path }}">
-        <input type="hidden" name="backdrop_path" value="{{ film.backdrop_path }}">
-        <input type="hidden" name="overview" value="{{ film.overview }}">
-        <input type="hidden" name="runtime" value="{{ film.runtime }}">
-        <input type="hidden" name="cast" value="{{ film.cast_json }}">
-        <input type="hidden" name="crew" value="{{ film.crew_json }}">
-        <input type="hidden" name="genres" value="{{ film.genres_json }}">
-        <input type="hidden" name="keywords" value="{{ film.keywords_json }}">
-        <input type="hidden" name="production_companies" value="{{ film.production_companies_json }}">
+        <form method="POST" action="{% url 'kinorg:add_review' %}">
+            {% csrf_token %}
+            <!-- Hidden film data -->
+            <input type="hidden" name="id"                   value="{{ film.id }}">
+            <input type="hidden" name="title"                value="{{ film.title }}">
+            <input type="hidden" name="release_date"         value="{{ film.release_date }}">
+            <input type="hidden" name="poster_path"          value="{{ film.poster_path }}">
+            <input type="hidden" name="backdrop_path"        value="{{ film.backdrop_path }}">
+            <input type="hidden" name="overview"             value="{{ film.overview }}">
+            <input type="hidden" name="runtime"              value="{{ film.runtime }}">
+            <input type="hidden" name="cast"                 value="{{ film.cast_json }}">
+            <input type="hidden" name="crew"                 value="{{ film.crew_json }}">
+            <input type="hidden" name="genres"               value="{{ film.genres_json }}">
+            <input type="hidden" name="keywords"             value="{{ film.keywords_json }}">
+            <input type="hidden" name="production_companies" value="{{ film.production_companies_json }}">
 
-
-        <!-- Star Rating -->
-        <div class="rating-input">
-            <div class="rating">Rating:</div>
-            <div class="star-rating">
-                {% for i in "54321" %}
-                    <input 
-                        type="radio" 
-                        name="stars" 
-                        id="star-{{ i }}" 
-                        value="{{ i }}"
-                        {% if watched.stars == i|add:0 %}checked{% endif %}
-                    >
-                    <label for="star-{{ i }}">★</label>
-                {% endfor %}
+            <!-- Star Rating (optional) -->
+            <div class="rating-input">
+                <div class="rating">Rating</div>
+                <div class="star-rating">
+                    {% for i in "54321" %}
+                        <input type="radio" name="stars" id="star-{{ i }}" value="{{ i }}"
+                               {% if watched.stars == i|add:0 %}checked{% endif %}>
+                        <label for="star-{{ i }}">★</label>
+                    {% endfor %}
+                    <!-- "No rating" LAST in DOM so its :checked state doesn't bleed into star labels via ~ -->
+                    <input type="radio" name="stars" id="star-0" value=""
+                           {% if not watched.stars %}checked{% endif %}>
+                    <label for="star-0" class="star-clear-label" title="Clear rating">✕</label>
+                </div>
             </div>
-        </div>
 
-        <!-- Text Review -->
-        <div class="review-input">
-            <!-- <label for="mini-review"></label> -->
-            <textarea 
-                name="mini_review" 
-                id="mini-review"
-                class="mini_review"
-                rows="4"
-                placeholder="What did you think?"
-            >{{ watched.mini_review|default:"" }}</textarea>
-        </div>
+            <!-- Text Review (optional) -->
+            <div class="review-input">
+                <textarea name="mini_review"
+                          id="mini-review"
+                          class="mini_review"
+                          rows="4"
+                          placeholder="What did you think?">{{ watched.mini_review|default:"" }}</textarea>
+            </div>
 
-        <!-- Submit Button -->
-        <button type="submit" class="btn-primary">
-            {% if watched %}Update Review{% else %}Save Review{% endif %}
-        </button>
-    </form>
+            <button type="submit" class="btn">
+                {% if watched %}Update Review{% else %}Save Review{% endif %}
+            </button>
+        </form>
 
     </div>
 </div>

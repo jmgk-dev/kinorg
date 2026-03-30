@@ -70,9 +70,9 @@
         <ul>
             <li><b>{{ user.username }}</b></li>
             <li><a href="{% url 'kinorg:my_lists' %}">Watchlists</a></li>
-            <li><a href="{% url 'kinorg:liked_films' %}">Liked Films</a></li>
             <li><a href="{% url 'kinorg:create_list' %}">Create List</a></li>
             <li><a href="{% url 'kinorg:invitations' %}">Invitations</a></li>
+            <li><a href="{% url 'kinorg:liked_films' %}">Liked &amp; Watched</a></li>
             <li><a href="{% url 'film_games:hub' %}">Games</a></li>
             <li><a href="{% url 'kinorg:about' %}">About</a></li>
             <li>
@@ -83,9 +83,6 @@
             </li>
         </ul>
     </nav>
-
-    <!-- Backdrop -->
-    <div id="nav_backdrop"></div>
 
     <script src="{% static 'kinorg/js/nav.js' %}"></script>
 
@@ -123,6 +120,7 @@
 </div>
 </div>{# end page_content #}
 
+{% if user.is_authenticated %}<div id="nav_backdrop"></div>{% endif %}
 <script src="{% static 'kinorg/js/typeahead.js' %}"></script>
 {% include "kinorg/_film_modal.html" %}
 <script src="{% static 'kinorg/js/film_modal.js' %}"></script>

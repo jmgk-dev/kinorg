@@ -18,13 +18,23 @@
 
                 <div class="film_title_row">
                     <h3><b>{{ film.title }}</b></h3>
-                    <button class="like_btn like_btn--mobile {% if is_liked %}liked{% endif %}"
-                            data-tmdb-id="{{ film.id }}"
-                            data-title="{{ film.title }}"
-                            data-poster-path="{{ film.poster_path }}"
-                            title="{% if is_liked %}Unlike{% else %}Like{% endif %} this film">
-                        {% if is_liked %}♥{% else %}♡{% endif %}
-                    </button>
+                    <div class="film_action_btns">
+                        <button class="watched_btn watched_btn--mobile {% if watched %}is-watched{% endif %}"
+                                data-tmdb-id="{{ film.id }}"
+                                data-title="{{ film.title }}"
+                                data-poster-path="{{ film.poster_path }}"
+                                data-release-date="{{ film.release_date }}"
+                                title="{% if watched %}Unwatch{% else %}Mark as watched{% endif %}">
+                            <svg class="watched_icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle class="watched_pupil" cx="12" cy="12" r="3"/></svg>
+                        </button>
+                        <button class="like_btn like_btn--mobile {% if is_liked %}liked{% endif %}"
+                                data-tmdb-id="{{ film.id }}"
+                                data-title="{{ film.title }}"
+                                data-poster-path="{{ film.poster_path }}"
+                                title="{% if is_liked %}Unlike{% else %}Like{% endif %} this film">
+                            {% if is_liked %}♥{% else %}♡{% endif %}
+                        </button>
+                    </div>
                 </div>
 
                 <div class="film_meta">
@@ -43,15 +53,25 @@
 
             </div>
 
-            {% if watch_providers or pcc_url or film.videos.results %}
             <div class="watch_section watch_section--desktop">
-                <button class="like_btn like_btn--desktop {% if is_liked %}liked{% endif %}"
-                        data-tmdb-id="{{ film.id }}"
-                        data-title="{{ film.title }}"
-                        data-poster-path="{{ film.poster_path }}"
-                        title="{% if is_liked %}Unlike{% else %}Like{% endif %} this film">
-                    {% if is_liked %}♥{% else %}♡{% endif %}
-                </button>
+                <div class="film_action_btns film_action_btns--desktop">
+                    <button class="watched_btn watched_btn--desktop {% if watched %}is-watched{% endif %}"
+                            data-tmdb-id="{{ film.id }}"
+                            data-title="{{ film.title }}"
+                            data-poster-path="{{ film.poster_path }}"
+                            data-release-date="{{ film.release_date }}"
+                            title="{% if watched %}Unwatch{% else %}Mark as watched{% endif %}">
+                        <svg class="watched_icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle class="watched_pupil" cx="12" cy="12" r="3"/></svg>
+                    </button>
+                    <button class="like_btn like_btn--desktop {% if is_liked %}liked{% endif %}"
+                            data-tmdb-id="{{ film.id }}"
+                            data-title="{{ film.title }}"
+                            data-poster-path="{{ film.poster_path }}"
+                            title="{% if is_liked %}Unlike{% else %}Like{% endif %} this film">
+                        {% if is_liked %}♥{% else %}♡{% endif %}
+                    </button>
+                </div>
+                {% if watch_providers or pcc_url or film.videos.results %}
                 <p class="details_label">Where to Watch</p>
                 <div class="watch_rows">
                     {% if pcc_url %}
@@ -85,8 +105,8 @@
                     {% endwith %}
                     {% endif %}
                 </div>
+                {% endif %}
             </div>
-            {% endif %}
 
         </div>
 

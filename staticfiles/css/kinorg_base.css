@@ -537,7 +537,7 @@ p {
     position: fixed;
     inset: 0;
     background: rgba(0,0,0,0.4);
-    z-index: 999;
+    z-index: 997;
 }
 
 #nav_backdrop.is-open {

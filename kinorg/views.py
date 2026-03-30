@@ -14,7 +14,7 @@ from django.http import Http404, HttpResponse, JsonResponse
 from django.db import connection
 from django.db.models.fields.json import KeyTransform
 from django.db.models.functions import Cast
-from django.db.models import IntegerField, F, Q
+from django.db.models import IntegerField, F, Q, Exists, OuterRef, Subquery
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
@@ -424,12 +424,14 @@ class MyLists(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         user = self.request.user
 
-        my_lists = FilmList.objects.filter(owner=user).order_by('-id').prefetch_related('addition_set__film')
-        guest_lists = FilmList.objects.filter(guests=user).order_by('-id')
+        my_lists = FilmList.objects.filter(owner=user, archived=False).order_by('-id').prefetch_related('addition_set__film')
+        guest_lists = FilmList.objects.filter(guests=user, archived=False).order_by('-id')
+        archived_lists = FilmList.objects.filter(owner=user, archived=True).order_by('-id')
         invitations = Invitation.objects.filter(to_user=user).exclude(accepted=True)
 
         context["my_lists"] = my_lists
         context["guest_lists"] = guest_lists
+        context["archived_lists"] = archived_lists
         context["invitations"] = invitations
 
         return context
@@ -439,6 +441,8 @@ SORT_MAP = {
     'date_desc': '-date_added',
     'date_asc': 'date_added',
     'title_asc': 'film__title',
+    'added_by_asc': 'added_by__username',
+    'added_by_desc': '-added_by__username',
     'title_desc': '-film__title',
     'release_desc': '-film__release_date',
     'release_asc': 'film__release_date',
@@ -464,6 +468,17 @@ COLLECTION_SORT_MAP = {
     'release_asc': 'release_date',
 }
 
+LIKED_WATCHED_SORT_MAP = {
+    'watched_desc': F('watched_at').desc(nulls_last=True),
+    'watched_asc':  F('watched_at').asc(nulls_last=True),
+    'liked_desc':   F('liked_at').desc(nulls_last=True),
+    'liked_asc':    F('liked_at').asc(nulls_last=True),
+    'title_asc':    F('title').asc(),
+    'title_desc':   F('title').desc(),
+    'release_desc': F('release_date').desc(nulls_last=True),
+    'release_asc':  F('release_date').asc(nulls_last=True),
+}
+
 
 def films_in_collection(tag):
     """Filter Films by collection tag, using the most efficient method for the current DB."""
@@ -487,6 +502,21 @@ def _filter_films_by_genre(qs, genre):
     if connection.vendor == 'postgresql':
         return qs.filter(genres__contains=[{"name": genre}])
     return qs.extra(where=["genres LIKE %s"], params=[f'%"name": "{genre}"%'])
+
+
+def _liked_watched_qs(user):
+    """Base Film queryset for a user's liked + watched films, annotated with timestamps."""
+    liked_ids = LikedFilm.objects.filter(user=user).values_list('tmdb_id', flat=True)
+    watched_ids = WatchedFilm.objects.filter(user=user).values_list('film_id', flat=True)
+    all_ids = set(liked_ids) | set(watched_ids)
+    return Film.objects.filter(id__in=all_ids).annotate(
+        liked_at=Subquery(
+            LikedFilm.objects.filter(user=user, tmdb_id=OuterRef('pk')).values('liked_at')[:1]
+        ),
+        watched_at=Subquery(
+            WatchedFilm.objects.filter(user=user, film=OuterRef('pk')).values('watched_at')[:1]
+        ),
+    )
 
 
 def _build_country_map(qs):
@@ -517,6 +547,7 @@ class ListDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        user = self.request.user
 
         invitations = Invitation.objects.filter(
             film_list=self.get_object()
@@ -525,8 +556,9 @@ class ListDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
         sort = self.request.GET.get('sort', 'date_desc')
         country = self.request.GET.get('country', '')
         genre = self.request.GET.get('genre', '')
+        added_by_filter = self.request.GET.get('added_by', '')
 
-        additions = self.object.addition_set.select_related('film').order_by(
+        additions = self.object.addition_set.select_related('film', 'added_by').order_by(
             SORT_MAP.get(sort, '-date_added')
         )
 
@@ -535,6 +567,8 @@ class ListDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
         if genre:
             genre_film_ids = _filter_films_by_genre(Film.objects.all(), genre).values_list('id', flat=True)
             additions = additions.filter(film_id__in=genre_film_ids)
+        if added_by_filter:
+            additions = additions.filter(added_by__username=added_by_filter)
 
         # Build each filter list with the other filter applied, so they stay in sync
         all_films_qs = Film.objects.filter(addition__film_list=self.object)
@@ -542,6 +576,17 @@ class ListDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
         countries_qs = _filter_films_by_genre(all_films_qs, genre) if genre else all_films_qs
         genres = _build_genre_list(genres_qs)
         countries = _build_country_map(countries_qs)
+
+        is_shared = self.object.guests.exists()
+        contributors = list(
+            self.object.addition_set.values_list('added_by__username', flat=True)
+            .distinct().order_by('added_by__username')
+        )
+
+        # All lists the user can access (for the list picker)
+        owned = list(FilmList.objects.filter(owner=user, archived=False).order_by('title'))
+        guest = list(FilmList.objects.filter(guests=user, archived=False).order_by('title'))
+        all_lists = owned + guest
 
         limit = 48
         total = additions.count()
@@ -555,6 +600,10 @@ class ListDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
         context['current_sort'] = sort
         context['current_country'] = country
         context['current_genre'] = genre
+        context['added_by_filter'] = added_by_filter
+        context['is_shared'] = is_shared
+        context['contributors'] = contributors
+        context['all_lists'] = all_lists
 
         return context
 
@@ -572,10 +621,11 @@ def list_additions_json(request, slug):
     sort = request.GET.get('sort', 'date_desc')
     country = request.GET.get('country', '')
     genre = request.GET.get('genre', '')
+    added_by_filter = request.GET.get('added_by', '')
     offset = int(request.GET.get('offset', 0))
     limit = 48
 
-    additions = film_list.addition_set.select_related('film').order_by(
+    additions = film_list.addition_set.select_related('film', 'added_by').order_by(
         SORT_MAP.get(sort, '-date_added')
     )
 
@@ -584,6 +634,8 @@ def list_additions_json(request, slug):
     if genre:
         genre_film_ids = _filter_films_by_genre(Film.objects.all(), genre).values_list('id', flat=True)
         additions = additions.filter(film_id__in=genre_film_ids)
+    if added_by_filter:
+        additions = additions.filter(added_by__username=added_by_filter)
 
     total = additions.count()
     batch = additions[offset:offset + limit]
@@ -593,6 +645,7 @@ def list_additions_json(request, slug):
             'id': addition.film.id,
             'title': addition.film.title,
             'poster_path': addition.film.poster_path,
+            'added_by': addition.added_by.username,
         }
         for addition in batch
     ]
@@ -602,6 +655,19 @@ def list_additions_json(request, slug):
         'has_more': (offset + limit) < total,
         'next_offset': offset + limit,
     })
+
+
+@login_required(login_url='user_admin:login')
+def toggle_archive_list(request, slug):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Invalid request'}, status=400)
+    try:
+        film_list = FilmList.objects.get(sqid=slug, owner=request.user)
+    except FilmList.DoesNotExist:
+        return JsonResponse({'error': 'Not found'}, status=404)
+    film_list.archived = not film_list.archived
+    film_list.save(update_fields=['archived'])
+    return JsonResponse({'archived': film_list.archived})
 
 
 class CollectionDetail(LoginRequiredMixin, TemplateView):
@@ -1024,8 +1090,12 @@ def add_review(request):
 
         user = request.user
 
-        stars = request.POST.get("stars")  # Can be None
+        stars_raw = request.POST.get("stars")
+        stars = int(stars_raw) if stars_raw else None
         mini_review = profanity.censor(request.POST.get("mini_review", "").strip())
+
+        if not stars and not mini_review:
+            return redirect('kinorg:film_detail', id=request.POST.get("id"))
 
         fields = [
             'title', 'release_date', 'poster_path', 'backdrop_path',
@@ -1042,18 +1112,11 @@ def add_review(request):
             defaults=film_data
         )
 
-        # Prepare review data
-        defaults = {}
-        if stars:
-            defaults['stars'] = int(stars)
-        if mini_review:
-            defaults['mini_review'] = mini_review
-
-        # Create or update review
+        # Always update both fields (allows clearing either independently)
         watched, created = WatchedFilm.objects.update_or_create(
             user=user,
             film=film_object,
-            defaults=defaults
+            defaults={'stars': stars, 'mini_review': mini_review},
         )
 
         # Redirect back to the film detail page
@@ -1117,6 +1180,47 @@ def toggle_like(request, tmdb_id):
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
 
+@login_required
+def toggle_watched(request, tmdb_id):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Invalid request'}, status=400)
+
+    existing = WatchedFilm.objects.filter(user=request.user, film_id=tmdb_id).first()
+    if existing:
+        existing.delete()
+        return JsonResponse({'watched': False})
+
+    # Ensure film exists in DB — use get_or_create so existing data is never overwritten
+    from datetime import date as _date
+    release_date = request.POST.get('release_date') or str(_date.today())
+    film, _ = Film.objects.get_or_create(
+        pk=tmdb_id,
+        defaults={
+            'title': request.POST.get('title', ''),
+            'release_date': release_date,
+            'poster_path': request.POST.get('poster_path', ''),
+        },
+    )
+    WatchedFilm.objects.create(user=request.user, film=film)
+    return JsonResponse({'watched': True})
+
+
+@login_required
+def toggle_review_private(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Invalid request'}, status=400)
+
+    film_id = request.POST.get('film_id')
+    try:
+        watched = WatchedFilm.objects.get(user=request.user, film_id=film_id)
+    except WatchedFilm.DoesNotExist:
+        return JsonResponse({'error': 'No review found'}, status=404)
+
+    watched.review_visible = not watched.review_visible
+    watched.save(update_fields=['review_visible'])
+    return JsonResponse({'review_visible': watched.review_visible})
+
+
 class LikedFilms(LoginRequiredMixin, TemplateView):
 
     login_url = "user_admin:login"
@@ -1124,8 +1228,81 @@ class LikedFilms(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['liked_films'] = LikedFilm.objects.filter(user=self.request.user).order_by('-liked_at')
+        user = self.request.user
+
+        sort = self.request.GET.get('sort', 'watched_desc')
+        country = self.request.GET.get('country', '')
+        genre = self.request.GET.get('genre', '')
+        show_liked = self.request.GET.get('liked', '1') != '0'
+        show_watched = self.request.GET.get('watched', '1') != '0'
+
+        base_qs = _liked_watched_qs(user)
+        if show_liked and not show_watched:
+            base_qs = base_qs.filter(liked_at__isnull=False)
+        elif show_watched and not show_liked:
+            base_qs = base_qs.filter(watched_at__isnull=False)
+
+        # Build filter lists with the other filter applied so they stay in sync
+        genres_qs = base_qs.filter(primary_country=country) if country else base_qs
+        countries_qs = _filter_films_by_genre(base_qs, genre) if genre else base_qs
+        genres = _build_genre_list(genres_qs)
+        countries = _build_country_map(countries_qs)
+
+        qs = base_qs
+        if country:
+            qs = qs.filter(primary_country=country)
+        if genre:
+            qs = _filter_films_by_genre(qs, genre)
+
+        qs = qs.order_by(LIKED_WATCHED_SORT_MAP.get(sort, F('watched_at').desc(nulls_last=True)))
+
+        limit = 48
+        total = qs.count()
+
+        context['films'] = list(qs[:limit])
+        context['has_more'] = total > limit
+        context['next_offset'] = limit
+        context['genres'] = genres
+        context['countries'] = countries
+        context['current_sort'] = sort
+        context['current_country'] = country
+        context['current_genre'] = genre
+        context['show_liked'] = show_liked
+        context['show_watched'] = show_watched
         return context
+
+
+@login_required(login_url='user_admin:login')
+def liked_watched_json(request):
+    user = request.user
+    sort = request.GET.get('sort', 'watched_desc')
+    country = request.GET.get('country', '')
+    genre = request.GET.get('genre', '')
+    offset = int(request.GET.get('offset', 0))
+    show_liked = request.GET.get('liked', '1') != '0'
+    show_watched = request.GET.get('watched', '1') != '0'
+    limit = 48
+
+    qs = _liked_watched_qs(user)
+    if show_liked and not show_watched:
+        qs = qs.filter(liked_at__isnull=False)
+    elif show_watched and not show_liked:
+        qs = qs.filter(watched_at__isnull=False)
+    if country:
+        qs = qs.filter(primary_country=country)
+    if genre:
+        qs = _filter_films_by_genre(qs, genre)
+
+    qs = qs.order_by(LIKED_WATCHED_SORT_MAP.get(sort, F('watched_at').desc(nulls_last=True)))
+
+    total = qs.count()
+    batch = qs[offset:offset + limit]
+
+    return JsonResponse({
+        'films': [{'id': f.id, 'title': f.title, 'poster_path': f.poster_path} for f in batch],
+        'has_more': (offset + limit) < total,
+        'next_offset': offset + limit,
+    })
 
 
 class PersonCredits(LoginRequiredMixin, TemplateView):

@@ -31,6 +31,8 @@ if (loadMoreBtn && filmGrid) {
         const sort = loadMoreBtn.dataset.sort;
         const country = loadMoreBtn.dataset.country || '';
         const genre = loadMoreBtn.dataset.genre || '';
+        const liked = loadMoreBtn.dataset.liked;
+        const watched = loadMoreBtn.dataset.watched;
 
         loadMoreBtn.disabled = true;
         loadMoreBtn.textContent = 'Loading...';
@@ -38,6 +40,8 @@ if (loadMoreBtn && filmGrid) {
         const params = new URLSearchParams({ offset, sort });
         if (country) params.set('country', country);
         if (genre) params.set('genre', genre);
+        if (liked !== undefined) params.set('liked', liked);
+        if (watched !== undefined) params.set('watched', watched);
 
         fetch(`${filmsUrl}?${params}`)
             .then(res => res.json())
