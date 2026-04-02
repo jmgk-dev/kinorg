@@ -50,7 +50,7 @@
             <ul class="list_of_content">
                 {% for film in cast_films %}
                 <li class="results_item">
-                    <a href="{% url 'kinorg:film_detail' film.id %}">
+                    <a class="poster_link" href="{% url 'kinorg:film_detail' film.id %}" data-film-id="{{ film.id }}" data-film-title="{{ film.title }}" data-poster-path="{{ film.poster_path }}" data-year="{{ film.release_date|slice:':4' }}" data-media-type="movie">
                         {% if film.poster_path %}
                         <img class="poster" src="{{ config_data.secure_base_url }}w200{{ film.poster_path }}" alt="{{ film.title }}">
                         {% else %}
@@ -68,7 +68,7 @@
             <ul class="list_of_content">
                 {% for film in films %}
                 <li class="results_item">
-                    <a href="{% url 'kinorg:film_detail' film.id %}">
+                    <a class="poster_link" href="{% url 'kinorg:film_detail' film.id %}" data-film-id="{{ film.id }}" data-film-title="{{ film.title }}" data-poster-path="{{ film.poster_path }}" data-year="{{ film.release_date|slice:':4' }}" data-media-type="movie">
                         {% if film.poster_path %}
                         <img class="poster" src="{{ config_data.secure_base_url }}w200{{ film.poster_path }}" alt="{{ film.title }}">
                         {% else %}

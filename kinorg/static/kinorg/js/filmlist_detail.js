@@ -70,6 +70,8 @@ if (loadMoreBtn && filmGrid) {
                         data-film-id="${film.id}"
                         data-film-title="${film.title}"
                         data-poster-path="${film.poster_path}"
+                        data-year="${film.year || ''}"
+                        data-director="${(film.director || '').replace(/"/g, '&quot;')}"
                         data-media-type="movie">
                         <img class="poster" src="${posterSrc}" alt="${film.title}">
                     </a>`;

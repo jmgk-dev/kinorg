@@ -24,7 +24,7 @@ from django.urls import reverse_lazy
 
 from django.core.cache import cache
 
-from .models import Film, FilmList, Addition, Invitation, WatchedFilm, PCCScreening, LikedFilm
+from .models import Film, FilmList, Addition, Invitation, WatchedFilm, PCCScreening, LikedFilm, WatchlistItem
 from better_profanity import profanity
 
 
@@ -479,6 +479,15 @@ LIKED_WATCHED_SORT_MAP = {
     'release_asc':  F('release_date').asc(nulls_last=True),
 }
 
+WATCHLIST_SORT_MAP = {
+    'added_desc':   F('added_at').desc(nulls_last=True),
+    'added_asc':    F('added_at').asc(nulls_last=True),
+    'title_asc':    F('title').asc(),
+    'title_desc':   F('title').desc(),
+    'release_desc': F('release_date').desc(nulls_last=True),
+    'release_asc':  F('release_date').asc(nulls_last=True),
+}
+
 
 def films_in_collection(tag):
     """Filter Films by collection tag, using the most efficient method for the current DB."""
@@ -515,6 +524,16 @@ def _liked_watched_qs(user):
         ),
         watched_at=Subquery(
             WatchedFilm.objects.filter(user=user, film=OuterRef('pk')).values('watched_at')[:1]
+        ),
+    )
+
+
+def _watchlist_qs(user):
+    """Base Film queryset for a user's watchlist, annotated with added_at."""
+    watchlist_ids = WatchlistItem.objects.filter(user=user).values_list('film_id', flat=True)
+    return Film.objects.filter(id__in=watchlist_ids).annotate(
+        added_at=Subquery(
+            WatchlistItem.objects.filter(user=user, film=OuterRef('pk')).values('added_at')[:1]
         ),
     )
 
@@ -646,6 +665,8 @@ def list_additions_json(request, slug):
             'title': addition.film.title,
             'poster_path': addition.film.poster_path,
             'added_by': addition.added_by.username,
+            'year': (addition.film.release_date or '')[:4],
+            'director': next((m['name'] for m in (addition.film.crew or []) if m.get('job') == 'Director'), ''),
         }
         for addition in batch
     ]
@@ -763,6 +784,8 @@ def collection_films_json(request, tag):
             'title': f.title,
             'poster_path': f.poster_path,
             'rank': f.rank,
+            'year': (f.release_date or '')[:4],
+            'director': next((m['name'] for m in (f.crew or []) if m.get('job') == 'Director'), ''),
         }
         for f in batch
     ]
@@ -858,6 +881,8 @@ def pcc_schedule_json(request):
             'title': item['film'].title if item['film'] else item['screening'].title,
             'poster_path': item['film'].poster_path if item['film'] else None,
             'pcc_url': item['screening'].pcc_url,
+            'year': ((item['film'].release_date or '')[:4]) if item['film'] else '',
+            'director': next((m['name'] for m in (item['film'].crew or []) if m.get('job') == 'Director'), '') if item['film'] else '',
         }
         for item in batch
     ]
@@ -1003,6 +1028,7 @@ class FilmDetail(LoginRequiredMixin, TemplateView):
         context["watched"] = watched
         context["film_reviews"] = film_reviews
         context["is_liked"] = LikedFilm.objects.filter(user=user, tmdb_id=movie_id).exists()
+        context["in_watchlist"] = WatchlistItem.objects.filter(user=user, film_id=movie_id).exists()
 
         return context
 
@@ -1127,21 +1153,14 @@ def add_review(request):
 
 
 def remove_review(request):
-    
-        if request.method == "POST":
-    
-            user = request.user
-            film_id = request.POST.get("id")
-
-            # Remove WatchedFilm record
-            WatchedFilm.objects.filter(user=user, film__id=film_id).delete()
-            
-            # Redirect back to the film detail page
-            return redirect('kinorg:film_detail', id=film_id)
-    
-        else:
-    
-            return JsonResponse({'error': 'Invalid request'}, status=400)
+    if request.method == "POST":
+        user = request.user
+        film_id = request.POST.get("id")
+        WatchedFilm.objects.filter(user=user, film__id=film_id).update(
+            stars=None, mini_review='', review_visible=True
+        )
+        return redirect('kinorg:film_detail', id=film_id)
+    return JsonResponse({'error': 'Invalid request'}, status=400)
 
 
 @login_required(login_url='user_admin:login')
@@ -1203,6 +1222,105 @@ def toggle_watched(request, tmdb_id):
     )
     WatchedFilm.objects.create(user=request.user, film=film)
     return JsonResponse({'watched': True})
+
+
+@login_required
+def toggle_watchlist(request, tmdb_id):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Invalid request'}, status=400)
+    existing = WatchlistItem.objects.filter(user=request.user, film_id=tmdb_id).first()
+    if existing:
+        existing.delete()
+        return JsonResponse({'in_watchlist': False})
+    release_date = request.POST.get('release_date') or str(_date.today())
+    film, _ = Film.objects.get_or_create(
+        pk=tmdb_id,
+        defaults={
+            'title': request.POST.get('title', ''),
+            'release_date': release_date,
+            'poster_path': request.POST.get('poster_path', ''),
+        },
+    )
+    WatchlistItem.objects.create(user=request.user, film=film)
+    return JsonResponse({'in_watchlist': True})
+
+
+class WatchlistView(LoginRequiredMixin, TemplateView):
+
+    login_url = "user_admin:login"
+    template_name = "kinorg/watchlist.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+
+        sort = self.request.GET.get('sort', 'added_desc')
+        country = self.request.GET.get('country', '')
+        genre = self.request.GET.get('genre', '')
+
+        base_qs = _watchlist_qs(user)
+
+        genres_qs = base_qs.filter(primary_country=country) if country else base_qs
+        countries_qs = _filter_films_by_genre(base_qs, genre) if genre else base_qs
+        genres = _build_genre_list(genres_qs)
+        countries = _build_country_map(countries_qs)
+
+        qs = base_qs
+        if country:
+            qs = qs.filter(primary_country=country)
+        if genre:
+            qs = _filter_films_by_genre(qs, genre)
+
+        qs = qs.order_by(WATCHLIST_SORT_MAP.get(sort, F('added_at').desc(nulls_last=True)))
+
+        limit = 48
+        total = qs.count()
+
+        context['films'] = list(qs[:limit])
+        context['has_more'] = total > limit
+        context['next_offset'] = limit
+        context['genres'] = genres
+        context['countries'] = countries
+        context['current_sort'] = sort
+        context['current_country'] = country
+        context['current_genre'] = genre
+        return context
+
+
+@login_required(login_url='user_admin:login')
+def watchlist_json(request):
+    user = request.user
+    sort = request.GET.get('sort', 'added_desc')
+    country = request.GET.get('country', '')
+    genre = request.GET.get('genre', '')
+    offset = int(request.GET.get('offset', 0))
+    limit = 48
+
+    qs = _watchlist_qs(user)
+    if country:
+        qs = qs.filter(primary_country=country)
+    if genre:
+        qs = _filter_films_by_genre(qs, genre)
+
+    qs = qs.order_by(WATCHLIST_SORT_MAP.get(sort, F('added_at').desc(nulls_last=True)))
+
+    total = qs.count()
+    batch = qs[offset:offset + limit]
+
+    return JsonResponse({
+        'films': [
+            {
+                'id': f.id,
+                'title': f.title,
+                'poster_path': f.poster_path,
+                'year': (f.release_date or '')[:4],
+                'director': next((m['name'] for m in (f.crew or []) if m.get('job') == 'Director'), ''),
+            }
+            for f in batch
+        ],
+        'has_more': (offset + limit) < total,
+        'next_offset': offset + limit,
+    })
 
 
 @login_required
@@ -1299,7 +1417,16 @@ def liked_watched_json(request):
     batch = qs[offset:offset + limit]
 
     return JsonResponse({
-        'films': [{'id': f.id, 'title': f.title, 'poster_path': f.poster_path} for f in batch],
+        'films': [
+            {
+                'id': f.id,
+                'title': f.title,
+                'poster_path': f.poster_path,
+                'year': (f.release_date or '')[:4],
+                'director': next((m['name'] for m in (f.crew or []) if m.get('job') == 'Director'), ''),
+            }
+            for f in batch
+        ],
         'has_more': (offset + limit) < total,
         'next_offset': offset + limit,
     })

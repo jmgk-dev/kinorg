@@ -5,6 +5,7 @@ if (modal) {
     const modalTitle = document.getElementById('film_modal_title');
     const modalDetailLink = document.getElementById('film_modal_detail_link');
     const modalLists = document.getElementById('film_modal_lists');
+    const modalMeta = document.getElementById('film_modal_meta');
     const placeholder = modal.dataset.placeholder;
     const TMDB_BASE = 'https://image.tmdb.org/t/p/';
 
@@ -13,11 +14,15 @@ if (modal) {
         return match ? match[1] : '';
     }
 
-    function openModal(filmId, title, posterPath, detailUrl) {
+    function openModal(filmId, title, posterPath, detailUrl, year, director) {
         modalTitle.textContent = title;
         modalPoster.src = posterPath ? `${TMDB_BASE}w200${posterPath}` : placeholder;
         modalDetailLink.href = detailUrl;
         modalLists.innerHTML = '';
+        const metaParts = [];
+        if (year) metaParts.push(year);
+        if (director) metaParts.push(`Dir. ${director}`);
+        modalMeta.textContent = metaParts.join(' · ');
 
         fetch(`/film-lists/?film_id=${filmId}`)
             .then(res => res.json())
@@ -111,7 +116,9 @@ if (modal) {
             link.dataset.filmId,
             link.dataset.filmTitle,
             link.dataset.posterPath,
-            link.href
+            link.href,
+            link.dataset.year,
+            link.dataset.director
         );
     });
 }

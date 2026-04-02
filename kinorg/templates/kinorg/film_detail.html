@@ -18,23 +18,6 @@
 
                 <div class="film_title_row">
                     <h3>{{ film.title }}</h3>
-                    <div class="film_action_btns">
-                        <button class="watched_btn watched_btn--mobile {% if watched %}is-watched{% endif %}"
-                                data-tmdb-id="{{ film.id }}"
-                                data-title="{{ film.title }}"
-                                data-poster-path="{{ film.poster_path }}"
-                                data-release-date="{{ film.release_date }}"
-                                title="{% if watched %}Unwatch{% else %}Mark as watched{% endif %}">
-                            <svg class="watched_icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle class="watched_pupil" cx="12" cy="12" r="3"/></svg>
-                        </button>
-                        <button class="like_btn like_btn--mobile {% if is_liked %}liked{% endif %}"
-                                data-tmdb-id="{{ film.id }}"
-                                data-title="{{ film.title }}"
-                                data-poster-path="{{ film.poster_path }}"
-                                title="{% if is_liked %}Unlike{% else %}Like{% endif %} this film">
-                            {% if is_liked %}♥{% else %}♡{% endif %}
-                        </button>
-                    </div>
                 </div>
 
                 <div class="film_meta">
@@ -54,23 +37,6 @@
             </div>
 
             <div class="watch_section watch_section--desktop">
-                <div class="film_action_btns film_action_btns--desktop">
-                    <button class="watched_btn watched_btn--desktop {% if watched %}is-watched{% endif %}"
-                            data-tmdb-id="{{ film.id }}"
-                            data-title="{{ film.title }}"
-                            data-poster-path="{{ film.poster_path }}"
-                            data-release-date="{{ film.release_date }}"
-                            title="{% if watched %}Unwatch{% else %}Mark as watched{% endif %}">
-                        <svg class="watched_icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle class="watched_pupil" cx="12" cy="12" r="3"/></svg>
-                    </button>
-                    <button class="like_btn like_btn--desktop {% if is_liked %}liked{% endif %}"
-                            data-tmdb-id="{{ film.id }}"
-                            data-title="{{ film.title }}"
-                            data-poster-path="{{ film.poster_path }}"
-                            title="{% if is_liked %}Unlike{% else %}Like{% endif %} this film">
-                        {% if is_liked %}♥{% else %}♡{% endif %}
-                    </button>
-                </div>
                 {% if watch_providers or pcc_url or film.videos.results %}
                 <p class="details_label">Where to Watch</p>
                 <div class="watch_rows">
@@ -106,6 +72,7 @@
                     {% endif %}
                 </div>
                 {% endif %}
+                <button class="activity_row_btn activity_row_btn--desktop" id="log_rate_btn_desktop" onclick="openLogRateModal()"></button>
             </div>
 
         </div>
@@ -154,6 +121,114 @@
             </div>
         </div>
         {% endif %}
+
+    </div>
+</div>
+
+<div class="activity_row_wrap">
+    <div class="activity_row"
+         id="activity_row"
+         data-tmdb-id="{{ film.id }}"
+         data-title="{{ film.title }}"
+         data-poster-path="{{ film.poster_path }}"
+         data-release-date="{{ film.release_date }}"
+         data-watched="{{ watched|yesno:'true,false' }}"
+         data-liked="{{ is_liked|yesno:'true,false' }}"
+         data-in-watchlist="{{ in_watchlist|yesno:'true,false' }}"
+         data-stars="{{ watched.stars|default:'' }}"
+         data-reviewed="{% if watched.mini_review %}true{% else %}false{% endif %}">
+        <button class="activity_row_btn" id="log_rate_btn" onclick="openLogRateModal()"></button>
+    </div>
+</div>
+
+<!-- Log / Rate modal -->
+<div id="log-rate-modal" class="modal">
+    <div class="modal-content log_rate_modal_content">
+        <span class="close" onclick="closeLogRateModal()">&times;</span>
+
+        <div class="log_rate_toggles">
+            <button class="log_rate_toggle_btn log_rate_toggle_btn--watchlist {% if in_watchlist %}active{% endif %}"
+                    id="watchlist_toggle_btn"
+                    data-tmdb-id="{{ film.id }}"
+                    data-title="{{ film.title }}"
+                    data-poster-path="{{ film.poster_path }}"
+                    data-release-date="{{ film.release_date }}"
+                    data-active="{{ in_watchlist|yesno:'true,false' }}">
+                <span class="toggle_label_inactive">+ Watchlist</span>
+                <span class="toggle_label_active">✓ Added to Watchlist</span>
+            </button>
+            <button class="log_rate_toggle_btn log_rate_toggle_btn--watched {% if watched %}active{% endif %}"
+                    id="watched_toggle_btn"
+                    data-tmdb-id="{{ film.id }}"
+                    data-title="{{ film.title }}"
+                    data-poster-path="{{ film.poster_path }}"
+                    data-release-date="{{ film.release_date }}"
+                    data-active="{{ watched|yesno:'true,false' }}">
+                <span class="toggle_label_inactive"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Mark as Watched</span>
+                <span class="toggle_label_active"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>Watched</span>
+            </button>
+            <button class="log_rate_toggle_btn log_rate_toggle_btn--like {% if is_liked %}active{% endif %}"
+                    id="liked_toggle_btn"
+                    data-tmdb-id="{{ film.id }}"
+                    data-title="{{ film.title }}"
+                    data-poster-path="{{ film.poster_path }}"
+                    data-active="{{ is_liked|yesno:'true,false' }}">
+                <span class="toggle_label_inactive">♡ Like</span>
+                <span class="toggle_label_active">♥ Liked</span>
+            </button>
+        </div>
+
+        <form method="POST" action="{% url 'kinorg:add_review' %}" id="log_rate_form">
+            {% csrf_token %}
+            <input type="hidden" name="id"                   value="{{ film.id }}">
+            <input type="hidden" name="title"                value="{{ film.title }}">
+            <input type="hidden" name="release_date"         value="{{ film.release_date }}">
+            <input type="hidden" name="poster_path"          value="{{ film.poster_path }}">
+            <input type="hidden" name="backdrop_path"        value="{{ film.backdrop_path }}">
+            <input type="hidden" name="overview"             value="{{ film.overview }}">
+            <input type="hidden" name="runtime"              value="{{ film.runtime }}">
+            <input type="hidden" name="cast"                 value="{{ film.cast_json }}">
+            <input type="hidden" name="crew"                 value="{{ film.crew_json }}">
+            <input type="hidden" name="genres"               value="{{ film.genres_json }}">
+            <input type="hidden" name="keywords"             value="{{ film.keywords_json }}">
+            <input type="hidden" name="production_companies" value="{{ film.production_companies_json }}">
+
+            <div class="rating-input">
+                <div class="star-rating">
+                    {% for i in "54321" %}
+                        <input type="radio" name="stars" id="lr-star-{{ i }}" value="{{ i }}"
+                               {% if watched.stars == i|add:0 %}checked{% endif %}>
+                        <label for="lr-star-{{ i }}">★</label>
+                    {% endfor %}
+                    <input type="radio" name="stars" id="lr-star-0" value=""
+                           {% if not watched.stars %}checked{% endif %}>
+                    <label for="lr-star-0" class="star-clear-label" title="Clear rating">✕</label>
+                </div>
+            </div>
+
+            <textarea name="mini_review"
+                      id="lr-mini-review"
+                      class="mini_review"
+                      rows="3"
+                      placeholder="What did you think? (optional)">{{ watched.mini_review|default:"" }}</textarea>
+
+            <div class="log_rate_form_actions">
+                <button type="submit" class="btn btn-cta">Save</button>
+                {% if watched and watched.mini_review %}
+                <button type="button" class="btn btn-remove" id="remove_review_btn"
+                        data-film-id="{{ film.id }}"
+                        data-url="{% url 'kinorg:remove_review' %}">Remove Review</button>
+                {% endif %}
+                {% if watched and watched.mini_review %}
+                <button type="button"
+                        class="btn review_private_btn {% if not watched.review_visible %}review_hidden{% endif %}"
+                        data-film-id="{{ film.id }}"
+                        data-visible="{{ watched.review_visible|yesno:'true,false' }}">
+                    {% if watched.review_visible %}Hide Review{% else %}Review Hidden{% endif %}
+                </button>
+                {% endif %}
+            </div>
+        </form>
 
     </div>
 </div>
@@ -231,13 +306,12 @@
         </div>
 
         <div class="tab_panel" id="tab-reviews">
-            {% include "kinorg/_review_section.html" with film=film %}
             {% if film_reviews %}
             <ul class="reviews_list">
                 {% for review in film_reviews %}
                 <li class="review_item">
                     <div class="review_header">
-                        <p><b>{{ review.user }}</b></p>
+                        <p><b>{{ review.user }}</b>{% if review.user == request.user %} <button class="btn" style="font-size:11px;padding:2px 7px;" onclick="openLogRateModal()">Edit</button>{% endif %}</p>
                         {% if review.user != request.user %}
                         <button class="flag_btn {% if review.id in user_flagged_ids %}flagged{% endif %}"
                                 data-review-id="{{ review.id }}"
@@ -256,7 +330,7 @@
                 {% endfor %}
             </ul>
             {% else %}
-            <p class="film_modal_no_lists">No reviews yet — add your own above!</p>
+            <p class="film_modal_no_lists">No reviews yet — open "Log, Rate &amp; Review" to add yours!</p>
             {% endif %}
         </div>
 

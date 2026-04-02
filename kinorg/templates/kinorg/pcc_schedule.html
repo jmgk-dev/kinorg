@@ -1,5 +1,6 @@
 {% extends "kinorg/base.html" %}
 {% load static %}
+{% load kinorg_extras %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'kinorg/css/film_list.css' %}">
@@ -69,6 +70,8 @@
                    data-film-id="{{ item.film.id }}"
                    data-film-title="{{ item.film.title }}"
                    data-poster-path="{{ item.film.poster_path }}"
+                   data-year="{{ item.film.release_date|slice:':4' }}"
+                   data-director="{{ item.film.crew|film_director }}"
                    data-media-type="movie">
                     {% if item.film.poster_path and item.film.poster_path != 'None' %}
                     <img class="poster" src="{{ config_data.secure_base_url }}w200{{ item.film.poster_path }}" alt="{{ item.film.title }}">

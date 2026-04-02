@@ -36,6 +36,17 @@ JOB_PRIORITY = [
 
 
 @register.filter
+def film_director(crew_list):
+    """Return first Director name from a crew JSONField list, or empty string."""
+    if not crew_list:
+        return ''
+    for member in crew_list:
+        if member.get('job') == 'Director':
+            return member.get('name', '')
+    return ''
+
+
+@register.filter
 def country_abbr(name):
     return COUNTRY_ABBR.get(name, name)
 

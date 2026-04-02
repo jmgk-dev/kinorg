@@ -291,6 +291,32 @@ class PCCScreening(models.Model):
 		return f"PCC: {self.title} ({self.year})"
 
 
+class WatchlistItem(models.Model):
+
+	class Meta:
+		constraints = [
+			models.UniqueConstraint(fields=['user', 'film'], name='unique_watchlist_item')
+		]
+		ordering = ['-added_at']
+
+	user = models.ForeignKey(
+		settings.AUTH_USER_MODEL,
+		on_delete=models.CASCADE,
+		related_name='watchlist',
+	)
+
+	film = models.ForeignKey(
+		Film,
+		on_delete=models.CASCADE,
+		related_name='watchlisted_by',
+	)
+
+	added_at = models.DateTimeField(auto_now_add=True)
+
+	def __str__(self):
+		return f"{self.user} watchlist: {self.film}"
+
+
 class LikedFilm(models.Model):
 
 	class Meta:

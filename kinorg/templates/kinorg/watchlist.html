@@ -7,35 +7,21 @@
 <link rel="stylesheet" href="{% static 'kinorg/css/content_list.css' %}">
 {% endblock %}
 
+{% block page_top %}<p class="welcome_banner">Welcome, {{ user.username }}</p>{% endblock %}
+
 {% block content %}
 
-    <div class="collection_title_wrap">
-        <button class="collection_title_btn" id="collection_picker_btn" aria-expanded="false">
-            <h4>{{ collection_name }}</h4>
-            <span class="collection_picker_chevron"></span>
-        </button>
-        <ul class="collection_picker_dropdown" id="collection_picker_dropdown">
-            <li class="collection_picker_item">
-                <a href="{% url 'kinorg:pcc_schedule' %}">Showing At The PCC</a>
-            </li>
-            {% for t, name in collections.items %}
-            <li class="collection_picker_item {% if t == tag %}collection_picker_active{% endif %}">
-                <a href="{% url 'kinorg:collection_detail' t %}">{{ name }}</a>
-            </li>
-            {% endfor %}
-        </ul>
-    </div>
+    <span class="page_title">Watchlist</span>
 
     <div class="list_controls">
         <form method="get" id="list_controls_form">
             <select name="sort" onchange="document.getElementById('list_controls_form').submit()">
-                {% if is_ranked %}
-                <option value="rank" {% if current_sort == 'rank' %}selected{% endif %}>Rank</option>
-                {% endif %}
-                <option value="title_asc" {% if current_sort == 'title_asc' %}selected{% endif %}>Title (A–Z)</option>
-                <option value="title_desc" {% if current_sort == 'title_desc' %}selected{% endif %}>Title (Z–A)</option>
-                <option value="release_desc" {% if current_sort == 'release_desc' %}selected{% endif %}>Release date (newest first)</option>
-                <option value="release_asc" {% if current_sort == 'release_asc' %}selected{% endif %}>Release date (oldest first)</option>
+                <option value="added_desc"   {% if current_sort == 'added_desc'   %}selected{% endif %}>Date added (newest)</option>
+                <option value="added_asc"    {% if current_sort == 'added_asc'    %}selected{% endif %}>Date added (oldest)</option>
+                <option value="title_asc"    {% if current_sort == 'title_asc'    %}selected{% endif %}>Title (A–Z)</option>
+                <option value="title_desc"   {% if current_sort == 'title_desc'   %}selected{% endif %}>Title (Z–A)</option>
+                <option value="release_desc" {% if current_sort == 'release_desc' %}selected{% endif %}>Release date (newest)</option>
+                <option value="release_asc"  {% if current_sort == 'release_asc'  %}selected{% endif %}>Release date (oldest)</option>
             </select>
             {% if countries %}
             <select name="country" onchange="document.getElementById('list_controls_form').submit()">
@@ -56,14 +42,15 @@
         </form>
     </div>
 
+    {% if films %}
     <div class="content_list_container">
         <ul class="list_of_content"
             id="film_grid"
             data-base-url="{{ config_data.secure_base_url }}"
             data-placeholder-url="{% static 'images/placeholder.jpg' %}"
             data-film-url="{% url 'kinorg:film_detail' 0 %}"
-            data-films-url="{% url 'kinorg:collection_films_json' tag %}"
-            data-is-ranked="{{ is_ranked|yesno:'true,false' }}">
+            data-films-url="{% url 'kinorg:watchlist_json' %}"
+            data-is-ranked="false">
             {% for film in films %}
             <li class="results_item collection_result_item">
                 <a class="poster_link" href="{% url 'kinorg:film_detail' film.id %}" data-film-id="{{ film.id }}" data-film-title="{{ film.title }}" data-poster-path="{{ film.poster_path }}" data-year="{{ film.release_date|slice:':4' }}" data-director="{{ film.crew|film_director }}" data-media-type="movie">
@@ -72,7 +59,6 @@
                     {% else %}
                     <img class="poster" src="{% static 'images/placeholder.jpg' %}" alt="{{ film.title }}">
                     {% endif %}
-                    {% if is_ranked and film.rank %}<span class="rank_badge">{{ film.rank }}</span>{% endif %}
                 </a>
             </li>
             {% endfor %}
@@ -86,6 +72,12 @@
                 data-sort="{{ current_sort }}"
                 data-country="{{ current_country }}"
                 data-genre="{{ current_genre }}">Load more</button>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="empty_state">
+        <p class="page_blurb">Your watchlist is empty. Open any film and tap "Log / Rate" to add it.</p>
     </div>
     {% endif %}
 

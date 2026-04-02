@@ -151,7 +151,7 @@ p.italic {
 .details_label {
     margin: 0;
     font-size: 13px;
-    opacity: 0.6;
+    opacity: 0.8;
 }
 
 .director_links {
@@ -161,8 +161,8 @@ p.italic {
 }
 
 .director_links .btn {
-    font-size: 12px;
-    padding: 4px 8px;
+    font-size: 14px;
+    padding: 5px 10px;
 }
 
 .watch_section {
@@ -503,7 +503,6 @@ p.italic {
 }
 
 .mini_review {
-    font-style: italic;
     color: black;
     margin: 1rem 0;
     padding: 1rem;
@@ -600,6 +599,148 @@ p.italic {
 }
 
 
+/* ===== ACTIVITY ROW ===== */
+
+.activity_row_wrap {
+    display: flex;
+    justify-content: center;
+    padding: 0 16px;
+    margin-bottom: 20px;
+}
+
+.activity_row_btn--desktop {
+    display: block;
+    width: 100%;
+    margin-top: 12px;
+}
+
+@media (min-width: 601px) {
+    .activity_row_wrap {
+        display: none;
+    }
+}
+
+.activity_row {
+    width: 100%;
+    max-width: 960px;
+}
+
+.activity_row_btn {
+    width: 100%;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 10px;
+    color: rgba(255,255,255,0.6);
+    font-size: 14px;
+    padding: 12px 16px;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.activity_row_btn:hover {
+    background: rgba(255,255,255,0.12);
+    border-color: rgba(255,255,255,0.4);
+    color: white;
+    filter: none;
+}
+
+.activity_row_btn--logged {
+    color: white;
+    border-color: rgba(255,255,255,0.4);
+}
+
+/* ===== LOG/RATE MODAL ===== */
+
+.log_rate_modal_content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding-top: 44px;
+}
+
+.log_rate_toggles {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.log_rate_toggle_btn {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 20px;
+    color: rgba(255,255,255,0.6);
+    font-size: 14px;
+    padding: 6px 14px;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.log_rate_toggle_btn:hover {
+    background: rgba(255,255,255,0.15);
+    color: white;
+    filter: none;
+}
+
+/* Both labels occupy the same grid cell — button sizes to the widest, no layout shift */
+.log_rate_toggle_btn {
+    display: inline-grid;
+}
+.log_rate_toggle_btn .toggle_label_inactive,
+.log_rate_toggle_btn .toggle_label_active {
+    grid-area: 1 / 1;
+    display: flex;
+    align-items: center;
+}
+.log_rate_toggle_btn .toggle_label_active { visibility: hidden; }
+.log_rate_toggle_btn.active .toggle_label_inactive { visibility: hidden; }
+.log_rate_toggle_btn.active .toggle_label_active { visibility: visible; }
+
+/* Colour per type when active */
+.log_rate_toggle_btn--watchlist.active {
+    background: rgba(34, 197, 94, 0.2);
+    border-color: #22c55e;
+    color: #22c55e;
+}
+
+.log_rate_toggle_btn--watched.active {
+    background: rgba(59, 130, 246, 0.2);
+    border-color: #3b82f6;
+    color: #3b82f6;
+}
+
+.log_rate_toggle_btn--like.active {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: #ef4444;
+    color: #ef4444;
+}
+
+.review_hidden {
+    opacity: 0.45;
+}
+
+.log_rate_form_actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+#log-rate-modal .mini_review {
+    width: 100%;
+    box-sizing: border-box;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    color: white;
+    padding: 10px;
+    font-size: 14px;
+    resize: vertical;
+}
+
+#log-rate-modal .mini_review::placeholder {
+    color: rgba(255,255,255,0.4);
+}
+
 /* ===== MOBILE ===== */
 
 @media (max-width: 600px) {
@@ -614,27 +755,27 @@ p.italic {
     }
 
     .film_header_inner {
-        padding: 8px;
-        gap: 20px;
-    }
-
-    .film_header_top {
+        padding: 14px;
         gap: 14px;
     }
 
+    .film_header_top {
+        gap: 16px;
+    }
+
     .detail_poster {
-        width: 90px;
+        width: 110px;
     }
 
     .film_info {
         max-height: none;
         overflow: visible;
-        gap: 7px;
+        gap: 12px;
         justify-content: flex-start;
     }
 
     .film_title_row h3 {
-        font-size: 1rem;
+        font-size: 1.7rem;
     }
 
     .like_btn {
@@ -642,12 +783,13 @@ p.italic {
     }
 
     p.italic {
-        font-size: 12px;
+        font-size: 13px;
     }
 
     .meta_chip {
-        font-size: 11px;
-        padding: 2px 6px;
+        font-size: 12px;
+        padding: 2px 7px;
+        opacity: 0.7;
     }
 
     .details_label {
@@ -655,8 +797,8 @@ p.italic {
     }
 
     .director_links .btn {
-        font-size: 12px;
-        padding: 4px 8px;
+        font-size: 13px;
+        padding: 5px 10px;
     }
 
     .tab_btn {
@@ -683,6 +825,14 @@ p.italic {
         display: none;
     }
 
+    .activity_row_btn--desktop {
+        display: none;
+    }
+
+    .activity_row_wrap {
+        display: flex;
+    }
+
     .like_btn--mobile {
         display: block;
     }
@@ -699,8 +849,8 @@ p.italic {
 
     .tagline,
     .overview {
-        margin-top: 6px;
-        font-size: 12px;
+        font-size: 14px;
+        line-height: 1.6;
     }
 
 }

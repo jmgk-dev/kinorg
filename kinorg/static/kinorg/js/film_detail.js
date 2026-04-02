@@ -28,13 +28,13 @@ function toggleFilm(button) {
     });
 }
 
-function openReviewModal() {
-    document.getElementById('review-modal').style.display = 'flex';
+function openLogRateModal() {
+    document.getElementById('log-rate-modal').style.display = 'flex';
     document.body.style.overflow = 'hidden';
 }
 
-function closeReviewModal() {
-    document.getElementById('review-modal').style.display = 'none';
+function closeLogRateModal() {
+    document.getElementById('log-rate-modal').style.display = 'none';
     document.body.style.overflow = '';
 }
 
@@ -49,27 +49,46 @@ function closeVideosModal() {
 }
 
 window.onclick = function(event) {
-    const reviewModal = document.getElementById('review-modal');
+    const logRateModal = document.getElementById('log-rate-modal');
     const videosModal = document.getElementById('videos-modal');
-    if (event.target === reviewModal) closeReviewModal();
+    if (event.target === logRateModal) closeLogRateModal();
     if (event.target === videosModal) closeVideosModal();
 };
 
-// Review form: require at least stars OR text
-const reviewForm = document.querySelector('#review-modal form');
-if (reviewForm) {
-    reviewForm.addEventListener('submit', function (e) {
-        const stars = reviewForm.querySelector('input[name="stars"]:checked');
-        const text = reviewForm.querySelector('textarea[name="mini_review"]').value.trim();
-        const hasStars = stars && stars.value !== '';
-        if (!hasStars && !text) {
-            e.preventDefault();
-            alert('Please add a star rating or write something.');
-        }
-    });
+function getCsrf() {
+    return document.cookie.match(/csrftoken=([^;]+)/)[1];
+}
+
+function updateActivityRow() {
+    const row = document.getElementById('activity_row');
+    if (!row) return;
+    const watched = row.dataset.watched === 'true';
+    const liked = row.dataset.liked === 'true';
+    const inWatchlist = row.dataset.inWatchlist === 'true';
+    const stars = parseInt(row.dataset.stars) || 0;
+    const reviewed = row.dataset.reviewed === 'true';
+
+    const parts = [];
+    if (stars) parts.push('★'.repeat(stars));
+    if (watched) parts.push('Watched');
+    if (liked) parts.push('Liked');
+    if (reviewed) parts.push('Reviewed');
+    if (inWatchlist && !parts.length) parts.push('+ Watchlist');
+
+    const label = parts.length ? parts.join(' · ') : 'Log, Rate & Review';
+    const isLogged = parts.length > 0;
+
+    [document.getElementById('log_rate_btn'), document.getElementById('log_rate_btn_desktop')]
+        .forEach(btn => {
+            if (!btn) return;
+            btn.textContent = label;
+            btn.classList.toggle('activity_row_btn--logged', isLogged);
+        });
 }
 
 document.addEventListener('DOMContentLoaded', function () {
+
+    updateActivityRow();
 
     // Tabs
     document.querySelectorAll('.tab_btn').forEach(function (btn) {
@@ -78,33 +97,6 @@ document.addEventListener('DOMContentLoaded', function () {
             document.querySelectorAll('.tab_panel').forEach(p => p.classList.remove('active'));
             btn.classList.add('active');
             document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
-        });
-    });
-
-    // Like buttons (desktop + mobile kept in sync)
-    const likeBtns = document.querySelectorAll('.like_btn');
-    likeBtns.forEach(function (btn) {
-        btn.addEventListener('click', function () {
-            const tmdbId = btn.dataset.tmdbId;
-            const csrfToken = document.cookie.match(/csrftoken=([^;]+)/)[1];
-            const formData = new FormData();
-            formData.append('title', btn.dataset.title);
-            formData.append('poster_path', btn.dataset.posterPath);
-            fetch(`/like/${tmdbId}/`, {
-                method: 'POST',
-                headers: { 'X-CSRFToken': csrfToken },
-                body: formData,
-            })
-            .then(r => r.json())
-            .then(data => {
-                if (data.liked !== undefined) {
-                    likeBtns.forEach(function (b) {
-                        b.classList.toggle('liked', data.liked);
-                        b.textContent = data.liked ? '♥' : '♡';
-                        b.title = data.liked ? 'Unlike this film' : 'Like this film';
-                    });
-                }
-            });
         });
     });
 
@@ -123,53 +115,119 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // Watched buttons (desktop + mobile kept in sync)
-    const watchedBtns = document.querySelectorAll('.watched_btn');
-    watchedBtns.forEach(function (btn) {
-        btn.addEventListener('click', function () {
-            const tmdbId = btn.dataset.tmdbId;
-            const csrfToken = document.cookie.match(/csrftoken=([^;]+)/)[1];
+    // Watchlist toggle
+    const watchlistBtn = document.getElementById('watchlist_toggle_btn');
+    if (watchlistBtn) {
+        watchlistBtn.addEventListener('click', function () {
+            const tmdbId = watchlistBtn.dataset.tmdbId;
             const formData = new FormData();
-            formData.append('title', btn.dataset.title);
-            formData.append('poster_path', btn.dataset.posterPath);
-            formData.append('release_date', btn.dataset.releaseDate || '');
+            formData.append('title', watchlistBtn.dataset.title);
+            formData.append('poster_path', watchlistBtn.dataset.posterPath);
+            formData.append('release_date', watchlistBtn.dataset.releaseDate || '');
+            fetch(`/watchlist/${tmdbId}/`, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': getCsrf() },
+                body: formData,
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.in_watchlist !== undefined) {
+                    watchlistBtn.classList.toggle('active', data.in_watchlist);
+                    watchlistBtn.dataset.active = data.in_watchlist ? 'true' : 'false';
+                    const row = document.getElementById('activity_row');
+                    row.dataset.inWatchlist = data.in_watchlist ? 'true' : 'false';
+                    updateActivityRow();
+                }
+            });
+        });
+    }
+
+    // Watched toggle
+    const watchedBtn = document.getElementById('watched_toggle_btn');
+    if (watchedBtn) {
+        watchedBtn.addEventListener('click', function () {
+            const tmdbId = watchedBtn.dataset.tmdbId;
+            const formData = new FormData();
+            formData.append('title', watchedBtn.dataset.title);
+            formData.append('poster_path', watchedBtn.dataset.posterPath);
+            formData.append('release_date', watchedBtn.dataset.releaseDate || '');
             fetch(`/watched/${tmdbId}/`, {
                 method: 'POST',
-                headers: { 'X-CSRFToken': csrfToken },
+                headers: { 'X-CSRFToken': getCsrf() },
                 body: formData,
             })
             .then(r => r.json())
             .then(data => {
                 if (data.watched !== undefined) {
-                    watchedBtns.forEach(function (b) {
-                        b.classList.toggle('is-watched', data.watched);
-                        b.title = data.watched ? 'Unwatch' : 'Mark as watched';
-                    });
+                    watchedBtn.classList.toggle('active', data.watched);
+                    watchedBtn.dataset.active = data.watched ? 'true' : 'false';
+                    const row = document.getElementById('activity_row');
+                    row.dataset.watched = data.watched ? 'true' : 'false';
+                    if (!data.watched) row.dataset.stars = '';
+                    updateActivityRow();
                 }
             });
         });
-    });
+    }
 
-    // Private/public toggle for reviews
+    // Like toggle
+    const likedBtn = document.getElementById('liked_toggle_btn');
+    if (likedBtn) {
+        likedBtn.addEventListener('click', function () {
+            const tmdbId = likedBtn.dataset.tmdbId;
+            const formData = new FormData();
+            formData.append('title', likedBtn.dataset.title);
+            formData.append('poster_path', likedBtn.dataset.posterPath);
+            fetch(`/like/${tmdbId}/`, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': getCsrf() },
+                body: formData,
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.liked !== undefined) {
+                    likedBtn.classList.toggle('active', data.liked);
+                    likedBtn.dataset.active = data.liked ? 'true' : 'false';
+                    const row = document.getElementById('activity_row');
+                    row.dataset.liked = data.liked ? 'true' : 'false';
+                    updateActivityRow();
+                }
+            });
+        });
+    }
+
+    // Remove review
+    const removeReviewBtn = document.getElementById('remove_review_btn');
+    if (removeReviewBtn) {
+        removeReviewBtn.addEventListener('click', function () {
+            const formData = new FormData();
+            formData.append('id', removeReviewBtn.dataset.filmId);
+            fetch(removeReviewBtn.dataset.url, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': getCsrf() },
+                body: formData,
+            }).then(() => window.location.reload());
+        });
+    }
+
+    // Hide/show review toggle
     const privateBtn = document.querySelector('.review_private_btn');
     if (privateBtn) {
         privateBtn.addEventListener('click', function () {
             const filmId = privateBtn.dataset.filmId;
-            const csrfToken = document.cookie.match(/csrftoken=([^;]+)/)[1];
             const formData = new FormData();
             formData.append('film_id', filmId);
             fetch('/review-private/', {
                 method: 'POST',
-                headers: { 'X-CSRFToken': csrfToken },
+                headers: { 'X-CSRFToken': getCsrf() },
                 body: formData,
             })
             .then(r => r.json())
             .then(data => {
                 if (data.review_visible !== undefined) {
                     privateBtn.dataset.visible = data.review_visible ? 'true' : 'false';
-                    privateBtn.textContent = data.review_visible ? 'Make Private' : 'Make Public';
-                    const note = document.querySelector('.review_private_note');
-                    if (note) note.style.display = data.review_visible ? 'none' : 'block';
+                    privateBtn.textContent = data.review_visible ? 'Hide Review' : 'Review Hidden';
+                    privateBtn.classList.toggle('review_hidden', !data.review_visible);
                 }
             });
         });
@@ -181,9 +239,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const reviewId = btn.dataset.reviewId;
             fetch(`/flag-review/${reviewId}/`, {
                 method: 'POST',
-                headers: {
-                    'X-CSRFToken': document.cookie.match(/csrftoken=([^;]+)/)[1],
-                },
+                headers: { 'X-CSRFToken': getCsrf() },
             })
             .then(r => r.json())
             .then(data => {
