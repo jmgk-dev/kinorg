@@ -73,6 +73,21 @@ COUNTRY_ISO = {
 }
 
 
+def _get_director(crew):
+    """Return first Director name from a crew JSONField (list or JSON string)."""
+    if not crew:
+        return ''
+    if isinstance(crew, str):
+        try:
+            crew = json.loads(crew)
+        except (ValueError, TypeError):
+            return ''
+    for member in crew:
+        if isinstance(member, dict) and member.get('job') == 'Director':
+            return member.get('name', '')
+    return ''
+
+
 def _to_str_set(lst, key='name'):
     """Normalise a JSONField that may contain strings or dicts."""
     result = set()
@@ -666,7 +681,7 @@ def list_additions_json(request, slug):
             'poster_path': addition.film.poster_path,
             'added_by': addition.added_by.username,
             'year': (addition.film.release_date or '')[:4],
-            'director': next((m['name'] for m in (addition.film.crew or []) if m.get('job') == 'Director'), ''),
+            'director': _get_director(addition.film.crew),
         }
         for addition in batch
     ]
@@ -785,7 +800,7 @@ def collection_films_json(request, tag):
             'poster_path': f.poster_path,
             'rank': f.rank,
             'year': (f.release_date or '')[:4],
-            'director': next((m['name'] for m in (f.crew or []) if m.get('job') == 'Director'), ''),
+            'director': _get_director(f.crew),
         }
         for f in batch
     ]
@@ -882,7 +897,7 @@ def pcc_schedule_json(request):
             'poster_path': item['film'].poster_path if item['film'] else None,
             'pcc_url': item['screening'].pcc_url,
             'year': ((item['film'].release_date or '')[:4]) if item['film'] else '',
-            'director': next((m['name'] for m in (item['film'].crew or []) if m.get('job') == 'Director'), '') if item['film'] else '',
+            'director': _get_director(item['film'].crew) if item['film'] else '',
         }
         for item in batch
     ]
@@ -1314,7 +1329,7 @@ def watchlist_json(request):
                 'title': f.title,
                 'poster_path': f.poster_path,
                 'year': (f.release_date or '')[:4],
-                'director': next((m['name'] for m in (f.crew or []) if m.get('job') == 'Director'), ''),
+                'director': _get_director(f.crew),
             }
             for f in batch
         ],
@@ -1423,7 +1438,7 @@ def liked_watched_json(request):
                 'title': f.title,
                 'poster_path': f.poster_path,
                 'year': (f.release_date or '')[:4],
-                'director': next((m['name'] for m in (f.crew or []) if m.get('job') == 'Director'), ''),
+                'director': _get_director(f.crew),
             }
             for f in batch
         ],

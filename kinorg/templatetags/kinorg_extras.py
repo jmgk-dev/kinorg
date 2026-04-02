@@ -1,3 +1,4 @@
+import json
 from django import template
 
 register = template.Library()
@@ -40,8 +41,13 @@ def film_director(crew_list):
     """Return first Director name from a crew JSONField list, or empty string."""
     if not crew_list:
         return ''
+    if isinstance(crew_list, str):
+        try:
+            crew_list = json.loads(crew_list)
+        except (ValueError, TypeError):
+            return ''
     for member in crew_list:
-        if member.get('job') == 'Director':
+        if isinstance(member, dict) and member.get('job') == 'Director':
             return member.get('name', '')
     return ''
 
