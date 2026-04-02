@@ -377,6 +377,7 @@ p {
     margin: 0;
     max-width: 600px;
     line-height: 1.6;
+    text-align: center;
 }
 
 .empty_state {
