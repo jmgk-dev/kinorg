@@ -1,5 +1,5 @@
 * {
-  font-family: "Roboto Mono", monospace;
+  font-family: "DM Sans", sans-serif;
   color: white;
   text-decoration: none;
 }
@@ -29,11 +29,11 @@ h2 {
 }
 
 h3 {
-  font-family: "BBH Bartle";
+  font-family: "Bricolage Grotesque", sans-serif;
   font-size: 3rem;
   margin-bottom: 0px;
   margin-top: 10px;
-  letter-spacing: -0.2vw;
+  letter-spacing: -0.05em;
 }
 
 h4 {
@@ -364,7 +364,7 @@ p {
 /* ===== END TABS ===== */
 
 .page_title {
-    font-family: "Roboto Mono", monospace;
+    font-family: "Bricolage Grotesque", sans-serif; /* alt: "Plus Jakarta Sans" */
     font-size: 1.4rem;
     font-weight: bold;
     display: block;

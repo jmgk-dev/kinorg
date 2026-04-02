@@ -110,6 +110,7 @@ p.italic {
 .film_title_row h3 {
     margin: 0;
     font-size: 1.3rem;
+    font-weight: bold;
 }
 
 .like_btn {
