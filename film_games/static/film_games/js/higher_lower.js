@@ -51,6 +51,12 @@ function showPair(filmA, filmB) {
 }
 
 function fetchPair() {
+    // Clear highlights immediately, before the network response
+    cardA.classList.remove('correct', 'wrong');
+    cardB.classList.remove('correct', 'wrong');
+    resultEl.textContent = '';
+    resultEl.className = 'hl_result';
+
     fetch(pairUrl)
         .then(res => res.json())
         .then(data => {

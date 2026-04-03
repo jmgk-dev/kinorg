@@ -85,6 +85,12 @@
     font-weight: bold;
     text-align: center;
     font-size: 0.95rem;
+    line-height: 1.4;
+    min-height: calc(0.95rem * 1.4 * 2);
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
 }
 
 .hl_year {
