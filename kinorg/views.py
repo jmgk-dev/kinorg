@@ -1174,7 +1174,7 @@ def remove_review(request):
         user = request.user
         film_id = request.POST.get("id")
         WatchedFilm.objects.filter(user=user, film__id=film_id).update(
-            stars=None, mini_review='', review_visible=True
+            mini_review='', review_visible=True
         )
         return redirect('kinorg:film_detail', id=film_id)
     return JsonResponse({'error': 'Invalid request'}, status=400)

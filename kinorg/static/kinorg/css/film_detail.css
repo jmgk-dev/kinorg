@@ -654,9 +654,18 @@ p.italic {
     opacity: 0.4;
 }
 
-.ar_watched.ar_on { color: #3b82f6; }
-.ar_stars.ar_on   { color: #ffc107; }
-.ar_reviewed.ar_on { color: #22c55e; }
+.ar_watched.ar_on,
+.ar_stars.ar_on,
+.ar_reviewed.ar_on {
+    color: white;
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-size: 12px;
+}
+
+.ar_watched.ar_on  { background: #3b82f6; }
+.ar_stars.ar_on    { background: #b8860b; }
+.ar_reviewed.ar_on { background: #22c55e; }
 
 .ar_sep {
     opacity: 0.3;
