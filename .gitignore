@@ -28,6 +28,10 @@ app/tests/__pycache__/*
 .env
 deploy.sh
 
+# Local scratch files
+mockup.html
+staticfiles/fonts/
+
 # Import data files
 *.xls
 *.xlsx
