@@ -580,7 +580,7 @@ p.italic {
 
 .rating-input,
 .review-input {
-    margin: 1rem 0;
+    margin: 0.4rem 0;
 }
 
 .review-input textarea {
