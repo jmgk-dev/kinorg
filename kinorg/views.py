@@ -1344,11 +1344,10 @@ def toggle_review_private(request):
         return JsonResponse({'error': 'Invalid request'}, status=400)
 
     film_id = request.POST.get('film_id')
-    try:
-        watched = WatchedFilm.objects.get(user=request.user, film_id=film_id)
-    except WatchedFilm.DoesNotExist:
-        return JsonResponse({'error': 'No review found'}, status=404)
-
+    watched, _ = WatchedFilm.objects.get_or_create(
+        user=request.user, film_id=film_id,
+        defaults={'review_visible': True}
+    )
     watched.review_visible = not watched.review_visible
     watched.save(update_fields=['review_visible'])
     return JsonResponse({'review_visible': watched.review_visible})
