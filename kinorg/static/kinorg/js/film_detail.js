@@ -68,20 +68,32 @@ function updateActivityRow() {
     const stars = parseInt(row.dataset.stars) || 0;
     const reviewed = row.dataset.reviewed === 'true';
 
-    const parts = [];
-    if (stars) parts.push('★'.repeat(stars));
-    if (watched) parts.push('Watched');
-    if (liked) parts.push('Liked');
-    if (reviewed) parts.push('Reviewed');
-    if (inWatchlist && !parts.length) parts.push('+ Watchlist');
+    const anyAction = watched || liked || stars || reviewed;
 
-    const label = parts.length ? parts.join(' · ') : 'Log, Rate & Review';
-    const isLogged = parts.length > 0;
+    let html;
+    if (!anyAction && inWatchlist) {
+        html = '<span>+ Watchlist</span>';
+    } else if (!anyAction) {
+        html = '<span>Log, Rate &amp; Review</span>';
+    } else {
+        const watchedLabel = watched
+            ? '<span class="ar_watched ar_on">Watched</span>'
+            : '<span class="ar_watched ar_off">Log</span>';
+        const starsLabel = stars
+            ? `<span class="ar_stars ar_on">${'★'.repeat(stars)}</span>`
+            : '<span class="ar_stars ar_off">Rate</span>';
+        const reviewedLabel = reviewed
+            ? '<span class="ar_reviewed ar_on">Reviewed</span>'
+            : '<span class="ar_reviewed ar_off">Review</span>';
+        html = [watchedLabel, starsLabel, reviewedLabel].join('<span class="ar_sep"> · </span>');
+    }
+
+    const isLogged = anyAction || inWatchlist;
 
     [document.getElementById('log_rate_btn'), document.getElementById('log_rate_btn_desktop')]
         .forEach(btn => {
             if (!btn) return;
-            btn.textContent = label;
+            btn.innerHTML = html;
             btn.classList.toggle('activity_row_btn--logged', isLogged);
         });
 }

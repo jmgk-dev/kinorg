@@ -650,6 +650,18 @@ p.italic {
     border-color: rgba(255,255,255,0.4);
 }
 
+.ar_off {
+    opacity: 0.4;
+}
+
+.ar_watched.ar_on { color: #3b82f6; }
+.ar_stars.ar_on   { color: #ffc107; }
+.ar_reviewed.ar_on { color: #22c55e; }
+
+.ar_sep {
+    opacity: 0.3;
+}
+
 /* ===== LOG/RATE MODAL ===== */
 
 .log_rate_modal_content {
