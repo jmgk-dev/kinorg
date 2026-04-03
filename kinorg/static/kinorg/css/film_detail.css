@@ -737,11 +737,22 @@ p.italic {
     font-size: 13px;
     opacity: 0.75;
     transition: opacity 0.2s ease;
+    display: grid;
 }
 
 .review_private--on .review_private_text {
     opacity: 0.45;
 }
+
+.review_private_off,
+.review_private_on {
+    grid-area: 1 / 1;
+    transition: visibility 0s;
+}
+
+.review_private_on { visibility: hidden; }
+.review_private--on .review_private_off { visibility: hidden; }
+.review_private--on .review_private_on { visibility: visible; }
 
 .toggle_switch {
     position: relative;

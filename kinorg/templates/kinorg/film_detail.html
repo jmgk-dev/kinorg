@@ -222,7 +222,10 @@
                 {% endif %}
             </div>
             <label class="review_private_label">
-                <span class="review_private_text">Make review private</span>
+                <span class="review_private_text">
+                    <span class="review_private_off">Make review private</span>
+                    <span class="review_private_on">Review private</span>
+                </span>
                 <span class="toggle_switch">
                     <input type="checkbox" class="review_private_checkbox"
                            data-film-id="{{ film.id }}"
