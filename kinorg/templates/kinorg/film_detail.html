@@ -28,7 +28,7 @@
                 </div>
 
                 <div class="film_meta">
-                    {% if film.release_date %}<span class="meta_chip">{{ film.release_date|date:"Y" }}</span>{% endif %}
+                    {% if film.release_date %}<span class="meta_chip">{{ film.release_date|slice:":4" }}</span>{% endif %}
                     {% if film.runtime %}<span class="meta_chip">{{ film.runtime }}m</span>{% endif %}
                     {% for genre in film.genres %}<span class="meta_chip">{{ genre.name }}</span>{% endfor %}
                     {% for country in film.production_countries %}<span class="meta_chip">{{ country.name|country_abbr }}</span>{% endfor %}

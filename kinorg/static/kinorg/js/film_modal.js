@@ -18,7 +18,7 @@ if (modal) {
     let currentPosterPath = null;
     let currentTitle = null;
 
-    function openModal(filmId, title, posterPath, detailUrl, year, director) {
+    function openModal(filmId, title, posterPath, detailUrl, year) {
         currentFilmId = filmId;
         currentPosterPath = posterPath;
         currentTitle = title;
@@ -26,10 +26,7 @@ if (modal) {
         modalPoster.src = posterPath ? `${TMDB_BASE}w200${posterPath}` : placeholder;
         modalDetailLink.href = detailUrl;
         modalLists.innerHTML = '';
-        const metaParts = [];
-        if (year) metaParts.push(year);
-        if (director) metaParts.push(director);
-        modalMeta.innerHTML = metaParts.map(p => `<span>${p}</span>`).join('');
+        modalMeta.innerHTML = year ? `<span>${year}</span>` : '';
 
         fetch(`/film-lists/?film_id=${filmId}`)
             .then(res => res.json())
