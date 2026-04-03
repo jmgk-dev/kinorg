@@ -664,7 +664,7 @@ p.italic {
 }
 
 .ar_watched.ar_on  { background: #3b82f6; }
-.ar_stars.ar_on    { background: #b8860b; position: relative; top: -1px; }
+.ar_stars.ar_on    { background: #b8860b; position: relative; top: -2px; }
 .ar_reviewed.ar_on { background: #22c55e; }
 
 .ar_sep {
