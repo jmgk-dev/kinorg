@@ -213,6 +213,17 @@ document.addEventListener('DOMContentLoaded', function () {
     // Make review private toggle
     const privateCheckbox = document.querySelector('.review_private_checkbox');
     if (privateCheckbox) {
+        const privateLabel = privateCheckbox.closest('.review_private_label');
+        const privateText = privateLabel && privateLabel.querySelector('.review_private_text');
+
+        function updatePrivateLabel(isPrivate) {
+            if (privateText) privateText.textContent = isPrivate ? 'Review private' : 'Make review private';
+            if (privateLabel) privateLabel.classList.toggle('review_private--on', isPrivate);
+        }
+
+        // Set initial state
+        updatePrivateLabel(privateCheckbox.checked);
+
         privateCheckbox.addEventListener('change', function () {
             const filmId = privateCheckbox.dataset.filmId;
             const formData = new FormData();
@@ -226,6 +237,7 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(data => {
                 if (data.review_visible !== undefined) {
                     privateCheckbox.checked = !data.review_visible;
+                    updatePrivateLabel(!data.review_visible);
                 }
             });
         });

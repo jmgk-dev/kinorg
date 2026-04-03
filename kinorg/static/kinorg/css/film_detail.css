@@ -736,6 +736,11 @@ p.italic {
 .review_private_text {
     font-size: 13px;
     opacity: 0.75;
+    transition: opacity 0.2s ease;
+}
+
+.review_private--on .review_private_text {
+    opacity: 0.45;
 }
 
 .toggle_switch {
