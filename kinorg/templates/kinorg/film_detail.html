@@ -192,6 +192,7 @@
             <input type="hidden" name="genres"               value="{{ film.genres_json }}">
             <input type="hidden" name="keywords"             value="{{ film.keywords_json }}">
             <input type="hidden" name="production_companies" value="{{ film.production_companies_json }}">
+            <input type="hidden" name="review_visible" id="review_visible_input" value="{{ watched.review_visible|yesno:'true,false'|default:'true' }}">
 
             <div class="rating-input">
                 <div class="star-rating">

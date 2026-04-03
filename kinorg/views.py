@@ -1153,11 +1153,13 @@ def add_review(request):
             defaults=film_data
         )
 
+        review_visible = request.POST.get('review_visible', 'true') != 'false'
+
         # Always update both fields (allows clearing either independently)
         watched, created = WatchedFilm.objects.update_or_create(
             user=user,
             film=film_object,
-            defaults={'stars': stars, 'mini_review': mini_review},
+            defaults={'stars': stars, 'mini_review': mini_review, 'review_visible': review_visible},
         )
 
         # Redirect back to the film detail page
@@ -1344,10 +1346,11 @@ def toggle_review_private(request):
         return JsonResponse({'error': 'Invalid request'}, status=400)
 
     film_id = request.POST.get('film_id')
-    watched, _ = WatchedFilm.objects.get_or_create(
-        user=request.user, film_id=film_id,
-        defaults={'review_visible': True}
-    )
+    try:
+        watched = WatchedFilm.objects.get(user=request.user, film_id=film_id)
+    except WatchedFilm.DoesNotExist:
+        # No record yet — return toggled state without persisting
+        return JsonResponse({'review_visible': False})
     watched.review_visible = not watched.review_visible
     watched.save(update_fields=['review_visible'])
     return JsonResponse({'review_visible': watched.review_visible})

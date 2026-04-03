@@ -216,9 +216,12 @@ document.addEventListener('DOMContentLoaded', function () {
         const privateLabel = privateCheckbox.closest('.review_private_label');
         const privateText = privateLabel && privateLabel.querySelector('.review_private_text');
 
+        const reviewVisibleInput = document.getElementById('review_visible_input');
+
         function updatePrivateLabel(isPrivate) {
             if (privateText) privateText.textContent = isPrivate ? 'Review private' : 'Make review private';
             if (privateLabel) privateLabel.classList.toggle('review_private--on', isPrivate);
+            if (reviewVisibleInput) reviewVisibleInput.value = isPrivate ? 'false' : 'true';
         }
 
         // Set initial state
