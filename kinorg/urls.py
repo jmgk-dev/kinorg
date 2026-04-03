@@ -28,6 +28,7 @@ urlpatterns = [
     path("no-access/", views.no_access, name="no_access"),
     path("about/", views.About.as_view(), name="about"),
     path("film-lists/", views.film_lists_for_film, name="film_lists_for_film"),
+    path("create-list-ajax/", views.create_list_ajax, name="create_list_ajax"),
     path("add-film-by-id/", views.add_film_by_tmdb_id, name="add_film_by_tmdb_id"),
     path("remove-film-ajax/", views.remove_film_ajax, name="remove_film_ajax"),
     path("remove-review/", views.remove_review, name="remove_review"),

@@ -64,7 +64,7 @@
             data-is-ranked="false">
             {% for film in films %}
             <li class="results_item collection_result_item">
-                <a class="poster_link" href="{% url 'kinorg:film_detail' film.id %}" data-film-id="{{ film.id }}" data-film-title="{{ film.title }}" data-poster-path="{{ film.poster_path }}" data-year="{{ film.release_date|slice:':4' }}" data-director="{{ film.crew|film_director }}" data-media-type="movie">
+                <a class="poster_link" href="{% url 'kinorg:film_detail' film.id %}" data-film-id="{{ film.id }}" data-film-title="{{ film.title }}" data-poster-path="{{ film.poster_path }}" data-year="{{ film.release_date|date:'Y' }}" data-director="{{ film.crew|film_director }}" data-media-type="movie">
                     {% if film.poster_path and film.poster_path != 'None' %}
                     <img class="poster" src="{{ config_data.secure_base_url }}w200{{ film.poster_path }}" alt="{{ film.title }}">
                     {% else %}

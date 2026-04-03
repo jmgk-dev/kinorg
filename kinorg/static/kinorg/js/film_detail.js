@@ -68,12 +68,10 @@ function updateActivityRow() {
     const stars = parseInt(row.dataset.stars) || 0;
     const reviewed = row.dataset.reviewed === 'true';
 
-    const anyAction = watched || liked || stars || reviewed;
+    const anyAction = watched || liked || stars || reviewed || inWatchlist;
 
     let html;
-    if (!anyAction && inWatchlist) {
-        html = '<span>+ Watchlist</span>';
-    } else if (!anyAction) {
+    if (!anyAction) {
         html = '<span>Log, Rate &amp; Review</span>';
     } else {
         const watchedLabel = watched
@@ -148,6 +146,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     watchlistBtn.dataset.active = data.in_watchlist ? 'true' : 'false';
                     const row = document.getElementById('activity_row');
                     row.dataset.inWatchlist = data.in_watchlist ? 'true' : 'false';
+                    const badge = document.getElementById('watchlist_poster_badge');
+                    if (badge) badge.style.display = data.in_watchlist ? '' : 'none';
                     updateActivityRow();
                 }
             });

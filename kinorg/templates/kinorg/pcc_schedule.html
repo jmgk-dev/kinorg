@@ -70,7 +70,7 @@
                    data-film-id="{{ item.film.id }}"
                    data-film-title="{{ item.film.title }}"
                    data-poster-path="{{ item.film.poster_path }}"
-                   data-year="{{ item.film.release_date|slice:':4' }}"
+                   data-year="{{ item.film.release_date|date:'Y' }}"
                    data-director="{{ item.film.crew|film_director }}"
                    data-media-type="movie">
                     {% if item.film.poster_path and item.film.poster_path != 'None' %}

@@ -32,13 +32,31 @@ p.italic {
     align-items: start;
 }
 
-.detail_poster {
+.detail_poster_wrap {
+    position: relative;
     width: 200px;
+    flex-shrink: 0;
+}
+
+.detail_poster {
+    width: 100%;
     aspect-ratio: 2/3;
     object-fit: cover;
     border: 1px solid white;
     border-radius: 5px;
     display: block;
+}
+
+.watchlist_poster_badge {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    background: rgba(0, 0, 0, 0.72);
+    border-radius: 6px;
+    font-size: 14px;
+    line-height: 1;
+    padding: 3px 4px;
+    pointer-events: none;
 }
 
 .film_info {
@@ -856,7 +874,7 @@ p.italic {
         gap: 16px;
     }
 
-    .detail_poster {
+    .detail_poster_wrap {
         width: 110px;
     }
 

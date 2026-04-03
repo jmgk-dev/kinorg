@@ -14,15 +14,22 @@ if (modal) {
         return match ? match[1] : '';
     }
 
+    let currentFilmId = null;
+    let currentPosterPath = null;
+    let currentTitle = null;
+
     function openModal(filmId, title, posterPath, detailUrl, year, director) {
+        currentFilmId = filmId;
+        currentPosterPath = posterPath;
+        currentTitle = title;
         modalTitle.textContent = title;
         modalPoster.src = posterPath ? `${TMDB_BASE}w200${posterPath}` : placeholder;
         modalDetailLink.href = detailUrl;
         modalLists.innerHTML = '';
         const metaParts = [];
         if (year) metaParts.push(year);
-        if (director) metaParts.push(`Dir. ${director}`);
-        modalMeta.textContent = metaParts.join(' · ');
+        if (director) metaParts.push(director);
+        modalMeta.innerHTML = metaParts.map(p => `<span>${p}</span>`).join('');
 
         fetch(`/film-lists/?film_id=${filmId}`)
             .then(res => res.json())
@@ -80,6 +87,9 @@ if (modal) {
                 btn.dataset.inList = nowInList;
                 btn.className = `film_modal_toggle_btn ${nowInList ? 'remove_button' : 'add_button'}`;
                 btn.textContent = nowInList ? 'Remove' : 'Add';
+                document.dispatchEvent(new CustomEvent('filmListChanged', {
+                    detail: { filmId, listId, nowInList, posterPath: currentPosterPath, title: currentTitle }
+                }));
             } else {
                 btn.classList.remove('btn-loading');
                 btn.textContent = inList ? 'Remove' : 'Add';
@@ -93,9 +103,66 @@ if (modal) {
         });
     });
 
+    // ===== INLINE CREATE LIST =====
+    const newListBtn = document.getElementById('film_modal_new_list_btn');
+    const createForm = document.getElementById('film_modal_create_form');
+    const titleInput = document.getElementById('film_modal_list_title');
+    const createSubmit = document.getElementById('film_modal_create_submit');
+    const createError = document.getElementById('film_modal_create_error');
+
+    newListBtn.addEventListener('click', () => {
+        newListBtn.style.display = 'none';
+        createForm.style.display = 'flex';
+        titleInput.value = '';
+        createError.textContent = '';
+        titleInput.focus();
+    });
+
+    createSubmit.addEventListener('click', () => {
+        const title = titleInput.value.trim();
+        if (!title) return;
+        createSubmit.disabled = true;
+        const body = new URLSearchParams({ title });
+        fetch('/create-list-ajax/', {
+            method: 'POST',
+            headers: { 'X-CSRFToken': getCsrf() },
+            body,
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                createForm.style.display = 'none';
+                newListBtn.style.display = '';
+                const newItem = document.createElement('div');
+                newItem.className = 'film_modal_list_item';
+                newItem.innerHTML = `
+                    <a href="/lists/${data.sqid}/" class="btn film_modal_list_name">${data.title}</a>
+                    <button class="film_modal_toggle_btn add_button"
+                            data-list-id="${data.id}"
+                            data-film-id="${currentFilmId}"
+                            data-in-list="false">Add</button>`;
+                modalLists.prepend(newItem);
+            } else {
+                createError.textContent = data.error || 'Could not create list.';
+            }
+            createSubmit.disabled = false;
+        })
+        .catch(() => {
+            createError.textContent = 'Something went wrong.';
+            createSubmit.disabled = false;
+        });
+    });
+
+    titleInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') createSubmit.click();
+    });
+
     function closeModal() {
         modal.style.display = 'none';
         document.body.style.overflow = '';
+        createForm.style.display = 'none';
+        newListBtn.style.display = '';
+        createError.textContent = '';
     }
 
     closeBtn.addEventListener('click', closeModal);

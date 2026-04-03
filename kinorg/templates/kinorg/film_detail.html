@@ -12,7 +12,14 @@
 
         <div class="film_header_top">
 
-            <img class="detail_poster" src="{% if film.poster_path %}{{config_data.secure_base_url}}w342{{film.poster_path}}{% else %}{% static 'images/placeholder.jpg' %}{% endif %}">
+            <div class="detail_poster_wrap">
+                <img class="detail_poster" src="{% if film.poster_path %}{{config_data.secure_base_url}}w342{{film.poster_path}}{% else %}{% static 'images/placeholder.jpg' %}{% endif %}">
+                {% if in_watchlist %}
+                <span class="watchlist_poster_badge" id="watchlist_poster_badge" title="In your watchlist"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="white"><path d="M5 3h14a1 1 0 0 1 1 1v17l-8-4-8 4V4a1 1 0 0 1 1-1z"/></svg></span>
+                {% else %}
+                <span class="watchlist_poster_badge" id="watchlist_poster_badge" title="In your watchlist" style="display:none"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="white"><path d="M5 3h14a1 1 0 0 1 1 1v17l-8-4-8 4V4a1 1 0 0 1 1-1z"/></svg></span>
+                {% endif %}
+            </div>
 
             <div class="film_info">
 
@@ -21,7 +28,7 @@
                 </div>
 
                 <div class="film_meta">
-                    {% if film.release_date %}<span class="meta_chip">{{ film.release_date|slice:":4" }}</span>{% endif %}
+                    {% if film.release_date %}<span class="meta_chip">{{ film.release_date|date:"Y" }}</span>{% endif %}
                     {% if film.runtime %}<span class="meta_chip">{{ film.runtime }}m</span>{% endif %}
                     {% for genre in film.genres %}<span class="meta_chip">{{ genre.name }}</span>{% endfor %}
                     {% for country in film.production_countries %}<span class="meta_chip">{{ country.name|country_abbr }}</span>{% endfor %}

@@ -323,3 +323,32 @@ if (usernameInput) {
         }, 300);
     });
 }
+
+
+// ===== MODAL LIVE UPDATE =====
+
+if (filmGrid) {
+    const currentListId = filmGrid.dataset.listId;
+    const baseUrl = filmGrid.dataset.baseUrl;
+    const placeholderUrl = filmGrid.dataset.placeholderUrl;
+
+    document.addEventListener('filmListChanged', (e) => {
+        const { filmId, listId, nowInList, posterPath, title } = e.detail;
+        if (String(listId) !== String(currentListId)) return;
+
+        if (!nowInList) {
+            // Remove the card
+            const link = filmGrid.querySelector(`.poster_link[data-film-id="${filmId}"]`);
+            if (link) link.closest('li').remove();
+        } else {
+            // Add the card if not already present
+            if (!filmGrid.querySelector(`.poster_link[data-film-id="${filmId}"]`)) {
+                const li = document.createElement('li');
+                li.className = 'results_item';
+                const src = posterPath ? `${baseUrl}w200${posterPath}` : placeholderUrl;
+                li.innerHTML = `<a class="poster_link" href="/film-detail/${filmId}/" data-film-id="${filmId}" data-film-title="${title.replace(/"/g, '&quot;')}" data-poster-path="${posterPath || ''}" data-media-type="movie"><img class="poster" src="${src}" alt="${title.replace(/"/g, '&quot;')}"></a>`;
+                filmGrid.prepend(li);
+            }
+        }
+    });
+}

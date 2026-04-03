@@ -105,3 +105,35 @@ listsForm.addEventListener('submit', e => {
         if (data.success) resetListsForm();
     });
 });
+
+
+// ===== MODAL LIVE UPDATE =====
+
+document.addEventListener('filmListChanged', (e) => {
+    const { filmId, listId, nowInList, posterPath, title } = e.detail;
+
+    // Find the list_item for this list
+    const inviteBtn = document.querySelector(`.btn-invite[data-list-id="${listId}"]`);
+    if (!inviteBtn) return;
+    const listItem = inviteBtn.closest('.list_item');
+    if (!listItem) return;
+
+    const stack = listItem.querySelector('.list_poster_stack');
+
+    if (!nowInList) {
+        if (!stack) return;
+        const link = stack.querySelector(`.poster_link[data-film-id="${filmId}"]`);
+        if (link) link.closest('.stack_item').remove();
+    } else {
+        if (!stack) return;
+        if (!stack.querySelector(`.poster_link[data-film-id="${filmId}"]`)) {
+            const li = document.createElement('li');
+            li.className = 'stack_item';
+            const src = posterPath
+                ? `https://image.tmdb.org/t/p/w200${posterPath}`
+                : listItem.querySelector('.poster')?.src || '';
+            li.innerHTML = `<a class="poster_link" href="/film-detail/${filmId}/" data-film-id="${filmId}" data-film-title="${title.replace(/"/g, '&quot;')}" data-poster-path="${posterPath || ''}" data-media-type="movie"><img class="poster" src="${src}" alt="${title.replace(/"/g, '&quot;')}"></a>`;
+            stack.prepend(li);
+        }
+    }
+});

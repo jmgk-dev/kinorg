@@ -84,10 +84,11 @@
             data-placeholder-url="{% static 'images/placeholder.jpg' %}"
             data-film-url="{% url 'kinorg:film_detail' 0 %}"
             data-additions-url="{% url 'kinorg:list_additions_json' object.sqid %}"
-            data-is-shared="{{ is_shared|yesno:'true,false' }}">
+            data-is-shared="{{ is_shared|yesno:'true,false' }}"
+            data-list-id="{{ object.id }}">
             {% for addition in additions %}
             <li class="results_item" data-added-by="{{ addition.added_by.username }}">
-                <a class="poster_link" href="{% url 'kinorg:film_detail' addition.film.id %}" data-film-id="{{ addition.film.id }}" data-film-title="{{ addition.film.title }}" data-poster-path="{{ addition.film.poster_path }}" data-year="{{ addition.film.release_date|slice:':4' }}" data-director="{{ addition.film.crew|film_director }}" data-media-type="movie">
+                <a class="poster_link" href="{% url 'kinorg:film_detail' addition.film.id %}" data-film-id="{{ addition.film.id }}" data-film-title="{{ addition.film.title }}" data-poster-path="{{ addition.film.poster_path }}" data-year="{{ addition.film.release_date|date:'Y' }}" data-director="{{ addition.film.crew|film_director }}" data-media-type="movie">
                     {% if addition.film.poster_path != 'None' %}
                     <img class="poster" src="{{ config_data.secure_base_url }}w200{{ addition.film.poster_path }}">
                     {% else %}

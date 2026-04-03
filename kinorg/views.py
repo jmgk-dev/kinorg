@@ -680,7 +680,7 @@ def list_additions_json(request, slug):
             'title': addition.film.title,
             'poster_path': addition.film.poster_path,
             'added_by': addition.added_by.username,
-            'year': (addition.film.release_date or '')[:4],
+            'year': str(addition.film.release_date.year) if addition.film.release_date else '',
             'director': _get_director(addition.film.crew),
         }
         for addition in batch
@@ -799,7 +799,7 @@ def collection_films_json(request, tag):
             'title': f.title,
             'poster_path': f.poster_path,
             'rank': f.rank,
-            'year': (f.release_date or '')[:4],
+            'year': str(f.release_date.year) if f.release_date else '',
             'director': _get_director(f.crew),
         }
         for f in batch
@@ -896,7 +896,7 @@ def pcc_schedule_json(request):
             'title': item['film'].title if item['film'] else item['screening'].title,
             'poster_path': item['film'].poster_path if item['film'] else None,
             'pcc_url': item['screening'].pcc_url,
-            'year': ((item['film'].release_date or '')[:4]) if item['film'] else '',
+            'year': str(item['film'].release_date.year) if item['film'] and item['film'].release_date else '',
             'director': _get_director(item['film'].crew) if item['film'] else '',
         }
         for item in batch
@@ -1330,7 +1330,7 @@ def watchlist_json(request):
                 'id': f.id,
                 'title': f.title,
                 'poster_path': f.poster_path,
-                'year': (f.release_date or '')[:4],
+                'year': str(f.release_date.year) if f.release_date else '',
                 'director': _get_director(f.crew),
             }
             for f in batch
@@ -1439,7 +1439,7 @@ def liked_watched_json(request):
                 'id': f.id,
                 'title': f.title,
                 'poster_path': f.poster_path,
-                'year': (f.release_date or '')[:4],
+                'year': str(f.release_date.year) if f.release_date else '',
                 'director': _get_director(f.crew),
             }
             for f in batch
@@ -1656,6 +1656,17 @@ def decline_invite(request):
         return redirect("kinorg:my_lists")
     
  
+@login_required(login_url='user_admin:login')
+def create_list_ajax(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
+    title = request.POST.get('title', '').strip()
+    if not title:
+        return JsonResponse({'success': False, 'error': 'Title required'})
+    film_list = FilmList.objects.create(owner=request.user, title=title)
+    return JsonResponse({'success': True, 'id': film_list.id, 'sqid': film_list.sqid, 'title': film_list.title})
+
+
 def film_lists_for_film(request):
     if not request.user.is_authenticated:
         return JsonResponse({'error': 'Not authenticated'}, status=401)
@@ -1664,8 +1675,8 @@ def film_lists_for_film(request):
     if not film_id:
         return JsonResponse({'error': 'Missing film_id'}, status=400)
 
-    my_lists = FilmList.objects.filter(owner=request.user).order_by('-id')
-    guest_lists = FilmList.objects.filter(guests=request.user).order_by('-id')
+    my_lists = FilmList.objects.filter(owner=request.user, archived=False).order_by('-id')
+    guest_lists = FilmList.objects.filter(guests=request.user, archived=False).order_by('-id')
 
     def serialize(lst):
         return {

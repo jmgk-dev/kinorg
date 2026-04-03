@@ -42,7 +42,7 @@
 		<div class="carousel_container">
 			<div class="carousel_inner">
     			{% for film in object_list|slice:":20" %}
-    				<a class="poster_link" href="{% url 'kinorg:film_detail' film.id %}" data-film-id="{{ film.id }}" data-film-title="{{ film.title }}" data-poster-path="{{ film.poster_path }}" data-year="{{ film.release_date|slice:':4' }}" data-director="{{ film.crew|film_director }}" data-media-type="movie">
+    				<a class="poster_link" href="{% url 'kinorg:film_detail' film.id %}" data-film-id="{{ film.id }}" data-film-title="{{ film.title }}" data-poster-path="{{ film.poster_path }}" data-year="{{ film.release_date|date:'Y' }}" data-director="{{ film.crew|film_director }}" data-media-type="movie">
     					{% if film.poster_path != 'None' %}
     					<img class="poster" src="{{config_data.secure_base_url}}w200{{film.poster_path}}">
     					{% else %}
@@ -51,7 +51,7 @@
     				</a>
     			{% endfor %}
     			{% for film in object_list|slice:":20" %}
-    				<a class="poster_link" href="{% url 'kinorg:film_detail' film.id %}" data-film-id="{{ film.id }}" data-film-title="{{ film.title }}" data-poster-path="{{ film.poster_path }}" data-year="{{ film.release_date|slice:':4' }}" data-director="{{ film.crew|film_director }}" data-media-type="movie">
+    				<a class="poster_link" href="{% url 'kinorg:film_detail' film.id %}" data-film-id="{{ film.id }}" data-film-title="{{ film.title }}" data-poster-path="{{ film.poster_path }}" data-year="{{ film.release_date|date:'Y' }}" data-director="{{ film.crew|film_director }}" data-media-type="movie">
     					{% if film.poster_path != 'None' %}
     					<img class="poster" src="{{config_data.secure_base_url}}w200{{film.poster_path}}">
     					{% else %}
@@ -65,7 +65,7 @@
 		<div class="carousel_container">
 			<div class="carousel_inner carousel_reverse">
     			{% for film in object_list|slice:"20:40" %}
-    				<a class="poster_link" href="{% url 'kinorg:film_detail' film.id %}" data-film-id="{{ film.id }}" data-film-title="{{ film.title }}" data-poster-path="{{ film.poster_path }}" data-year="{{ film.release_date|slice:':4' }}" data-director="{{ film.crew|film_director }}" data-media-type="movie">
+    				<a class="poster_link" href="{% url 'kinorg:film_detail' film.id %}" data-film-id="{{ film.id }}" data-film-title="{{ film.title }}" data-poster-path="{{ film.poster_path }}" data-year="{{ film.release_date|date:'Y' }}" data-director="{{ film.crew|film_director }}" data-media-type="movie">
     					{% if film.poster_path != 'None' %}
     					<img class="poster" src="{{config_data.secure_base_url}}w200{{film.poster_path}}">
     					{% else %}
@@ -74,7 +74,7 @@
     				</a>
     			{% endfor %}
     			{% for film in object_list|slice:"20:40" %}
-    				<a class="poster_link" href="{% url 'kinorg:film_detail' film.id %}" data-film-id="{{ film.id }}" data-film-title="{{ film.title }}" data-poster-path="{{ film.poster_path }}" data-year="{{ film.release_date|slice:':4' }}" data-director="{{ film.crew|film_director }}" data-media-type="movie">
+    				<a class="poster_link" href="{% url 'kinorg:film_detail' film.id %}" data-film-id="{{ film.id }}" data-film-title="{{ film.title }}" data-poster-path="{{ film.poster_path }}" data-year="{{ film.release_date|date:'Y' }}" data-director="{{ film.crew|film_director }}" data-media-type="movie">
     					{% if film.poster_path != 'None' %}
     					<img class="poster" src="{{config_data.secure_base_url}}w200{{film.poster_path}}">
     					{% else %}
@@ -88,7 +88,7 @@
 		<div class="carousel_container">
 			<div class="carousel_inner">
     			{% for film in object_list|slice:"40:60" %}
-    				<a class="poster_link" href="{% url 'kinorg:film_detail' film.id %}" data-film-id="{{ film.id }}" data-film-title="{{ film.title }}" data-poster-path="{{ film.poster_path }}" data-year="{{ film.release_date|slice:':4' }}" data-director="{{ film.crew|film_director }}" data-media-type="movie">
+    				<a class="poster_link" href="{% url 'kinorg:film_detail' film.id %}" data-film-id="{{ film.id }}" data-film-title="{{ film.title }}" data-poster-path="{{ film.poster_path }}" data-year="{{ film.release_date|date:'Y' }}" data-director="{{ film.crew|film_director }}" data-media-type="movie">
     					{% if film.poster_path != 'None' %}
     					<img class="poster" src="{{config_data.secure_base_url}}w200{{film.poster_path}}">
     					{% else %}
@@ -97,7 +97,7 @@
     				</a>
     			{% endfor %}
     			{% for film in object_list|slice:"40:60" %}
-    				<a class="poster_link" href="{% url 'kinorg:film_detail' film.id %}" data-film-id="{{ film.id }}" data-film-title="{{ film.title }}" data-poster-path="{{ film.poster_path }}" data-year="{{ film.release_date|slice:':4' }}" data-director="{{ film.crew|film_director }}" data-media-type="movie">
+    				<a class="poster_link" href="{% url 'kinorg:film_detail' film.id %}" data-film-id="{{ film.id }}" data-film-title="{{ film.title }}" data-poster-path="{{ film.poster_path }}" data-year="{{ film.release_date|date:'Y' }}" data-director="{{ film.crew|film_director }}" data-media-type="movie">
     					{% if film.poster_path != 'None' %}
     					<img class="poster" src="{{config_data.secure_base_url}}w200{{film.poster_path}}">
     					{% else %}
