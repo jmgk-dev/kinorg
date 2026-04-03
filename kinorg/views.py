@@ -1135,7 +1135,7 @@ def add_review(request):
         stars = int(stars_raw) if stars_raw else None
         mini_review = profanity.censor(request.POST.get("mini_review", "").strip())
 
-        if not stars and not mini_review:
+        if not stars and not mini_review and not WatchedFilm.objects.filter(user=user, film_id=request.POST.get("id")).exists():
             return redirect('kinorg:film_detail', id=request.POST.get("id"))
 
         fields = [
@@ -1346,12 +1346,13 @@ def toggle_review_private(request):
         return JsonResponse({'error': 'Invalid request'}, status=400)
 
     film_id = request.POST.get('film_id')
+    desired = request.POST.get('review_visible', 'true') != 'false'
     try:
         watched = WatchedFilm.objects.get(user=request.user, film_id=film_id)
     except WatchedFilm.DoesNotExist:
-        # No record yet — return toggled state without persisting
-        return JsonResponse({'review_visible': False})
-    watched.review_visible = not watched.review_visible
+        # No record yet — return desired state without persisting (saved on form submit)
+        return JsonResponse({'review_visible': desired})
+    watched.review_visible = desired
     watched.save(update_fields=['review_visible'])
     return JsonResponse({'review_visible': watched.review_visible})
 

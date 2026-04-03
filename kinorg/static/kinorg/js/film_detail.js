@@ -241,6 +241,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const filmId = privateCheckbox.dataset.filmId;
             const formData = new FormData();
             formData.append('film_id', filmId);
+            formData.append('review_visible', privateCheckbox.checked ? 'false' : 'true');
             fetch('/review-private/', {
                 method: 'POST',
                 headers: { 'X-CSRFToken': getCsrf() },
