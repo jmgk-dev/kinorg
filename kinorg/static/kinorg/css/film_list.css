@@ -61,10 +61,10 @@
 
 .archive_btn {
     background: none;
-    border: 1px solid rgba(255,255,255,0.35);
-    color: rgba(255,255,255,0.6);
-    font-size: 13px;
-    padding: 5px 12px;
+    border: 1px solid rgba(255,255,255,0.25);
+    color: rgba(255,255,255,0.4);
+    font-size: 11px;
+    padding: 3px 8px;
     border-radius: 8px;
     cursor: pointer;
     transition: border-color 0.2s, color 0.2s;
