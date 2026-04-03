@@ -219,15 +219,16 @@
                         data-film-id="{{ film.id }}"
                         data-url="{% url 'kinorg:remove_review' %}">Remove Review</button>
                 {% endif %}
-                {% if watched and watched.mini_review %}
-                <button type="button"
-                        class="btn review_private_btn {% if not watched.review_visible %}review_hidden{% endif %}"
-                        data-film-id="{{ film.id }}"
-                        data-visible="{{ watched.review_visible|yesno:'true,false' }}">
-                    {% if watched.review_visible %}Hide Review{% else %}Review Hidden{% endif %}
-                </button>
-                {% endif %}
             </div>
+            <label class="review_private_label">
+                <span class="review_private_text">Make review private</span>
+                <span class="toggle_switch">
+                    <input type="checkbox" class="review_private_checkbox"
+                           data-film-id="{{ film.id }}"
+                           {% if watched and not watched.review_visible %}checked{% endif %}>
+                    <span class="toggle_switch_track"></span>
+                </span>
+            </label>
         </form>
 
     </div>

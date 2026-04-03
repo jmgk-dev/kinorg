@@ -210,11 +210,11 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Hide/show review toggle
-    const privateBtn = document.querySelector('.review_private_btn');
-    if (privateBtn) {
-        privateBtn.addEventListener('click', function () {
-            const filmId = privateBtn.dataset.filmId;
+    // Make review private toggle
+    const privateCheckbox = document.querySelector('.review_private_checkbox');
+    if (privateCheckbox) {
+        privateCheckbox.addEventListener('change', function () {
+            const filmId = privateCheckbox.dataset.filmId;
             const formData = new FormData();
             formData.append('film_id', filmId);
             fetch('/review-private/', {
@@ -225,9 +225,7 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(r => r.json())
             .then(data => {
                 if (data.review_visible !== undefined) {
-                    privateBtn.dataset.visible = data.review_visible ? 'true' : 'false';
-                    privateBtn.textContent = data.review_visible ? 'Hide Review' : 'Review Hidden';
-                    privateBtn.classList.toggle('review_hidden', !data.review_visible);
+                    privateCheckbox.checked = !data.review_visible;
                 }
             });
         });
