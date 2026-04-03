@@ -85,8 +85,6 @@
         </ul>
     </nav>
 
-    <script src="{% static 'kinorg/js/nav.js' %}"></script>
-
     </div>{# end header_right #}
 
 {% endif %}
@@ -122,6 +120,7 @@
 </div>{# end page_content #}
 
 {% if user.is_authenticated %}<div id="nav_backdrop"></div>{% endif %}
+{% if user.is_authenticated %}<script src="{% static 'kinorg/js/nav.js' %}"></script>{% endif %}
 <script src="{% static 'kinorg/js/typeahead.js' %}"></script>
 {% include "kinorg/_film_modal.html" %}
 <script src="{% static 'kinorg/js/film_modal.js' %}"></script>
