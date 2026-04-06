@@ -11,7 +11,6 @@ import requests
 from django.shortcuts import render, redirect
 from django.conf import settings
 from django.http import Http404, HttpResponse, JsonResponse
-from django.db import connection
 from django.db.models.fields.json import KeyTransform
 from django.db.models.functions import Cast
 from django.db.models import IntegerField, F, Q, Exists, OuterRef, Subquery
@@ -537,10 +536,8 @@ WATCHLIST_SORT_MAP = {
 # =====================================================================
 
 def films_in_collection(tag):
-    """Get all films tagged with a collection. Uses JSON contains on Postgres, LIKE fallback on SQLite."""
-    if connection.vendor == 'postgresql':
-        return Film.objects.filter(collections__contains=[tag])
-    return Film.objects.extra(where=["collections LIKE %s"], params=[f'%"{tag}"%'])
+    """Get all films tagged with a collection."""
+    return Film.objects.filter(collections__contains=[tag])
 
 
 def _build_genre_list(qs):
@@ -554,10 +551,8 @@ def _build_genre_list(qs):
 
 
 def _filter_films_by_genre(qs, genre):
-    """Filter a Film queryset to only films matching a genre name. Uses JSON contains on Postgres, LIKE on SQLite."""
-    if connection.vendor == 'postgresql':
-        return qs.filter(genres__contains=[{"name": genre}])
-    return qs.extra(where=["genres LIKE %s"], params=[f'%"name": "{genre}"%'])
+    """Filter a Film queryset to only films matching a genre name."""
+    return qs.filter(genres__contains=[{"name": genre}])
 
 
 def _liked_watched_qs(user):
