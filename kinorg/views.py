@@ -28,6 +28,7 @@ from .models import Film, FilmList, Addition, Invitation, WatchedFilm, PCCScreen
 from better_profanity import profanity
 
 
+# Maps ISO 3166-1 country codes to readable names for display in filters and search results
 COUNTRY_ISO = {
     # Major English-speaking
     'US': 'USA', 'GB': 'UK', 'AU': 'Australia', 'CA': 'Canada',
@@ -74,7 +75,7 @@ COUNTRY_ISO = {
 
 
 def _get_director(crew):
-    """Return first Director name from a crew JSONField (list or JSON string)."""
+    """Extract the first Director's name from a crew JSONField. Handles both list and raw JSON string formats."""
     if not crew:
         return ''
     if isinstance(crew, str):
@@ -89,7 +90,7 @@ def _get_director(crew):
 
 
 def _to_str_set(lst, key='name'):
-    """Normalise a JSONField that may contain strings or dicts."""
+    """Convert a JSONField (which may contain plain strings or dicts) into a set of strings for comparison."""
     result = set()
     for item in (lst or []):
         if isinstance(item, str):
@@ -100,20 +101,25 @@ def _to_str_set(lst, key='name'):
 
 
 def get_similar_films(film_id, film_obj, limit=12):
-    """Score DB films by metadata similarity. Returns top `limit` Film objects."""
+    """Find similar films from the DB using weighted metadata scoring.
+    Points: shared genre x3, shared country x2, shared keywords x1 (max 5),
+    same director +5, same decade +1. Only returns films already in the DB."""
     if not film_obj:
         return []
 
+    # Build sets of metadata from the target film for comparison
     genres = _to_str_set(film_obj.genres)
     keywords = _to_str_set(film_obj.keywords)
     countries = _to_str_set(film_obj.production_countries, key='iso_3166_1')
     directors = {c['name'] for c in (film_obj.crew or []) if isinstance(c, dict) and c.get('job') == 'Director'}
     decade = (film_obj.release_date.year // 10) * 10 if film_obj.release_date else None
 
+    # Only consider films with a poster and release date (excludes stub records)
     candidates = Film.objects.exclude(id=film_id).filter(
         release_date__isnull=False, poster_path__gt=''
     )
 
+    # Score each candidate by how much metadata it shares with the target
     scored = []
     for f in candidates:
         score = len(genres & _to_str_set(f.genres)) * 3
@@ -130,10 +136,12 @@ def get_similar_films(film_id, film_obj, limit=12):
     return [f for _, f in scored[:limit]]
 
 
-# Functions ------------------------------------------------------------>
+# =====================================================================
+# Helper functions
+# =====================================================================
 
 def get_tmdb_data(url):
-
+    """Make an authenticated GET request to the TMDB API and return the JSON response."""
     headers = {
         "accept": "application/json",
         "Authorization": f"Bearer {os.environ.get('TMDB_KEY')}"
@@ -146,23 +154,23 @@ def get_tmdb_data(url):
 
 
 def order_by_popularity(search_results):
-    # Movies first, then people, ordered by popularity within each group
-    movies = sorted([r for r in search_results if r.get('media_type') == 'movie' or 'release_date' in r], 
+    """Sort search results with movies first then people, each group ordered by popularity descending."""
+    movies = sorted([r for r in search_results if r.get('media_type') == 'movie' or 'release_date' in r],
                     key=lambda i: i['popularity'], reverse=True)
-    people = sorted([r for r in search_results if r.get('media_type') == 'person'], 
+    people = sorted([r for r in search_results if r.get('media_type') == 'person'],
                     key=lambda i: i['popularity'], reverse=True)
     return movies + people
 
 
 def films_and_people(search_data):
-
+    """Filter TMDB multi-search results to only movies and people (drops TV shows etc.)."""
     filtered_films = [film for film in search_data["results"] if film['media_type'] == 'movie' or film['media_type'] == 'person']
 
     return filtered_films
 
 
 def send_invitation(invited_list, to_user, from_user):
-
+    """Create a list invitation after validating permissions (only owner can invite, can't self-invite, no duplicates)."""
     if from_user != invited_list.owner:
         raise PermissionError("You don't have permission!")
 
@@ -182,6 +190,7 @@ def send_invitation(invited_list, to_user, from_user):
 
 
 def accept_invitation(invited_list, user):
+    """Mark a pending invitation as accepted and add the user as a guest on the list."""
     invitation = Invitation.objects.filter(
         film_list=invited_list,
         to_user=user,
@@ -194,6 +203,7 @@ def accept_invitation(invited_list, user):
 
 
 def decline_invitation(invited_list, user):
+    """Mark a pending invitation as declined (does not delete the record)."""
     invitation = Invitation.objects.filter(
         film_list=invited_list,
         to_user=user,
@@ -204,7 +214,14 @@ def decline_invitation(invited_list, user):
         invitation.save()
 
 
+# =====================================================================
+# Autocomplete endpoints (used by live search and typeahead dropdowns)
+# =====================================================================
+
 def film_autocomplete(request):
+    """Live search endpoint for films and people. Queries TMDB, caches results for 5 min.
+    Supports filter param ('all', 'films', 'people') and year extraction from query (e.g. 'stalker 1979').
+    Returns top 10 results with metadata for rendering search suggestions."""
     query = request.GET.get('q', '').strip()
     if len(query) < 2:
         return JsonResponse({'results': []})
@@ -216,18 +233,18 @@ def film_autocomplete(request):
     if cached is not None:
         return JsonResponse({'results': cached})
 
-    # People whose English name isn't their TMDB primary name and won't appear in search
+    # Hardcoded aliases for people whose English name doesn't match their TMDB primary name
     PERSON_ALIASES = {
         'john woo': 11401,
     }
 
-    # Parse year from query e.g. "stalker 1979"
+    # If the query contains a year (e.g. "stalker 1979"), extract it for a more targeted TMDB search
     year_match = re.search(r'\b(19\d{2}|20[0-2]\d)\b', query)
     year = year_match.group(1) if year_match else None
     clean_query = re.sub(r'\b(19\d{2}|20[0-2]\d)\b', '', query).strip() if year else query
 
     if year and filter_type != 'people':
-        # Use search/movie with year for much better targeted results
+        # When a year is provided, use TMDB's movie-specific search with year param for better accuracy
         data = get_tmdb_data(
             f"https://api.themoviedb.org/3/search/movie?query={clean_query}&year={year}&include_adult=false&language=en-US&page=1"
         )
@@ -238,7 +255,7 @@ def film_autocomplete(request):
         )
         raw = [r for r in data.get('results', []) if r.get('media_type') in ('movie', 'person')]
 
-        # Also search people directly — search/multi can miss directors with low popularity
+        # Run a separate person search because multi-search can miss low-popularity directors
         if filter_type != 'films':
             person_data = get_tmdb_data(
                 f"https://api.themoviedb.org/3/search/person?query={query}&include_adult=false&language=en-US&page=1"
@@ -254,7 +271,7 @@ def film_autocomplete(request):
     elif filter_type == 'people':
         raw = [r for r in raw if r.get('media_type') == 'person']
 
-    # Inject aliased people who can't be found via normal TMDB search
+    # If the query matches a hardcoded alias, fetch that person directly and inject them into results
     if filter_type != 'films':
         alias_id = PERSON_ALIASES.get(clean_query.lower())
         if alias_id:
@@ -275,10 +292,10 @@ def film_autocomplete(request):
                     alias_data['known_for'] = known_for
                     raw.insert(0, dict(alias_data, media_type='person', popularity=999))
 
-    # Filter out people with no profile photo — low-data profiles give empty click-throughs
+    # Remove people without a profile photo (low-data profiles give unhelpful results)
     raw = [r for r in raw if r.get('media_type') != 'person' or r.get('profile_path')]
 
-    # Exact name/title matches first, people boosted, then by popularity
+    # Sort: exact title matches first, people get 3x popularity boost, then by descending popularity
     query_lower = clean_query.lower()
     def sort_key(r):
         title = (r.get('title') or r.get('name') or '').lower()
@@ -288,6 +305,7 @@ def film_autocomplete(request):
         return (not exact, -effective_pop)
     raw = sorted(raw, key=sort_key)
 
+    # Fallback map: when a film has no origin_country, use original_language to guess country
     LANG_TO_COUNTRY = {
         'fr': 'France', 'de': 'Germany', 'it': 'Italy', 'ja': 'Japan',
         'ko': 'South Korea', 'zh': 'China', 'es': 'Spain', 'pt': 'Portugal',
@@ -298,6 +316,7 @@ def film_autocomplete(request):
         'ar': 'Arabic', 'uk': 'Ukraine', 'sk': 'Slovakia',
     }
 
+    # Build the final response list (max 10 items) with display metadata
     results = []
     for r in raw[:10]:
         if r.get('media_type') == 'movie':
@@ -338,6 +357,8 @@ def film_autocomplete(request):
 
 
 def user_autocomplete(request):
+    """Username search for the invite typeahead. Excludes the current user
+    and (optionally) users already invited to the specified list."""
     query = request.GET.get('q', '').strip()
     if len(query) < 2:
         return JsonResponse({'results': []})
@@ -351,7 +372,6 @@ def user_autocomplete(request):
         id=request.user.id
     )
 
-    # Exclude already-invited users if list_id is provided
     if list_id:
         already_invited_ids = Invitation.objects.filter(
             film_list_id=list_id
@@ -363,16 +383,18 @@ def user_autocomplete(request):
     return JsonResponse({'results': list(results)})
 
 
-# Functions END ------------------------------------------------------------>
-
+# =====================================================================
+# Page views (class-based)
+# =====================================================================
 
 class Home(ListView):
-
+    """Home page. Shows a carousel of 60 random collection films, cached for 24 hours."""
     model = Film
     template_name = "kinorg/home.html"
 
     def get_queryset(self):
         import random
+        # Cache the shuffled film IDs for 24h so the carousel stays stable within a day
         film_ids = cache.get('carousel_film_ids')
         if film_ids is None:
             film_ids = list(Film.objects.extra(
@@ -381,6 +403,7 @@ class Home(ListView):
             random.shuffle(film_ids)
             film_ids = film_ids[:60]
             cache.set('carousel_film_ids', film_ids, 60 * 60 * 24)
+        # Fetch full Film objects while preserving the shuffled order
         films_by_id = {f.id: f for f in Film.objects.filter(id__in=film_ids)}
         return [films_by_id[fid] for fid in film_ids if fid in films_by_id]
 
@@ -392,18 +415,17 @@ class Home(ListView):
 
 
 class About(TemplateView):
-
+    """Static about page."""
     template_name = "kinorg/about.html"
 
 
 class Search(LoginRequiredMixin, TemplateView):
-
+    """Search page. The actual searching happens client-side via film_autocomplete endpoint."""
     login_url = "user_admin:login"
 
     template_name = "kinorg/search.html"
 
     def get(self, request, *args, **kwargs):
-        # Remove the redirect — blank search page is fine now
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -416,7 +438,7 @@ class Search(LoginRequiredMixin, TemplateView):
 
 
 class CreateList(LoginRequiredMixin, CreateView):
-
+    """Form page to create a new film list. Sets the current user as owner."""
     login_url = "user_admin:login"
 
     model = FilmList
@@ -430,7 +452,7 @@ class CreateList(LoginRequiredMixin, CreateView):
 
 
 class MyLists(LoginRequiredMixin, TemplateView):
-    
+    """Lists page showing the user's own lists, shared lists they belong to, archived lists, and pending invitations."""
     login_url = "user_admin:login"
 
     template_name = "kinorg/filmlist_list.html"
@@ -452,6 +474,7 @@ class MyLists(LoginRequiredMixin, TemplateView):
         return context
 
 
+# Sort options for film list detail pages (maps URL param to Django ORM ordering)
 SORT_MAP = {
     'date_desc': '-date_added',
     'date_asc': 'date_added',
@@ -463,6 +486,7 @@ SORT_MAP = {
     'release_asc': 'film__release_date',
 }
 
+# Curated collection tags and their display names
 COLLECTIONS = {
     'sight_and_sound_2022': 'Sight & Sound 2022 Poll',
     'tspdt_1000': "TSPDT 1000 Greatest Films",
@@ -474,8 +498,10 @@ COLLECTIONS = {
     'vinegar_syndrome': 'Vinegar Syndrome',
 }
 
+# Collections that have a meaningful rank ordering (shown with rank badges)
 RANKED_COLLECTIONS = {'tspdt_1000', 'tspdt_21c', 'sight_and_sound_2022', 'letterboxd_top_500'}
 
+# Sort options for collection pages
 COLLECTION_SORT_MAP = {
     'title_asc': 'title',
     'title_desc': '-title',
@@ -483,6 +509,7 @@ COLLECTION_SORT_MAP = {
     'release_asc': 'release_date',
 }
 
+# Sort options for the liked/watched films page
 LIKED_WATCHED_SORT_MAP = {
     'watched_desc': F('watched_at').desc(nulls_last=True),
     'watched_asc':  F('watched_at').asc(nulls_last=True),
@@ -494,6 +521,7 @@ LIKED_WATCHED_SORT_MAP = {
     'release_asc':  F('release_date').asc(nulls_last=True),
 }
 
+# Sort options for the watchlist page
 WATCHLIST_SORT_MAP = {
     'added_desc':   F('added_at').desc(nulls_last=True),
     'added_asc':    F('added_at').asc(nulls_last=True),
@@ -504,15 +532,19 @@ WATCHLIST_SORT_MAP = {
 }
 
 
+# =====================================================================
+# Shared filter/query helpers (used by collections, watchlist, liked, PCC)
+# =====================================================================
+
 def films_in_collection(tag):
-    """Filter Films by collection tag, using the most efficient method for the current DB."""
+    """Get all films tagged with a collection. Uses JSON contains on Postgres, LIKE fallback on SQLite."""
     if connection.vendor == 'postgresql':
         return Film.objects.filter(collections__contains=[tag])
     return Film.objects.extra(where=["collections LIKE %s"], params=[f'%"{tag}"%'])
 
 
 def _build_genre_list(qs):
-    """Return sorted list of genre name strings from a Film queryset."""
+    """Extract all unique genre names from a Film queryset for the genre filter dropdown."""
     genres = set()
     for genres_val in qs.values_list('genres', flat=True):
         for g in (genres_val or []):
@@ -522,14 +554,14 @@ def _build_genre_list(qs):
 
 
 def _filter_films_by_genre(qs, genre):
-    """Filter a Film queryset by genre name, compatible with SQLite and PostgreSQL."""
+    """Filter a Film queryset to only films matching a genre name. Uses JSON contains on Postgres, LIKE on SQLite."""
     if connection.vendor == 'postgresql':
         return qs.filter(genres__contains=[{"name": genre}])
     return qs.extra(where=["genres LIKE %s"], params=[f'%"name": "{genre}"%'])
 
 
 def _liked_watched_qs(user):
-    """Base Film queryset for a user's liked + watched films, annotated with timestamps."""
+    """Build a Film queryset combining a user's liked and watched films, with liked_at/watched_at annotations for sorting."""
     liked_ids = LikedFilm.objects.filter(user=user).values_list('tmdb_id', flat=True)
     watched_ids = WatchedFilm.objects.filter(user=user).values_list('film_id', flat=True)
     all_ids = set(liked_ids) | set(watched_ids)
@@ -544,7 +576,7 @@ def _liked_watched_qs(user):
 
 
 def _watchlist_qs(user):
-    """Base Film queryset for a user's watchlist, annotated with added_at."""
+    """Build a Film queryset for a user's watchlist items, with added_at annotation for sorting."""
     watchlist_ids = WatchlistItem.objects.filter(user=user).values_list('film_id', flat=True)
     return Film.objects.filter(id__in=watchlist_ids).annotate(
         added_at=Subquery(
@@ -554,7 +586,7 @@ def _watchlist_qs(user):
 
 
 def _build_country_map(qs):
-    """Return sorted list of (code, name) tuples from a Film queryset."""
+    """Extract unique countries from a Film queryset for the country filter dropdown. Returns sorted (code, name) tuples."""
     country_map = {}
     for film in qs.only('primary_country').exclude(primary_country=''):
         code = film.primary_country
@@ -563,8 +595,13 @@ def _build_country_map(qs):
     return sorted(country_map.items(), key=lambda x: x[1])
 
 
-class ListDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
+# =====================================================================
+# List detail and list-related views
+# =====================================================================
 
+class ListDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
+    """Film list detail page. Only accessible by the list owner or guests.
+    Shows films with sort/genre/country/added-by filters and load-more pagination (48 per page)."""
     login_url = "user_admin:login"
 
     model = FilmList
@@ -587,15 +624,18 @@ class ListDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
             film_list=self.get_object()
         ).select_related('to_user')
 
+        # Read filter/sort params from URL query string
         sort = self.request.GET.get('sort', 'date_desc')
         country = self.request.GET.get('country', '')
         genre = self.request.GET.get('genre', '')
         added_by_filter = self.request.GET.get('added_by', '')
 
+        # Get all additions (film + who added it) for this list, sorted
         additions = self.object.addition_set.select_related('film', 'added_by').order_by(
             SORT_MAP.get(sort, '-date_added')
         )
 
+        # Apply active filters
         if country:
             additions = additions.filter(film__primary_country=country)
         if genre:
@@ -604,7 +644,8 @@ class ListDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
         if added_by_filter:
             additions = additions.filter(added_by__username=added_by_filter)
 
-        # Build each filter list with the other filter applied, so they stay in sync
+        # Build filter dropdowns where each is aware of the other active filter
+        # (e.g. selecting a country narrows the available genres, and vice versa)
         all_films_qs = Film.objects.filter(addition__film_list=self.object)
         genres_qs = all_films_qs.filter(primary_country=country) if country else all_films_qs
         countries_qs = _filter_films_by_genre(all_films_qs, genre) if genre else all_films_qs
@@ -617,7 +658,7 @@ class ListDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
             .distinct().order_by('added_by__username')
         )
 
-        # All lists the user can access (for the list picker)
+        # All non-archived lists the user can access (for the "move to list" picker)
         owned = list(FilmList.objects.filter(owner=user, archived=False).order_by('title'))
         guest = list(FilmList.objects.filter(guests=user, archived=False).order_by('title'))
         all_lists = owned + guest
@@ -644,6 +685,7 @@ class ListDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
 
 @login_required(login_url='user_admin:login')
 def list_additions_json(request, slug):
+    """JSON endpoint for load-more pagination on list detail pages. Returns next batch of 48 films."""
     try:
         film_list = FilmList.objects.get(sqid=slug)
     except FilmList.DoesNotExist:
@@ -695,6 +737,7 @@ def list_additions_json(request, slug):
 
 @login_required(login_url='user_admin:login')
 def toggle_archive_list(request, slug):
+    """Toggle a list's archived state. Only the list owner can archive/unarchive."""
     if request.method != 'POST':
         return JsonResponse({'error': 'Invalid request'}, status=400)
     try:
@@ -706,8 +749,13 @@ def toggle_archive_list(request, slug):
     return JsonResponse({'archived': film_list.archived})
 
 
-class CollectionDetail(LoginRequiredMixin, TemplateView):
+# =====================================================================
+# Collection views
+# =====================================================================
 
+class CollectionDetail(LoginRequiredMixin, TemplateView):
+    """Browse a curated collection (e.g. Sight & Sound, TSPDT). Supports sort/genre/country filters
+    and load-more pagination. Ranked collections default to rank order; others default to title."""
     login_url = "user_admin:login"
     template_name = "kinorg/collection_detail.html"
 
@@ -767,6 +815,7 @@ class CollectionDetail(LoginRequiredMixin, TemplateView):
 
 @login_required(login_url='user_admin:login')
 def collection_films_json(request, tag):
+    """JSON endpoint for load-more pagination on collection pages. Returns next batch of 48 films."""
     if tag not in COLLECTIONS:
         return JsonResponse({'error': 'Not found'}, status=404)
 
@@ -812,11 +861,16 @@ def collection_films_json(request, tag):
     })
 
 
+# =====================================================================
+# PCC (Prince Charles Cinema) schedule views
+# =====================================================================
+
 PCC_PAGE_SIZE = 48
 
 
 def _get_sorted_pcc_screenings(sort):
-    """Return all non-hidden PCC screenings as sorted list of {screening, film} dicts."""
+    """Get all visible PCC screenings, each paired with its Film object (if matched).
+    Tries to link unmatched screenings by title. Returns sorted list of {screening, film} dicts."""
     screenings = list(
         PCCScreening.objects.filter(hidden=False).select_related('film').order_by('title')
     )
@@ -845,7 +899,7 @@ def _get_sorted_pcc_screenings(sort):
 
 
 def _filter_pcc_matched(matched, country='', genre=''):
-    """Filter a matched PCC list by country and/or genre (only items with a film are kept)."""
+    """Filter PCC screenings by country and/or genre. Items without a linked film are excluded when filtering."""
     if country:
         matched = [x for x in matched if x['film'] and x['film'].primary_country == country]
     if genre:
@@ -857,7 +911,7 @@ def _filter_pcc_matched(matched, country='', genre=''):
 
 
 def _build_pcc_filter_lists(matched, country='', genre=''):
-    """Return (genres, countries) filter lists, each aware of the other active filter."""
+    """Build genre and country filter dropdowns for PCC page. Each dropdown is narrowed by the other active filter."""
     for_genres = _filter_pcc_matched(matched, country=country) if country else matched
     for_countries = _filter_pcc_matched(matched, genre=genre) if genre else matched
 
@@ -880,6 +934,7 @@ def _build_pcc_filter_lists(matched, country='', genre=''):
 
 
 def pcc_schedule_json(request):
+    """JSON endpoint for load-more pagination on PCC schedule page."""
     sort = request.GET.get('sort', 'title_asc')
     country = request.GET.get('country', '')
     genre = request.GET.get('genre', '')
@@ -910,7 +965,7 @@ def pcc_schedule_json(request):
 
 
 class PCCSchedule(LoginRequiredMixin, TemplateView):
-
+    """PCC cinema schedule page. Shows non-hidden screenings with sort/genre/country filters."""
     login_url = "user_admin:login"
     template_name = "kinorg/pcc_schedule.html"
 
@@ -937,8 +992,13 @@ class PCCSchedule(LoginRequiredMixin, TemplateView):
         return context
 
 
-class FilmDetail(LoginRequiredMixin, TemplateView):
+# =====================================================================
+# Film detail page
+# =====================================================================
 
+class FilmDetail(LoginRequiredMixin, TemplateView):
+    """Film detail page. Fetches film data from TMDB (cached 1hr), finds watch providers,
+    PCC screenings, similar films, user's review/like/watchlist state, and all reviews."""
     login_url = "user_admin:login"
 
     template_name = "kinorg/film_detail.html"
@@ -949,30 +1009,28 @@ class FilmDetail(LoginRequiredMixin, TemplateView):
         user = self.request.user
         movie_id = self.kwargs["id"]
 
+        # Get user's lists for the "add to list" buttons
         my_lists = FilmList.objects.filter(owner=user).order_by('-id')
         guest_lists = FilmList.objects.filter(guests=user).order_by('-id')
 
+        # Get all visible reviews for this film (non-empty, non-private)
         film_reviews = WatchedFilm.objects.filter(film__id=movie_id, review_visible=True).exclude(mini_review__isnull=True).exclude(mini_review__exact='')
         context['user_flagged_ids'] = set(
             WatchedFilm.objects.filter(flagged_by=user).values_list('id', flat=True)
         )
 
+        # Fetch film data from TMDB (with credits, keywords, videos, watch providers) — cached 1 hour
         film_cache_key = f'tmdb_film_{movie_id}'
         film_data = cache.get(film_cache_key)
         if not film_data:
-            film_data = get_tmdb_data(f"https://api.themoviedb.org/3/movie/{movie_id}?append_to_response=credits,keywords,videos&language=en-US")
+            film_data = get_tmdb_data(f"https://api.themoviedb.org/3/movie/{movie_id}?append_to_response=credits,keywords,videos,watch%2Fproviders&language=en-US")
             cache.set(film_cache_key, film_data, timeout=3600)
 
-        providers_cache_key = f'tmdb_providers_{movie_id}'
-        providers_data = cache.get(providers_cache_key)
-        if not providers_data:
-            providers_data = get_tmdb_data(f"https://api.themoviedb.org/3/movie/{movie_id}/watch/providers")
-            cache.set(providers_cache_key, providers_data, timeout=3600)
-        gb_providers = providers_data.get('results', {}).get('GB', {})
+        gb_providers = film_data.get('watch/providers', {}).get('results', {}).get('GB', {})
         context['watch_providers'] = gb_providers
         context['justwatch_url'] = gb_providers.get('link') or f"https://www.justwatch.com/uk/search?q={quote(film_data.get('title', ''))}"
 
-        # Amazon affiliate link — shown when any Amazon provider is available
+        # Build Amazon affiliate link if Amazon is among the available providers
         amazon_tag = os.environ.get('AMAZON_ASSOCIATE_TAG', '')
         all_providers = (
             gb_providers.get('flatrate', []) +
@@ -991,9 +1049,9 @@ class FilmDetail(LoginRequiredMixin, TemplateView):
             context['amazon_url'] = None
             context['amazon_logo_path'] = None
 
+        # Check if this film is showing at PCC: try FK link first, then title match
         film_title = film_data.get('title', '')
         release_year = film_data.get('release_date', '')[:4]
-        # Check manual FK link first, then fall back to title match
         pcc = PCCScreening.objects.filter(film_id=movie_id, hidden=False).first()
         if not pcc:
             pcc_matches = PCCScreening.objects.filter(title__iexact=film_title, hidden=False)
@@ -1003,7 +1061,7 @@ class FilmDetail(LoginRequiredMixin, TemplateView):
                 pcc = pcc_matches.first()
         context['pcc_url'] = pcc.pcc_url if pcc else None
 
-        # Sort videos: trailers first, then everything else
+        # Sort videos so trailers appear first in the videos modal
         videos = film_data.get('videos', {}).get('results', [])
         videos.sort(key=lambda v: 'trailer' not in v.get('name', '').lower())
         if film_data.get('videos'):
@@ -1012,7 +1070,7 @@ class FilmDetail(LoginRequiredMixin, TemplateView):
         directors = [c for c in film_data.get('credits', {}).get('crew', []) if c['job'] == 'Director']
         context["directors"] = directors
 
-        # Convert complex fields to JSON strings for the add_film form
+        # Serialize complex fields as JSON strings so they can be passed as hidden form inputs
         film_data['cast_json'] = json.dumps(film_data.get('credits', {}).get('cast', []))
         film_data['crew_json'] = json.dumps(film_data.get('credits', {}).get('crew', []))
         film_data['genres_json'] = json.dumps(film_data.get('genres', []))
@@ -1022,20 +1080,27 @@ class FilmDetail(LoginRequiredMixin, TemplateView):
         country_codes = [c['iso_3166_1'] for c in countries if 'iso_3166_1' in c]
         film_data['production_countries_json'] = json.dumps(country_codes)
 
+        # Mark which lists already contain this film (for add/remove toggle buttons)
         for lst in my_lists:
             lst.contains_film = lst.films.filter(id=movie_id).exists()
-        
+
         for lst in guest_lists:
             lst.contains_film = lst.films.filter(id=movie_id).exists()
 
-        # Check if user has already reviewed this film
+        # Load user's existing review/rating for this film (if any)
         try:
             watched = WatchedFilm.objects.get(user=user, film__id=movie_id)
         except WatchedFilm.DoesNotExist:
             watched = None
                 
         film_obj = Film.objects.filter(pk=movie_id).first()
-        context["similar_films"] = get_similar_films(movie_id, film_obj)
+        if film_obj and film_obj.similar_film_ids:
+            similar_films = list(Film.objects.filter(id__in=film_obj.similar_film_ids))
+            id_order = {fid: i for i, fid in enumerate(film_obj.similar_film_ids)}
+            similar_films.sort(key=lambda f: id_order.get(f.id, 999))
+        else:
+            similar_films = get_similar_films(movie_id, film_obj)
+        context["similar_films"] = similar_films
 
         context["my_lists"] = my_lists
         context["guest_lists"] = guest_lists
@@ -1048,8 +1113,13 @@ class FilmDetail(LoginRequiredMixin, TemplateView):
         return context
 
 
-def add_film(request):
+# =====================================================================
+# Film add/remove actions (used by add/remove buttons on list detail page)
+# =====================================================================
 
+def add_film(request):
+    """Add a film to a list. Creates/updates the Film record from POST data, then creates an Addition.
+    Returns an HTML partial for the toggle button (used by HTMX-style inline updates)."""
     if request.method == "POST":
 
         film_id = request.POST.get("id")
@@ -1104,7 +1174,7 @@ def add_film(request):
 
 
 def remove_film(request):
-
+    """Remove a film from a list. Returns an HTML partial for the toggle button."""
     if request.method == "POST":
 
         try:
@@ -1126,7 +1196,13 @@ def remove_film(request):
         return JsonResponse({'error': 'Invalid request'}, status=400)
 
 
+# =====================================================================
+# Review/rating actions
+# =====================================================================
+
 def add_review(request):
+    """Save or update a star rating and/or mini review for a film. Censors profanity.
+    Creates the Film record if needed. Skips save only if no data AND no existing record."""
     if request.method == "POST":
 
         user = request.user
@@ -1135,6 +1211,7 @@ def add_review(request):
         stars = int(stars_raw) if stars_raw else None
         mini_review = profanity.censor(request.POST.get("mini_review", "").strip())
 
+        # Skip if submitting empty form with no existing record (avoids creating blank WatchedFilm)
         if not stars and not mini_review and not WatchedFilm.objects.filter(user=user, film_id=request.POST.get("id")).exists():
             return redirect('kinorg:film_detail', id=request.POST.get("id"))
 
@@ -1155,7 +1232,7 @@ def add_review(request):
 
         review_visible = request.POST.get('review_visible', 'true') != 'false'
 
-        # Always update both fields (allows clearing either independently)
+        # Create or update WatchedFilm — always writes both stars and mini_review (allows clearing either)
         watched, created = WatchedFilm.objects.update_or_create(
             user=user,
             film=film_object,
@@ -1170,6 +1247,7 @@ def add_review(request):
 
 
 def remove_review(request):
+    """Clear a user's mini_review text (but keep the WatchedFilm record and stars intact)."""
     if request.method == "POST":
         user = request.user
         film_id = request.POST.get("id")
@@ -1182,6 +1260,7 @@ def remove_review(request):
 
 @login_required(login_url='user_admin:login')
 def flag_review(request, review_id):
+    """Toggle a flag on someone else's review (for moderation). Can't flag your own."""
     if request.method == 'POST':
         review = WatchedFilm.objects.filter(id=review_id).first()
         if not review:
@@ -1198,8 +1277,13 @@ def flag_review(request, review_id):
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
 
+# =====================================================================
+# Like / Watched / Watchlist toggle endpoints (all return JSON)
+# =====================================================================
+
 @login_required(login_url='user_admin:login')
 def toggle_like(request, tmdb_id):
+    """Toggle a film as liked/unliked. Creates a LikedFilm record or deletes it."""
     if request.method == 'POST':
         liked, created = LikedFilm.objects.get_or_create(
             user=request.user,
@@ -1218,6 +1302,8 @@ def toggle_like(request, tmdb_id):
 
 @login_required
 def toggle_watched(request, tmdb_id):
+    """Toggle a film as watched/unwatched. Creates a WatchedFilm record (no stars/review) or deletes it.
+    Also ensures the Film exists in the DB (creates a stub if needed)."""
     if request.method != 'POST':
         return JsonResponse({'error': 'Invalid request'}, status=400)
 
@@ -1243,6 +1329,7 @@ def toggle_watched(request, tmdb_id):
 
 @login_required
 def toggle_watchlist(request, tmdb_id):
+    """Toggle a film on/off the user's watchlist. Creates a WatchlistItem or deletes it."""
     if request.method != 'POST':
         return JsonResponse({'error': 'Invalid request'}, status=400)
     existing = WatchlistItem.objects.filter(user=request.user, film_id=tmdb_id).first()
@@ -1262,8 +1349,12 @@ def toggle_watchlist(request, tmdb_id):
     return JsonResponse({'in_watchlist': True})
 
 
-class WatchlistView(LoginRequiredMixin, TemplateView):
+# =====================================================================
+# Watchlist, Liked/Watched, and Person credits pages
+# =====================================================================
 
+class WatchlistView(LoginRequiredMixin, TemplateView):
+    """User's watchlist page. Shows films they've added to watch later, with sort/genre/country filters."""
     login_url = "user_admin:login"
     template_name = "kinorg/watchlist.html"
 
@@ -1306,6 +1397,7 @@ class WatchlistView(LoginRequiredMixin, TemplateView):
 
 @login_required(login_url='user_admin:login')
 def watchlist_json(request):
+    """JSON endpoint for load-more pagination on the watchlist page."""
     user = request.user
     sort = request.GET.get('sort', 'added_desc')
     country = request.GET.get('country', '')
@@ -1342,6 +1434,8 @@ def watchlist_json(request):
 
 @login_required
 def toggle_review_private(request):
+    """Set a review's visibility (public/private). If no WatchedFilm exists yet, returns the desired state
+    without persisting (it'll be saved when the review form is submitted)."""
     if request.method != 'POST':
         return JsonResponse({'error': 'Invalid request'}, status=400)
 
@@ -1358,7 +1452,8 @@ def toggle_review_private(request):
 
 
 class LikedFilms(LoginRequiredMixin, TemplateView):
-
+    """Combined liked + watched films page. Can toggle showing only liked, only watched, or both.
+    Supports sort/genre/country filters."""
     login_url = "user_admin:login"
     template_name = "kinorg/liked_films.html"
 
@@ -1410,6 +1505,7 @@ class LikedFilms(LoginRequiredMixin, TemplateView):
 
 @login_required(login_url='user_admin:login')
 def liked_watched_json(request):
+    """JSON endpoint for load-more pagination on the liked/watched page."""
     user = request.user
     sort = request.GET.get('sort', 'watched_desc')
     country = request.GET.get('country', '')
@@ -1451,7 +1547,9 @@ def liked_watched_json(request):
 
 
 class PersonCredits(LoginRequiredMixin, TemplateView):
-
+    """Person credits page. Fetches person + movie credits from TMDB (cached 1hr).
+    Organises credits into tabs by department (Acting, Directing, Writing, etc.),
+    sorted by popularity within each tab. Default tab based on known_for_department."""
     login_url = "user_admin:login"
 
     template_name = "kinorg/person_credits.html"
@@ -1468,6 +1566,7 @@ class PersonCredits(LoginRequiredMixin, TemplateView):
 
         known_for = search_data.get('known_for_department', 'Acting')
 
+        # Map TMDB crew jobs to tab categories for the credits page
         CREW_CATEGORIES = [
             ('Directing',     {'Director', 'Co-Director'}),
             ('Writing',       {'Writer', 'Screenplay', 'Original Screenplay', 'Story', 'Novel', 'Adaptation', 'Script'}),
@@ -1499,6 +1598,7 @@ class PersonCredits(LoginRequiredMixin, TemplateView):
         for cat in crew_tabs:
             crew_tabs[cat].sort(key=lambda f: f.get('popularity', 0), reverse=True)
 
+        # Map TMDB department names to tab IDs to determine the default active tab
         DEPT_TO_TAB = {
             'Acting':             'acting',
             'Directing':          'directing',
@@ -1524,8 +1624,12 @@ class PersonCredits(LoginRequiredMixin, TemplateView):
         return context
 
 
-class Invitations(LoginRequiredMixin, ListView):
+# =====================================================================
+# Invitation views
+# =====================================================================
 
+class Invitations(LoginRequiredMixin, ListView):
+    """Page showing pending invitations the current user has received (excludes accepted ones)."""
     login_url = "user_admin:login"
 
     template_name = "kinorg/invitations.html"
@@ -1543,7 +1647,7 @@ class Invitations(LoginRequiredMixin, ListView):
 
 
 def invite_guest(request):
-
+    """AJAX endpoint to send a list invitation to a user by username. Returns JSON with success/error."""
     if request.method == "POST":
 
         users = get_user_model()
@@ -1574,7 +1678,7 @@ def invite_guest(request):
 
 
 def cancel_invite(request):
-
+    """Delete a pending invitation (owner only)."""
     if request.method == "POST":
         try:
             invitation = Invitation.objects.get(
@@ -1590,7 +1694,7 @@ def cancel_invite(request):
 
 
 def remove_guest(request):
-
+    """Remove a user from a list's guests and delete their invitation (owner only)."""
     if request.method == "POST":
         try:
             film_list = FilmList.objects.get(pk=request.POST.get("list_id"), owner=request.user)
@@ -1610,7 +1714,7 @@ def invite_result(request):
 
 
 def accept_invite(request):
-
+    """Accept a list invitation — marks it accepted and adds user as guest."""
     if request.method == "POST":
 
         list_id = request.POST.get("list_id")
@@ -1636,7 +1740,7 @@ def accept_invite(request):
 
 
 def decline_invite(request):
-
+    """Decline a list invitation — marks it declined."""
     if request.method == "POST":
 
         list_id = request.POST.get("list_id")
@@ -1657,8 +1761,13 @@ def decline_invite(request):
         return redirect("kinorg:my_lists")
     
  
+# =====================================================================
+# AJAX helpers (used by film modal and list pages)
+# =====================================================================
+
 @login_required(login_url='user_admin:login')
 def create_list_ajax(request):
+    """Create a new film list via AJAX (from the film modal inline form). Returns the new list's id, sqid, and title."""
     if request.method != 'POST':
         return JsonResponse({'error': 'POST required'}, status=405)
     title = request.POST.get('title', '').strip()
@@ -1669,6 +1778,8 @@ def create_list_ajax(request):
 
 
 def film_lists_for_film(request):
+    """Return the user's lists with a flag indicating which ones contain a given film.
+    Used by the film modal to show add/remove buttons per list."""
     if not request.user.is_authenticated:
         return JsonResponse({'error': 'Not authenticated'}, status=401)
 
@@ -1694,6 +1805,8 @@ def film_lists_for_film(request):
 
 
 def add_film_by_tmdb_id(request):
+    """Add a film to a list by TMDB ID (used by film modal). Fetches full film data from TMDB
+    and creates/updates the Film record with all metadata before creating the Addition."""
     if request.method != 'POST':
         return JsonResponse({'error': 'Invalid request'}, status=400)
 
@@ -1746,6 +1859,7 @@ def add_film_by_tmdb_id(request):
 
 
 def remove_film_ajax(request):
+    """Remove a film from a list via AJAX (used by film modal). Returns JSON success/error."""
     if request.method != 'POST':
         return JsonResponse({'error': 'Invalid request'}, status=400)
 

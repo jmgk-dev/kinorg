@@ -55,10 +55,15 @@ class Film(models.Model):
 	)
 	
 	embedding_updated_at = models.DateTimeField(
-		null=True, 
+		null=True,
 		blank=True
 	)
-	
+
+	similar_film_ids = models.JSONField(
+		default=list,
+		blank=True,
+	)
+
 	cast = models.JSONField(
 		default=list, 
 		blank=True, 
