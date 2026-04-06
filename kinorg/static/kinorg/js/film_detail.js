@@ -1,3 +1,8 @@
+// Film detail page JS — handles toggle buttons (add/remove from list),
+// Log/Rate modal, Videos modal, activity row state, watchlist/watched/like toggles,
+// review privacy toggle, and review flagging.
+
+// Submit a form via AJAX and replace a target element with the response HTML (for add/remove buttons)
 function toggleFilm(button) {
     const form = button.closest('form');
     const url = button.getAttribute('data-url');
@@ -28,6 +33,7 @@ function toggleFilm(button) {
     });
 }
 
+// Open/close the Log, Rate & Review modal
 function openLogRateModal() {
     document.getElementById('log-rate-modal').style.display = 'flex';
     document.body.style.overflow = 'hidden';
@@ -38,6 +44,7 @@ function closeLogRateModal() {
     document.body.style.overflow = '';
 }
 
+// Open/close the Videos (trailers) modal
 function openVideosModal() {
     document.getElementById('videos-modal').style.display = 'flex';
     document.body.style.overflow = 'hidden';
@@ -48,6 +55,7 @@ function closeVideosModal() {
     document.body.style.overflow = '';
 }
 
+// Close modals when clicking outside the modal content
 window.onclick = function(event) {
     const logRateModal = document.getElementById('log-rate-modal');
     const videosModal = document.getElementById('videos-modal');
@@ -55,10 +63,13 @@ window.onclick = function(event) {
     if (event.target === videosModal) closeVideosModal();
 };
 
+// Extract CSRF token from cookies for AJAX POST requests
 function getCsrf() {
     return document.cookie.match(/csrftoken=([^;]+)/)[1];
 }
 
+// Update the activity row below the film header to reflect current state
+// Shows "Log, Rate & Review" when no actions taken, or coloured pills for each action
 function updateActivityRow() {
     const row = document.getElementById('activity_row');
     if (!row) return;
@@ -100,7 +111,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     updateActivityRow();
 
-    // Tabs
+    // Tab switching (Cast, Crew, Reviews, Similar, Lists)
     document.querySelectorAll('.tab_btn').forEach(function (btn) {
         btn.addEventListener('click', function () {
             document.querySelectorAll('.tab_btn').forEach(b => b.classList.remove('active'));
@@ -110,7 +121,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // See more tiles for cast / crew
+    // "See more" cards at end of cast/crew scroll — click to reveal all items
     document.querySelectorAll('.see_more_card').forEach(function (card) {
         card.addEventListener('click', function () {
             const list = document.getElementById(card.dataset.target);
@@ -118,14 +129,14 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // Overflow indicator for scrollable lists
+    // Add overflow indicator (fade hint) when cast/similar lists are scrollable
     document.querySelectorAll('.cast_list, .similar_list').forEach(function (list) {
         if (list.scrollWidth > list.clientWidth) {
             list.classList.add('has-overflow');
         }
     });
 
-    // Watchlist toggle
+    // Watchlist toggle button — POST to /watchlist/<id>/, update button state + badge + activity row
     const watchlistBtn = document.getElementById('watchlist_toggle_btn');
     if (watchlistBtn) {
         watchlistBtn.addEventListener('click', function () {
@@ -154,7 +165,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Watched toggle
+    // Watched toggle button — POST to /watched/<id>/, update button state + activity row
     const watchedBtn = document.getElementById('watched_toggle_btn');
     if (watchedBtn) {
         watchedBtn.addEventListener('click', function () {
@@ -182,7 +193,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Like toggle
+    // Like toggle button — POST to /like/<id>/, update button state + activity row
     const likedBtn = document.getElementById('liked_toggle_btn');
     if (likedBtn) {
         likedBtn.addEventListener('click', function () {
@@ -208,7 +219,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Remove review
+    // Remove review button — clears mini_review text only (keeps stars), then reloads page
     const removeReviewBtn = document.getElementById('remove_review_btn');
     if (removeReviewBtn) {
         removeReviewBtn.addEventListener('click', function () {
@@ -222,7 +233,8 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Make review private toggle
+    // Review privacy toggle — iOS-style switch that POSTs to /review-private/
+    // Updates the hidden form input so the privacy state is included on form submit too
     const privateCheckbox = document.querySelector('.review_private_checkbox');
     if (privateCheckbox) {
         const privateLabel = privateCheckbox.closest('.review_private_label');
@@ -257,7 +269,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Flag buttons
+    // Flag review buttons — toggle flag on other users' reviews (for moderation)
     document.querySelectorAll('.flag_btn').forEach(function (btn) {
         btn.addEventListener('click', function () {
             const reviewId = btn.dataset.reviewId;

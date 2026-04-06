@@ -1,4 +1,7 @@
-// ---- Film search typeahead ----
+// Typeahead dropdowns used on pages with inline search fields (e.g. list detail page).
+// Two independent typeaheads: one for film search, one for user invite search.
+
+// ---- Film search typeahead — search TMDB and navigate to film detail on click ----
 
 const filmInput = document.getElementById('film-search-input');
 const filmDropdown = document.getElementById('film-search-dropdown');
@@ -51,7 +54,7 @@ if (filmInput && filmDropdown) {
 }
 
 
-// ---- User invite typeahead ----
+// ---- User invite typeahead — search usernames and fill the input on click ----
 
 const userInput = document.getElementById('user-invite-input');
 const userDropdown = document.getElementById('user-invite-dropdown');

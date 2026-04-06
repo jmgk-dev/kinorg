@@ -1,8 +1,12 @@
+// Live search page — fetches results from /film-autocomplete/ as the user types,
+// renders film and person results with posters, metadata, and links.
+// Shows collection browse links when search is empty, hides them during search.
+
 const input = document.getElementById('live_search_input');
 const resultsList = document.getElementById('live_search_results');
 const collectionsBrowse = document.getElementById('collections_browse');
-const baseUrl = resultsList.dataset.baseUrl;
-const placeholderUrl = resultsList.dataset.placeholderUrl;
+const baseUrl = resultsList.dataset.baseUrl;        // TMDB image base URL
+const placeholderUrl = resultsList.dataset.placeholderUrl; // fallback poster image
 
 function showCollections() {
     if (collectionsBrowse) collectionsBrowse.style.display = '';
@@ -13,9 +17,10 @@ function hideCollections() {
 }
 
 let debounceTimer;
-let activeFilter = 'all';
-let currentController = null;
+let activeFilter = 'all';   // 'all', 'films', or 'people'
+let currentController = null; // AbortController for in-flight requests
 
+// Filter buttons (All / Films / People) — re-run search when filter changes
 document.querySelectorAll('.filter_btn').forEach(btn => {
     btn.addEventListener('click', () => {
         document.querySelectorAll('.filter_btn').forEach(b => b.classList.remove('active'));
@@ -27,6 +32,7 @@ document.querySelectorAll('.filter_btn').forEach(btn => {
     });
 });
 
+// Fetch search results after a 300ms debounce, cancelling any in-flight request
 function runSearch(query) {
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(() => {
@@ -83,6 +89,7 @@ function runSearch(query) {
     }, 300);
 }
 
+// Trigger search on each keystroke (debounced), clear results if query is too short
 input.addEventListener('input', () => {
     const query = input.value.trim();
     if (query.length < 2) {
@@ -96,6 +103,7 @@ input.addEventListener('input', () => {
     runSearch(query);
 });
 
+// If the page loads with a pre-filled query (e.g. from URL params), run search immediately
 if (input.value.trim().length >= 2) {
     hideCollections();
     runSearch(input.value.trim());

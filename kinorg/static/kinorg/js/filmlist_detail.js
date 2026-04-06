@@ -1,7 +1,16 @@
-// ===== ADDED-BY BADGES =====
+// Film list detail page JS — handles:
+// 1. Added-by badges (coloured initials on posters in shared lists)
+// 2. Load-more pagination for films
+// 3. Archive toggle button
+// 4. List picker dropdown (to switch between lists)
+// 5. Invite modal (user search, send/cancel invites, remove guests)
+// 6. Live updates when films are added/removed via the film modal
+
+// ===== ADDED-BY BADGES — show who added each film in shared lists =====
 
 const BADGE_COLORS = ['#e74c3c', '#3498db', '#2ecc71', '#f39c12', '#9b59b6', '#1abc9c', '#e67e22', '#e91e63'];
 
+// Deterministic colour from username (hash → index into colour palette)
 function badgeColor(username) {
     let hash = 0;
     for (let i = 0; i < username.length; i++) {
@@ -10,6 +19,7 @@ function badgeColor(username) {
     return BADGE_COLORS[Math.abs(hash) % BADGE_COLORS.length];
 }
 
+// Add a coloured initial badge to a poster showing who added the film
 function addBadge(li) {
     const addedBy = li.dataset.addedBy;
     if (!addedBy) return;
@@ -30,7 +40,7 @@ if (isShared && filmGrid) {
 }
 
 
-// ===== LOAD MORE =====
+// ===== LOAD MORE — fetch next batch of 48 films and append to the grid =====
 
 const loadMoreBtn = document.getElementById('load_more_btn');
 
@@ -92,7 +102,7 @@ if (loadMoreBtn && filmGrid) {
 }
 
 
-// ===== ARCHIVE TOGGLE =====
+// ===== ARCHIVE TOGGLE — archive/unarchive the list =====
 
 const archiveBtn = document.querySelector('.archive_btn');
 if (archiveBtn) {
@@ -111,7 +121,7 @@ if (archiveBtn) {
 }
 
 
-// ===== LIST PICKER =====
+// ===== LIST PICKER — dropdown to switch between lists =====
 
 const pickerBtn = document.getElementById('collection_picker_btn');
 const pickerDropdown = document.getElementById('collection_picker_dropdown');
@@ -130,9 +140,10 @@ if (pickerBtn && pickerDropdown) {
 }
 
 
-// ===== INVITE MODAL =====
+// ===== INVITE MODAL — search for users, send invites, cancel invites, remove guests =====
 
 const autocompleteResults = document.getElementById('user_autocomplete_results');
+// Track already-invited usernames to prevent duplicate invites in the UI
 const alreadyInvited = new Set(JSON.parse(autocompleteResults ? autocompleteResults.dataset.invited || '[]' : '[]'));
 
 const inviteModal = document.getElementById('invite_modal');
@@ -175,6 +186,7 @@ const csrfToken = csrfTokenEl ? csrfTokenEl.value : null;
 let debounceTimer;
 let userSelected = false;
 
+// Select a user from autocomplete — show their name as a chip, hide the input
 function selectUser(username) {
     clearTimeout(debounceTimer);
     userSelected = true;
@@ -194,6 +206,7 @@ function resetForm() {
     autocompleteResults.innerHTML = '';
 }
 
+// Add a new "Pending" row to the invited users section after a successful invite
 function addInvitedUserToList(username, invitationId) {
     let section = document.querySelector('.invited_users_section');
 
@@ -216,6 +229,7 @@ function addInvitedUserToList(username, invitationId) {
     section.querySelector('.invited_users_list').appendChild(li);
 }
 
+// Remove an invite/guest row from the DOM and clean up the alreadyInvited set
 function removeInviteRow(li, username) {
     li.remove();
     if (username) alreadyInvited.delete(username);
@@ -325,7 +339,8 @@ if (usernameInput) {
 }
 
 
-// ===== MODAL LIVE UPDATE =====
+// ===== MODAL LIVE UPDATE — when a film is added/removed via the film modal,
+// update this list's grid in real time (add/remove the poster card) =====
 
 if (filmGrid) {
     const currentListId = filmGrid.dataset.listId;

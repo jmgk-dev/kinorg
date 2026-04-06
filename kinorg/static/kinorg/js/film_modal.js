@@ -1,3 +1,7 @@
+// Film modal — appears when clicking any poster. Shows film title/year/poster,
+// the user's lists with add/remove buttons, and an inline create-list form.
+// Dispatches 'filmListChanged' events so other pages can update in real time.
+
 const modal = document.getElementById('film_modal');
 if (modal) {
     const closeBtn = document.getElementById('film_modal_close');
@@ -18,6 +22,7 @@ if (modal) {
     let currentPosterPath = null;
     let currentTitle = null;
 
+    // Open modal: set film info, fetch user's lists to show add/remove state
     function openModal(filmId, title, posterPath, detailUrl, year) {
         currentFilmId = filmId;
         currentPosterPath = posterPath;
@@ -37,6 +42,7 @@ if (modal) {
             });
     }
 
+    // Render the list of user's film lists with add/remove toggle buttons
     function renderLists(data, filmId) {
         const all = [...(data.my_lists || []), ...(data.guest_lists || [])];
         if (all.length === 0) {
@@ -57,6 +63,7 @@ if (modal) {
         `).join('');
     }
 
+    // Handle add/remove button clicks within the lists section (event delegation)
     modalLists.addEventListener('click', (e) => {
         const btn = e.target.closest('.film_modal_toggle_btn');
         if (!btn) return;
@@ -100,7 +107,7 @@ if (modal) {
         });
     });
 
-    // ===== INLINE CREATE LIST =====
+    // ===== INLINE CREATE LIST — create a new list without leaving the modal =====
     const newListBtn = document.getElementById('film_modal_new_list_btn');
     const createForm = document.getElementById('film_modal_create_form');
     const titleInput = document.getElementById('film_modal_list_title');
@@ -170,6 +177,8 @@ if (modal) {
         if (e.persisted) closeModal();
     });
 
+    // Intercept clicks on any .poster_link to open the modal instead of navigating
+    // (skips person links which should navigate directly to the credits page)
     document.addEventListener('click', (e) => {
         const link = e.target.closest('.poster_link');
         if (!link) return;

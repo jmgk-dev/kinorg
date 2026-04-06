@@ -1,3 +1,6 @@
+// Hamburger navigation menu — opens/closes a slide-out nav panel
+
+// Open the menu: lock body scroll, compensate for scrollbar width, show menu + backdrop
 function openMenu() {
     const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
     document.body.style.paddingRight = scrollbarWidth + 'px';
@@ -7,6 +10,7 @@ function openMenu() {
     document.getElementById('nav_icon').classList.add('is-open');
 }
 
+// Close the menu: restore body scroll and hide menu + backdrop
 function closeMenu() {
     document.getElementById('nav_menu').classList.remove('is-open');
     document.getElementById('nav_backdrop').classList.remove('is-open');
@@ -15,11 +19,14 @@ function closeMenu() {
     document.body.style.paddingRight = '';
 }
 
+// Toggle menu on hamburger button click
 document.getElementById('nav_toggle').onclick = function() {
     const isOpen = document.getElementById('nav_icon').classList.contains('is-open');
     isOpen ? closeMenu() : openMenu();
 };
 
+// Close menu when clicking the backdrop overlay
 document.getElementById('nav_backdrop').onclick = closeMenu;
 
+// Close menu on back/forward navigation (bfcache restore)
 window.addEventListener('pageshow', closeMenu);

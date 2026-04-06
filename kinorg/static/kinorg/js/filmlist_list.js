@@ -1,3 +1,6 @@
+// Lists page JS — handles the invite modal (shared across all lists on the page),
+// archive toggle buttons, and live poster updates when films are added/removed via the film modal.
+
 const listsModal = document.getElementById('lists_invite_modal');
 const listsHeading = document.getElementById('lists_invite_heading');
 const listsListId = document.getElementById('lists_invite_list_id');
@@ -13,6 +16,7 @@ const csrfToken = document.querySelector('[name="csrfmiddlewaretoken"]').value;
 let listsUserSelected = false;
 let listsDebounce;
 
+// Open invite modal for the clicked list — each list's invite button stores the list ID/title
 document.querySelectorAll('.btn-invite').forEach(btn => {
     btn.addEventListener('click', () => {
         listsListId.value = btn.dataset.listId;
@@ -78,6 +82,7 @@ listsInput.addEventListener('input', () => {
     }, 300);
 });
 
+// Archive/unarchive toggle buttons — POST then reload page to move list between sections
 document.querySelectorAll('.archive_btn').forEach(btn => {
     btn.addEventListener('click', () => {
         fetch(btn.dataset.url, {
@@ -91,6 +96,7 @@ document.querySelectorAll('.archive_btn').forEach(btn => {
     });
 });
 
+// Submit invite form via AJAX — show success/error message, reset form on success
 listsForm.addEventListener('submit', e => {
     e.preventDefault();
     fetch(listsForm.action, {
@@ -107,7 +113,8 @@ listsForm.addEventListener('submit', e => {
 });
 
 
-// ===== MODAL LIVE UPDATE =====
+// ===== MODAL LIVE UPDATE — when a film is added/removed via the film modal,
+// update the poster stack preview on the affected list card =====
 
 document.addEventListener('filmListChanged', (e) => {
     const { filmId, listId, nowInList, posterPath, title } = e.detail;

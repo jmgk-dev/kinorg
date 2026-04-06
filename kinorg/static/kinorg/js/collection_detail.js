@@ -1,4 +1,9 @@
-// Collection picker dropdown
+// Shared JS for collection pages, PCC schedule, watchlist, and liked/watched pages.
+// Handles the collection picker dropdown and load-more pagination.
+// Supports ranked collections (with rank badges), PCC screenings (external links),
+// and standard film grids.
+
+// Collection picker dropdown — lets users switch between collections
 const pickerBtn = document.getElementById('collection_picker_btn');
 const pickerDropdown = document.getElementById('collection_picker_dropdown');
 
@@ -15,6 +20,7 @@ if (pickerBtn && pickerDropdown) {
     });
 }
 
+// Load-more button — fetch next batch of 48 films and append poster cards to the grid
 const filmGrid = document.getElementById('film_grid');
 const loadMoreBtn = document.getElementById('load_more_btn');
 
