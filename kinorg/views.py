@@ -1174,7 +1174,16 @@ def add_film(request):
             except (TypeError, ValueError):
                 return None
 
+        def _parse_json_post(val, default=None):
+            if default is None:
+                default = []
+            try:
+                return json.loads(val) if val else default
+            except (ValueError, TypeError):
+                return default
+
         try:
+            countries = _parse_json_post(request.POST.get('production_countries'))
             film_data = {
                 'title':                request.POST.get('title'),
                 'release_date':         request.POST.get('release_date'),
@@ -1182,13 +1191,13 @@ def add_film(request):
                 'backdrop_path':        request.POST.get('backdrop_path'),
                 'overview':             request.POST.get('overview', ''),
                 'runtime':              int_or_none(request.POST.get('runtime')),
-                'cast':                 request.POST.get('cast'),
-                'crew':                 request.POST.get('crew'),
-                'genres':               request.POST.get('genres'),
-                'keywords':             request.POST.get('keywords'),
-                'production_companies': request.POST.get('production_companies'),
-                'production_countries': request.POST.get('production_countries'),
-                'primary_country': json.loads(request.POST.get('production_countries') or '[]')[0] if request.POST.get('production_countries') else '',
+                'cast':                 _parse_json_post(request.POST.get('cast')),
+                'crew':                 _parse_json_post(request.POST.get('crew')),
+                'genres':               _parse_json_post(request.POST.get('genres')),
+                'keywords':             _parse_json_post(request.POST.get('keywords')),
+                'production_companies': _parse_json_post(request.POST.get('production_companies')),
+                'production_countries': countries,
+                'primary_country':      countries[0] if countries else '',
             }
 
             film_object, created = Film.objects.update_or_create(
@@ -1259,13 +1268,23 @@ def add_review(request):
         if not stars and not mini_review and not WatchedFilm.objects.filter(user=user, film_id=request.POST.get("id")).exists():
             return redirect('kinorg:film_detail', id=request.POST.get("id"))
 
+        _json_fields = {'cast', 'crew', 'genres', 'keywords', 'production_companies'}
         fields = [
             'title', 'release_date', 'poster_path', 'backdrop_path',
             'overview', 'runtime', 'cast', 'crew', 'genres', 'keywords',
             'production_companies'
         ]
 
-        film_data = {field: request.POST.get(field) for field in fields}
+        film_data = {}
+        for field in fields:
+            raw = request.POST.get(field)
+            if field in _json_fields:
+                try:
+                    film_data[field] = json.loads(raw) if raw else []
+                except (ValueError, TypeError):
+                    film_data[field] = []
+            else:
+                film_data[field] = raw
         runtime_raw = film_data.get('runtime')
         film_data['runtime'] = int(runtime_raw) if runtime_raw else None
 

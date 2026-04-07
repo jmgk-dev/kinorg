@@ -61,9 +61,16 @@ def country_abbr(name):
 def key_crew(crew_list):
     if not crew_list:
         return []
+    if isinstance(crew_list, str):
+        try:
+            crew_list = json.loads(crew_list)
+        except (ValueError, TypeError):
+            return []
     seen = set()
     result = []
     for member in crew_list:
+        if not isinstance(member, dict):
+            continue
         if member.get("job") in KEY_CREW_JOBS and member.get("id"):
             key = (member["id"], member["job"])
             if key not in seen:
