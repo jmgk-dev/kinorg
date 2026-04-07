@@ -429,6 +429,44 @@ class FilmDetailViewTests(LoggedInTestCase):
         response = self.client.get(self._url())
         self.assertEqual(response.status_code, 200)
 
+    def test_first_visit_imports_from_tmdb(self):
+        """Film not yet in DB triggers _import_film_from_tmdb; returned object must have
+        release_date as a date (not a string) so .year doesn't raise AttributeError."""
+        from unittest.mock import patch
+        from datetime import date
+
+        tmdb_id = 99999
+        self.assertFalse(Film.objects.filter(id=tmdb_id).exists())
+
+        fake_tmdb_response = {
+            'id': tmdb_id,
+            'title': 'New Film',
+            'release_date': '2010-06-15',
+            'poster_path': '/p.jpg',
+            'backdrop_path': '',
+            'overview': 'A film.',
+            'tagline': '',
+            'runtime': 100,
+            'genres': [{'id': 18, 'name': 'Drama'}],
+            'credits': {'cast': [], 'crew': []},
+            'keywords': {'keywords': []},
+            'production_companies': [],
+            'production_countries': [{'iso_3166_1': 'US', 'name': 'United States of America'}],
+            'videos': {'results': []},
+            'watch/providers': {'results': {}},
+        }
+
+        url = reverse('kinorg:film_detail', kwargs={'id': tmdb_id})
+        with patch('kinorg.views.get_tmdb_data', return_value=fake_tmdb_response):
+            response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        film = Film.objects.get(id=tmdb_id)
+        self.assertIsInstance(film.release_date, date)
+        self.assertEqual(film.release_date.year, 2010)
+        # release_date_str on context object must also work
+        self.assertEqual(response.context['film'].release_date_str, '2010-06-15')
+
 
 # ---------------------------------------------------------------------------
 # Toggle like / watched / watchlist
