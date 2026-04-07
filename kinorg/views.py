@@ -1002,11 +1002,17 @@ def _import_film_from_tmdb(film_id):
     videos = film_data.get('videos', {}).get('results', [])
     videos.sort(key=lambda v: 'trailer' not in v.get('name', '').lower())
 
+    release_date_str = film_data.get('release_date') or '1900-01-01'
+    try:
+        release_date = _date.fromisoformat(release_date_str)
+    except (ValueError, TypeError):
+        release_date = _date(1900, 1, 1)
+
     film_obj, _ = Film.objects.update_or_create(
         id=film_id,
         defaults={
             'title':                film_data.get('title', ''),
-            'release_date':         film_data.get('release_date') or '1900-01-01',
+            'release_date':         release_date,
             'poster_path':          film_data.get('poster_path') or '',
             'backdrop_path':        film_data.get('backdrop_path') or '',
             'overview':             film_data.get('overview', ''),
