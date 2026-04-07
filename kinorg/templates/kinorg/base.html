@@ -132,11 +132,12 @@
     var bar = document.getElementById('page_progress_bar');
     var timer;
 
-    function start() {
+    function start(color) {
         clearTimeout(timer);
         bar.style.transition = 'none';
         bar.style.width = '0%';
         bar.style.opacity = '1';
+        bar.style.background = color || '#e53';
         // Small delay so the reset width is painted before we animate
         requestAnimationFrame(function () {
             requestAnimationFrame(function () {
@@ -165,7 +166,7 @@
         var url = new URL(a.href, location.href);
         if (url.origin !== location.origin) return;
         if (url.hash && url.pathname === location.pathname) return;
-        start();
+        start(window.getComputedStyle(a).color);
     });
 
     // Complete the bar when the new page is ready (including bfcache restores)
