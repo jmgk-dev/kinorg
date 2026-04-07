@@ -1118,11 +1118,15 @@ class FilmDetail(LoginRequiredMixin, TemplateView):
         film_obj.production_countries_json = json.dumps(film_obj.production_countries or [])
         film_obj.release_date_str = str(film_obj.release_date) if film_obj.release_date else ''
 
-        # Mark which lists already contain this film (for add/remove toggle buttons)
-        for lst in my_lists:
-            lst.contains_film = lst.films.filter(id=movie_id).exists()
-        for lst in guest_lists:
-            lst.contains_film = lst.films.filter(id=movie_id).exists()
+        # Mark which lists already contain this film — one query instead of one per list
+        all_lists = list(my_lists) + list(guest_lists)
+        lists_containing_film = set(
+            Addition.objects.filter(
+                film_id=movie_id, film_list_id__in=[lst.id for lst in all_lists]
+            ).values_list('film_list_id', flat=True)
+        )
+        for lst in all_lists:
+            lst.contains_film = lst.id in lists_containing_film
 
         # Load user's existing review/rating for this film (if any)
         try:
