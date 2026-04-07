@@ -158,6 +158,8 @@
     document.addEventListener('click', function (e) {
         var a = e.target.closest('a');
         if (!a) return;
+        // Ignore poster links — they open the film modal, not a new page
+        if (a.classList.contains('poster_link')) return;
         // Ignore links that open a new tab, are anchors only, or trigger JS actions
         if (a.target === '_blank' || !a.href || a.href.startsWith('javascript:')) return;
         var url = new URL(a.href, location.href);
