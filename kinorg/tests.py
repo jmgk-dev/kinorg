@@ -574,6 +574,24 @@ class AddReviewTests(LoggedInTestCase):
         watched = WatchedFilm.objects.get(user=self.user, film=self.film)
         self.assertEqual(watched.stars, 4)
 
+    def test_empty_runtime_does_not_raise(self):
+        # Runtime field arrives as '' from the form when not set — must not crash
+        response = self.client.post(self.url, {
+            'id': self.film.id,
+            'title': self.film.title,
+            'release_date': '2000-01-01',
+            'poster_path': '/p.jpg',
+            'backdrop_path': '',
+            'overview': '',
+            'runtime': '',
+            'cast': '[]', 'crew': '[]', 'genres': '[]',
+            'keywords': '[]', 'production_companies': '[]',
+            'stars': '3',
+        })
+        self.assertNotEqual(response.status_code, 500)
+        watched = WatchedFilm.objects.get(user=self.user, film=self.film)
+        self.assertEqual(watched.stars, 3)
+
     def test_saves_mini_review(self):
         self._post(mini_review='Great film!')
         watched = WatchedFilm.objects.get(user=self.user, film=self.film)
