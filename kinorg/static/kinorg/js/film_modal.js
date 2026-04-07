@@ -9,7 +9,15 @@ if (modal) {
     const modalTitle = document.getElementById('film_modal_title');
     const modalDetailLink = document.getElementById('film_modal_detail_link');
     const modalLists = document.getElementById('film_modal_lists');
+    const modalListsWrap = document.getElementById('film_modal_lists_wrap');
     const modalMeta = document.getElementById('film_modal_meta');
+
+    function updateScrollFade() {
+        const atBottom = modalLists.scrollHeight - modalLists.scrollTop <= modalLists.clientHeight + 2;
+        modalListsWrap.classList.toggle('scrolled-to-bottom', atBottom);
+    }
+
+    modalLists.addEventListener('scroll', updateScrollFade, { passive: true });
     const placeholder = modal.dataset.placeholder;
     const TMDB_BASE = 'https://image.tmdb.org/t/p/';
 
@@ -47,7 +55,10 @@ if (modal) {
 
         fetch(`/film-lists/?film_id=${filmId}`)
             .then(res => res.json())
-            .then(data => renderLists(data, filmId));
+            .then(data => {
+                renderLists(data, filmId);
+                updateScrollFade();
+            });
     }
 
     // Render the list of user's film lists with add/remove toggle buttons
