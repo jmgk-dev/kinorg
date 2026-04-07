@@ -1255,6 +1255,8 @@ def add_review(request):
         ]
 
         film_data = {field: request.POST.get(field) for field in fields}
+        runtime_raw = film_data.get('runtime')
+        film_data['runtime'] = int(runtime_raw) if runtime_raw else None
 
         film_id = request.POST.get("id")
 
