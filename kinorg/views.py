@@ -400,9 +400,12 @@ class Home(ListView):
         # Cache the shuffled film IDs for 24h so the carousel stays stable within a day
         film_ids = cache.get('carousel_film_ids')
         if film_ids is None:
-            film_ids = list(Film.objects.extra(
-                where=["collections IS NOT NULL AND collections != 'null' AND collections != '[]'"]
-            ).exclude(poster_path='').values_list('id', flat=True))
+            # Only pick from ranked collections (TSPDT, Sight & Sound, Letterboxd)
+            # to avoid overly obscure titles from Criterion/Janus/Vinegar Syndrome
+            ranked_qs = Film.objects.none()
+            for tag in RANKED_COLLECTIONS:
+                ranked_qs = ranked_qs | films_in_collection(tag)
+            film_ids = list(ranked_qs.exclude(poster_path='').values_list('id', flat=True))
             random.shuffle(film_ids)
             film_ids = film_ids[:60]
             cache.set('carousel_film_ids', film_ids, 60 * 60 * 24)
