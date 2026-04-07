@@ -126,5 +126,49 @@
 {% include "kinorg/_film_modal.html" %}
 <script src="{% static 'kinorg/js/film_modal.js' %}"></script>
 {% block extra_js %}{% endblock %}
+<div id="page_progress_bar"></div>
+<script>
+(function () {
+    var bar = document.getElementById('page_progress_bar');
+    var timer;
+
+    function start() {
+        clearTimeout(timer);
+        bar.style.transition = 'none';
+        bar.style.width = '0%';
+        bar.style.opacity = '1';
+        // Small delay so the reset width is painted before we animate
+        requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+                bar.style.transition = 'width 8s cubic-bezier(0.1, 0.05, 0, 1)';
+                bar.style.width = '90%';
+            });
+        });
+    }
+
+    function finish() {
+        clearTimeout(timer);
+        bar.style.transition = 'width 0.2s ease';
+        bar.style.width = '100%';
+        timer = setTimeout(function () {
+            bar.style.opacity = '0';
+        }, 200);
+    }
+
+    document.addEventListener('click', function (e) {
+        var a = e.target.closest('a');
+        if (!a) return;
+        // Ignore links that open a new tab, are anchors only, or trigger JS actions
+        if (a.target === '_blank' || !a.href || a.href.startsWith('javascript:')) return;
+        var url = new URL(a.href, location.href);
+        if (url.origin !== location.origin) return;
+        if (url.hash && url.pathname === location.pathname) return;
+        start();
+    });
+
+    // Complete the bar when the new page is ready (including bfcache restores)
+    window.addEventListener('pageshow', finish);
+})();
+</script>
 </body>
 </html>
