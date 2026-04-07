@@ -113,14 +113,16 @@ def get_similar_films(film_id, film_obj, limit=12):
     directors = {c['name'] for c in (film_obj.crew or []) if isinstance(c, dict) and c.get('job') == 'Director'}
     decade = (film_obj.release_date.year // 10) * 10 if film_obj.release_date else None
 
-    # Only consider films with a poster and release date (excludes stub records)
+    # Only consider films with a poster and release date (excludes stub records).
+    # Use only() to skip large unused fields (cast, overview, etc.) and iterator()
+    # to avoid caching all candidates in memory at once.
     candidates = Film.objects.exclude(id=film_id).filter(
         release_date__isnull=False, poster_path__gt=''
-    )
+    ).only('id', 'genres', 'keywords', 'production_countries', 'crew', 'release_date')
 
     # Score each candidate by how much metadata it shares with the target
     scored = []
-    for f in candidates:
+    for f in candidates.iterator():
         score = len(genres & _to_str_set(f.genres)) * 3
         score += min(len(keywords & _to_str_set(f.keywords)), 5)
         score += len(countries & _to_str_set(f.production_countries, key='iso_3166_1')) * 2
@@ -129,10 +131,12 @@ def get_similar_films(film_id, film_obj, limit=12):
         if decade and f.release_date and (f.release_date.year // 10) * 10 == decade:
             score += 1
         if score > 0:
-            scored.append((score, f))
+            scored.append((score, f.id))
 
     scored.sort(key=lambda x: -x[0])
-    return [f for _, f in scored[:limit]]
+    top_ids = [fid for _, fid in scored[:limit]]
+    films_by_id = {f.id: f for f in Film.objects.filter(id__in=top_ids)}
+    return [films_by_id[fid] for fid in top_ids if fid in films_by_id]
 
 
 # =====================================================================
