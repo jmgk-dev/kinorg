@@ -725,36 +725,25 @@ class FlagReviewTests(LoggedInTestCase):
 class AddFilmTests(LoggedInTestCase):
     def setUp(self):
         super().setUp()
+        self.film = make_film(tmdb_id=11111, title="Add Me")
         self.film_list = make_list(self.user)
         self.url = reverse('kinorg:add_film')
 
-    def _post(self, tmdb_id, list_id):
-        return self.client.post(self.url, {
-            'id': tmdb_id,
-            'title': 'Test Film',
-            'release_date': '2000-01-01',
-            'poster_path': '/p.jpg',
-            'backdrop_path': '',
-            'overview': '',
-            'runtime': '90',
-            'cast': '[]',
-            'crew': '[]',
-            'genres': '[]',
-            'keywords': '[]',
-            'production_companies': '[]',
-            'production_countries': '',
-            'list_id': list_id,
-        })
+    def _post(self, film_id, list_id):
+        return self.client.post(self.url, {'id': film_id, 'list_id': list_id})
 
-    def test_creates_film_and_addition(self):
-        self._post(11111, self.film_list.id)
-        self.assertTrue(Film.objects.filter(id=11111).exists())
-        self.assertTrue(Addition.objects.filter(film_id=11111, film_list=self.film_list).exists())
+    def test_creates_addition(self):
+        self._post(self.film.id, self.film_list.id)
+        self.assertTrue(Addition.objects.filter(film=self.film, film_list=self.film_list).exists())
 
     def test_does_not_duplicate_addition(self):
-        self._post(11112, self.film_list.id)
-        self._post(11112, self.film_list.id)
-        self.assertEqual(Addition.objects.filter(film_id=11112, film_list=self.film_list).count(), 1)
+        self._post(self.film.id, self.film_list.id)
+        self._post(self.film.id, self.film_list.id)
+        self.assertEqual(Addition.objects.filter(film=self.film, film_list=self.film_list).count(), 1)
+
+    def test_film_not_in_db_returns_error(self):
+        response = self._post(99999, self.film_list.id)
+        self.assertContains(response, "Couldn")
 
     def test_get_returns_400(self):
         response = self.client.get(self.url)

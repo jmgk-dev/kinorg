@@ -1162,91 +1162,46 @@ class FilmDetail(LoginRequiredMixin, TemplateView):
 # =====================================================================
 
 def add_film(request):
-    """Add a film to a list. Creates/updates the Film record from POST data, then creates an Addition.
-    Returns an HTML partial for the toggle button (used by HTMX-style inline updates)."""
-    if request.method == "POST":
-
-        film_id = request.POST.get("id")
-
-        def int_or_none(val):
-            try:
-                return int(val)
-            except (TypeError, ValueError):
-                return None
-
-        def _parse_json_post(val, default=None):
-            if default is None:
-                default = []
-            try:
-                return json.loads(val) if val else default
-            except (ValueError, TypeError):
-                return default
-
-        try:
-            countries = _parse_json_post(request.POST.get('production_countries'))
-            film_data = {
-                'title':                request.POST.get('title'),
-                'release_date':         request.POST.get('release_date'),
-                'poster_path':          request.POST.get('poster_path'),
-                'backdrop_path':        request.POST.get('backdrop_path'),
-                'overview':             request.POST.get('overview', ''),
-                'runtime':              int_or_none(request.POST.get('runtime')),
-                'cast':                 _parse_json_post(request.POST.get('cast')),
-                'crew':                 _parse_json_post(request.POST.get('crew')),
-                'genres':               _parse_json_post(request.POST.get('genres')),
-                'keywords':             _parse_json_post(request.POST.get('keywords')),
-                'production_companies': _parse_json_post(request.POST.get('production_companies')),
-                'production_countries': countries,
-                'primary_country':      countries[0] if countries else '',
-            }
-
-            film_object, created = Film.objects.update_or_create(
-                id=film_id,
-                defaults=film_data
-            )
-
-            filmlist_object = FilmList.objects.get(pk=request.POST.get('list_id'))
-
-            Addition.objects.get_or_create(
-                film=film_object,
-                film_list=filmlist_object,
-                defaults={'added_by': request.user}
-            )
-
-        except Exception:
-            return render(request, "kinorg/_toggle_error.html", {"message": "Couldn't add film"})
-
-        return render(request, "kinorg/_toggle_button.html", {
-            "film": film_object,
-            "lst": filmlist_object,
-            "is_in_list": True
-        })
-
-    else:
+    """Add a film to a list. Creates an Addition record linking the film to the list.
+    Returns an HTML partial for the toggle button."""
+    if request.method != "POST":
         return JsonResponse({'error': 'Invalid request'}, status=400)
+
+    try:
+        film_object = Film.objects.get(pk=request.POST.get("id"))
+        filmlist_object = FilmList.objects.get(pk=request.POST.get('list_id'))
+        Addition.objects.get_or_create(
+            film=film_object,
+            film_list=filmlist_object,
+            defaults={'added_by': request.user}
+        )
+    except Exception:
+        return render(request, "kinorg/_toggle_error.html", {"message": "Couldn't add film"})
+
+    return render(request, "kinorg/_toggle_button.html", {
+        "film": film_object,
+        "lst": filmlist_object,
+        "is_in_list": True
+    })
 
 
 def remove_film(request):
     """Remove a film from a list. Returns an HTML partial for the toggle button."""
-    if request.method == "POST":
-
-        try:
-            my_list = FilmList.objects.get(pk=request.POST.get("list_id"))
-            my_film = Film.objects.get(id=request.POST.get("id"))
-            my_list.films.remove(my_film)
-
-        except Exception:
-            return render(request, "kinorg/_toggle_error.html", {"message": "Couldn't remove film"})
-
-        return render(request, "kinorg/_toggle_button.html", {
-            "film": my_film, 
-            "lst": my_list,
-            "is_in_list": False
-            })
-
-    else:
-
+    if request.method != "POST":
         return JsonResponse({'error': 'Invalid request'}, status=400)
+
+    try:
+        my_list = FilmList.objects.get(pk=request.POST.get("list_id"))
+        my_film = Film.objects.get(id=request.POST.get("id"))
+        Addition.objects.filter(film=my_film, film_list=my_list).delete()
+    except Exception:
+        return render(request, "kinorg/_toggle_error.html", {"message": "Couldn't remove film"})
+
+    return render(request, "kinorg/_toggle_button.html", {
+        "film": my_film,
+        "lst": my_list,
+        "is_in_list": False
+    })
 
 
 # =====================================================================
