@@ -64,7 +64,7 @@ def key_crew(crew_list):
     seen = set()
     result = []
     for member in crew_list:
-        if member.get("job") in KEY_CREW_JOBS:
+        if member.get("job") in KEY_CREW_JOBS and member.get("id"):
             key = (member["id"], member["job"])
             if key not in seen:
                 seen.add(key)

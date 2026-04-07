@@ -64,6 +64,22 @@ class Film(models.Model):
 		blank=True,
 	)
 
+	tagline = models.CharField(
+		max_length=500,
+		blank=True,
+		default='',
+	)
+
+	videos = models.JSONField(
+		default=list,
+		blank=True,
+	)
+
+	watch_providers = models.JSONField(
+		default=dict,
+		blank=True,
+	)
+
 	cast = models.JSONField(
 		default=list, 
 		blank=True, 

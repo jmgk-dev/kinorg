@@ -991,9 +991,43 @@ class PCCSchedule(LoginRequiredMixin, TemplateView):
 # Film detail page
 # =====================================================================
 
+def _import_film_from_tmdb(film_id):
+    """Fetch full film data from TMDB and create/update the Film DB record.
+    Used on first visit to an unimported film, and by add_film_by_tmdb_id.
+    Returns the Film instance."""
+    film_data = get_tmdb_data(
+        f"https://api.themoviedb.org/3/movie/{film_id}?append_to_response=credits,keywords,videos,watch%2Fproviders&language=en-US"
+    )
+    gb_providers = film_data.get('watch/providers', {}).get('results', {}).get('GB', {})
+    videos = film_data.get('videos', {}).get('results', [])
+    videos.sort(key=lambda v: 'trailer' not in v.get('name', '').lower())
+
+    film_obj, _ = Film.objects.update_or_create(
+        id=film_id,
+        defaults={
+            'title':                film_data.get('title', ''),
+            'release_date':         film_data.get('release_date') or '1900-01-01',
+            'poster_path':          film_data.get('poster_path') or '',
+            'backdrop_path':        film_data.get('backdrop_path') or '',
+            'overview':             film_data.get('overview', ''),
+            'tagline':              film_data.get('tagline', ''),
+            'runtime':              film_data.get('runtime'),
+            'genres':               film_data.get('genres', []),
+            'cast':                 film_data.get('credits', {}).get('cast', []),
+            'crew':                 film_data.get('credits', {}).get('crew', []),
+            'keywords':             film_data.get('keywords', {}).get('keywords', []),
+            'production_companies': film_data.get('production_companies', []),
+            'production_countries': [c['iso_3166_1'] for c in film_data.get('production_countries', []) if 'iso_3166_1' in c],
+            'primary_country':      (film_data.get('production_countries') or [{}])[0].get('iso_3166_1', ''),
+            'videos':               videos,
+            'watch_providers':      gb_providers,
+        }
+    )
+    return film_obj
+
+
 class FilmDetail(LoginRequiredMixin, TemplateView):
-    """Film detail page. Fetches film data from TMDB (cached 1hr), finds watch providers,
-    PCC screenings, similar films, user's review/like/watchlist state, and all reviews."""
+    """Film detail page. Serves from DB; imports from TMDB on first visit if film not yet in DB."""
     login_url = "user_admin:login"
 
     template_name = "kinorg/film_detail.html"
@@ -1003,6 +1037,11 @@ class FilmDetail(LoginRequiredMixin, TemplateView):
 
         user = self.request.user
         movie_id = self.kwargs["id"]
+
+        # Load from DB; import from TMDB on first visit if not yet in DB
+        film_obj = Film.objects.filter(pk=movie_id).first()
+        if not film_obj:
+            film_obj = _import_film_from_tmdb(movie_id)
 
         # Get user's lists for the "add to list" buttons
         my_lists = FilmList.objects.filter(owner=user).order_by('-id')
@@ -1014,16 +1053,10 @@ class FilmDetail(LoginRequiredMixin, TemplateView):
             WatchedFilm.objects.filter(flagged_by=user).values_list('id', flat=True)
         )
 
-        # Fetch film data from TMDB (with credits, keywords, videos, watch providers) — cached 1 hour
-        film_cache_key = f'tmdb_film_{movie_id}'
-        film_data = cache.get(film_cache_key)
-        if not film_data:
-            film_data = get_tmdb_data(f"https://api.themoviedb.org/3/movie/{movie_id}?append_to_response=credits,keywords,videos,watch%2Fproviders&language=en-US")
-            cache.set(film_cache_key, film_data, timeout=3600)
-
-        gb_providers = film_data.get('watch/providers', {}).get('results', {}).get('GB', {})
+        # Watch providers from DB
+        gb_providers = film_obj.watch_providers or {}
         context['watch_providers'] = gb_providers
-        context['justwatch_url'] = gb_providers.get('link') or f"https://www.justwatch.com/uk/search?q={quote(film_data.get('title', ''))}"
+        context['justwatch_url'] = gb_providers.get('link') or f"https://www.justwatch.com/uk/search?q={quote(film_obj.title)}"
 
         # Build Amazon affiliate link if Amazon is among the available providers
         amazon_tag = os.environ.get('AMAZON_ASSOCIATE_TAG', '')
@@ -1037,48 +1070,47 @@ class FilmDetail(LoginRequiredMixin, TemplateView):
             None
         )
         if amazon_tag and amazon_provider:
-            encoded_title = quote(film_data.get('title', ''))
-            context['amazon_url'] = f"https://www.amazon.co.uk/s?k={encoded_title}&i=instant-video&tag={amazon_tag}"
+            context['amazon_url'] = f"https://www.amazon.co.uk/s?k={quote(film_obj.title)}&i=instant-video&tag={amazon_tag}"
             context['amazon_logo_path'] = amazon_provider.get('logo_path', '')
         else:
             context['amazon_url'] = None
             context['amazon_logo_path'] = None
 
         # Check if this film is showing at PCC: try FK link first, then title match
-        film_title = film_data.get('title', '')
-        release_year = film_data.get('release_date', '')[:4]
+        release_year = str(film_obj.release_date.year) if film_obj.release_date else ''
         pcc = PCCScreening.objects.filter(film_id=movie_id, hidden=False).first()
         if not pcc:
-            pcc_matches = PCCScreening.objects.filter(title__iexact=film_title, hidden=False)
+            pcc_matches = PCCScreening.objects.filter(title__iexact=film_obj.title, hidden=False)
             if pcc_matches.count() > 1 and release_year:
                 pcc = pcc_matches.filter(year=release_year).first()
             else:
                 pcc = pcc_matches.first()
         context['pcc_url'] = pcc.pcc_url if pcc else None
 
-        # Sort videos so trailers appear first in the videos modal
-        videos = film_data.get('videos', {}).get('results', [])
-        videos.sort(key=lambda v: 'trailer' not in v.get('name', '').lower())
-        if film_data.get('videos'):
-            film_data['videos']['results'] = videos
+        # Directors from crew (handles both full TMDB dicts with id and minimal dicts without)
+        directors = [c for c in (film_obj.crew or []) if isinstance(c, dict) and c.get('job') == 'Director']
+        context['directors'] = directors
 
-        directors = [c for c in film_data.get('credits', {}).get('crew', []) if c['job'] == 'Director']
-        context["directors"] = directors
+        # Build production countries list for template (handles both ISO strings and legacy dicts)
+        context['production_countries'] = [
+            {'iso_3166_1': c, 'name': COUNTRY_ISO.get(c, c)}
+            if isinstance(c, str)
+            else {'iso_3166_1': c.get('iso_3166_1', ''), 'name': COUNTRY_ISO.get(c.get('iso_3166_1', ''), c.get('name', ''))}
+            for c in (film_obj.production_countries or [])
+        ]
 
-        # Serialize complex fields as JSON strings so they can be passed as hidden form inputs
-        film_data['cast_json'] = json.dumps(film_data.get('credits', {}).get('cast', []))
-        film_data['crew_json'] = json.dumps(film_data.get('credits', {}).get('crew', []))
-        film_data['genres_json'] = json.dumps(film_data.get('genres', []))
-        film_data['keywords_json'] = json.dumps(film_data.get('keywords', {}).get('keywords', []))
-        film_data['production_companies_json'] = json.dumps(film_data.get('production_companies', []))
-        countries = film_data.get('production_countries', [])
-        country_codes = [c['iso_3166_1'] for c in countries if 'iso_3166_1' in c]
-        film_data['production_countries_json'] = json.dumps(country_codes)
+        # Attach serialized JSON fields to film_obj for hidden form inputs
+        film_obj.cast_json = json.dumps(film_obj.cast or [])
+        film_obj.crew_json = json.dumps(film_obj.crew or [])
+        film_obj.genres_json = json.dumps(film_obj.genres or [])
+        film_obj.keywords_json = json.dumps(film_obj.keywords or [])
+        film_obj.production_companies_json = json.dumps(film_obj.production_companies or [])
+        film_obj.production_countries_json = json.dumps(film_obj.production_countries or [])
+        film_obj.release_date_str = str(film_obj.release_date) if film_obj.release_date else ''
 
         # Mark which lists already contain this film (for add/remove toggle buttons)
         for lst in my_lists:
             lst.contains_film = lst.films.filter(id=movie_id).exists()
-
         for lst in guest_lists:
             lst.contains_film = lst.films.filter(id=movie_id).exists()
 
@@ -1087,23 +1119,23 @@ class FilmDetail(LoginRequiredMixin, TemplateView):
             watched = WatchedFilm.objects.get(user=user, film__id=movie_id)
         except WatchedFilm.DoesNotExist:
             watched = None
-                
-        film_obj = Film.objects.filter(pk=movie_id).first()
-        if film_obj and film_obj.similar_film_ids:
+
+        # Similar films from pre-computed IDs, fall back to live scoring
+        if film_obj.similar_film_ids:
             similar_films = list(Film.objects.filter(id__in=film_obj.similar_film_ids))
             id_order = {fid: i for i, fid in enumerate(film_obj.similar_film_ids)}
             similar_films.sort(key=lambda f: id_order.get(f.id, 999))
         else:
             similar_films = get_similar_films(movie_id, film_obj)
-        context["similar_films"] = similar_films
+        context['similar_films'] = similar_films
 
-        context["my_lists"] = my_lists
-        context["guest_lists"] = guest_lists
-        context["film"] = film_data
-        context["watched"] = watched
-        context["film_reviews"] = film_reviews
-        context["is_liked"] = LikedFilm.objects.filter(user=user, tmdb_id=movie_id).exists()
-        context["in_watchlist"] = WatchlistItem.objects.filter(user=user, film_id=movie_id).exists()
+        context['my_lists'] = my_lists
+        context['guest_lists'] = guest_lists
+        context['film'] = film_obj
+        context['watched'] = watched
+        context['film_reviews'] = film_reviews
+        context['is_liked'] = LikedFilm.objects.filter(user=user, tmdb_id=movie_id).exists()
+        context['in_watchlist'] = WatchlistItem.objects.filter(user=user, film_id=movie_id).exists()
 
         return context
 
@@ -1816,28 +1848,7 @@ def add_film_by_tmdb_id(request):
         if filmlist_object.owner != request.user and request.user not in filmlist_object.guests.all():
             return JsonResponse({'error': 'Permission denied'}, status=403)
 
-        film_data = get_tmdb_data(
-            f"https://api.themoviedb.org/3/movie/{film_id}?append_to_response=credits,keywords&language=en-US"
-        )
-
-        film_object, _ = Film.objects.update_or_create(
-            id=film_id,
-            defaults={
-                'title': film_data.get('title', ''),
-                'release_date': film_data.get('release_date') or '1900-01-01',
-                'poster_path': film_data.get('poster_path') or '',
-                'backdrop_path': film_data.get('backdrop_path') or '',
-                'overview': film_data.get('overview', ''),
-                'runtime': film_data.get('runtime'),
-                'genres': film_data.get('genres', []),
-                'cast': film_data.get('credits', {}).get('cast', []),
-                'crew': film_data.get('credits', {}).get('crew', []),
-                'keywords': film_data.get('keywords', {}).get('keywords', []),
-                'production_companies': film_data.get('production_companies', []),
-                'production_countries': [c['iso_3166_1'] for c in film_data.get('production_countries', []) if 'iso_3166_1' in c],
-                'primary_country': (film_data.get('production_countries') or [{}])[0].get('iso_3166_1', ''),
-            }
-        )
+        film_object = _import_film_from_tmdb(film_id)
 
         Addition.objects.get_or_create(
             film=film_object,

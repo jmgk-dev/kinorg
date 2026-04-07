@@ -564,21 +564,21 @@ p.italic {
 
 .modal-content {
     background-color: black;
-    padding: 24px;
     border: 1px solid rgba(255,255,255,0.3);
     border-radius: 10px;
     width: 100%;
     max-width: 560px;
     max-height: 90vh;
-    overflow-y: auto;
-    position: relative;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
     box-sizing: border-box;
 }
 
 .close {
-    position: absolute;
-    top: 12px;
-    right: 12px;
+    align-self: flex-end;
+    flex-shrink: 0;
+    margin: 12px 12px 0;
     background: rgba(0,0,0,0.6);
     border: 1px solid rgba(255,255,255,0.4);
     border-radius: 6px;
@@ -594,6 +594,12 @@ p.italic {
 .close:hover {
     background: rgba(255,255,255,0.15);
     border-color: white;
+}
+
+.modal-content-inner {
+    overflow-y: auto;
+    padding: 8px 24px 24px;
+    flex: 1;
 }
 
 .rating-input,
@@ -695,7 +701,6 @@ p.italic {
     display: flex;
     flex-direction: column;
     gap: 16px;
-    padding-top: 44px;
 }
 
 .log_rate_toggles {

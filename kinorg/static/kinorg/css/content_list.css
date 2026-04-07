@@ -74,25 +74,32 @@
     background: #1a1a1a;
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 12px;
-    padding: 20px 24px;
     max-width: 560px;
     width: 100%;
-    position: relative;
     max-height: 80vh;
-    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 }
 
 .person_bio_modal_close {
-    position: absolute;
-    top: 12px;
-    right: 14px;
-    background: none;
-    border: none;
+    align-self: flex-end;
+    flex-shrink: 0;
+    margin: 12px 12px 8px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 6px;
     color: white;
-    font-size: 1.4rem;
+    font-size: 14px;
     cursor: pointer;
-    padding: 0;
+    padding: 5px 9px;
     line-height: 1;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.person_bio_modal_close:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: white;
 }
 
 .person_bio--mobile {
@@ -104,7 +111,8 @@
     line-height: 1.7;
     opacity: 0.85;
     margin: 0;
-    padding-right: 16px;
+    padding: 0 24px 20px;
+    overflow-y: auto;
 }
 
 .person_tabs_wrap {

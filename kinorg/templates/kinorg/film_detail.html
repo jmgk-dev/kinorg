@@ -28,23 +28,23 @@
                 </div>
 
                 <div class="film_meta">
-                    {% if film.release_date %}<span class="meta_chip">{{ film.release_date|slice:":4" }}</span>{% endif %}
+                    {% if film.release_date %}<span class="meta_chip">{{ film.release_date|date:"Y" }}</span>{% endif %}
                     {% if film.runtime %}<span class="meta_chip">{{ film.runtime }}m</span>{% endif %}
-                    {% for genre in film.genres %}<span class="meta_chip">{{ genre.name }}</span>{% endfor %}
-                    {% for country in film.production_countries %}<span class="meta_chip">{{ country.name|country_abbr }}</span>{% endfor %}
+                    {% for genre in film.genres %}<span class="meta_chip">{{ genre.name|default:genre }}</span>{% endfor %}
+                    {% for country in production_countries %}<span class="meta_chip">{{ country.name|country_abbr }}</span>{% endfor %}
                 </div>
 
                 <p class="details_label">Directed by</p>
                 <div class="director_links">
                     {% for director in directors %}
-                        <a href="{% url 'kinorg:person_credits' director.id %}" class="btn">{{ director.name }}</a>
+                        {% if director.id %}<a href="{% url 'kinorg:person_credits' director.id %}" class="btn">{{ director.name }}</a>{% endif %}
                     {% endfor %}
                 </div>
 
             </div>
 
             <div class="watch_section watch_section--desktop">
-                {% if watch_providers or pcc_url or film.videos.results %}
+                {% if watch_providers or pcc_url or film.videos %}
                 <p class="details_label">Where to Watch</p>
                 <div class="watch_rows">
                     {% if pcc_url %}
@@ -70,8 +70,8 @@
                         {% endif %}
                     </div>
                     {% endif %}
-                    {% if film.videos and film.videos.results %}
-                    {% with vids=film.videos.results first_vid=film.videos.results|first %}
+                    {% if film.videos %}
+                    {% with vids=film.videos first_vid=film.videos|first %}
                     <div class="watch_row watch_row--videos">
                         <button class="btn" onclick="openVideosModal()">&#9654; {% if vids|length == 1 and "trailer" in first_vid.name|lower %}Trailer{% elif vids|length > 1 %}Trailers &amp; More{% else %}Watch{% endif %}</button>
                     </div>
@@ -86,11 +86,12 @@
 
         {% if film.tagline %}<p class="italic tagline">{{ film.tagline }}</p>{% endif %}
 
+
         {% if film.overview %}
         <p class="overview">{{ film.overview }}</p>
         {% endif %}
 
-        {% if watch_providers or pcc_url or film.videos.results %}
+        {% if watch_providers or pcc_url or film.videos %}
         <div class="watch_section watch_section--mobile">
             <p class="details_label">Where to Watch</p>
             <div class="watch_rows">
@@ -117,8 +118,8 @@
                     {% endif %}
                 </div>
                 {% endif %}
-                {% if film.videos and film.videos.results %}
-                {% with vids=film.videos.results first_vid=film.videos.results|first %}
+                {% if film.videos %}
+                {% with vids=film.videos first_vid=film.videos|first %}
                 <div class="watch_row watch_row--videos">
                     <span class="watch_row_label">Videos</span>
                     <button class="btn" onclick="openVideosModal()">&#9654; {% if vids|length == 1 and "trailer" in first_vid.name|lower %}Trailer{% elif vids|length > 1 %}Trailers &amp; More{% else %}Watch{% endif %}</button>
@@ -138,7 +139,7 @@
          data-tmdb-id="{{ film.id }}"
          data-title="{{ film.title }}"
          data-poster-path="{{ film.poster_path }}"
-         data-release-date="{{ film.release_date }}"
+         data-release-date="{{ film.release_date_str }}"
          data-watched="{{ watched|yesno:'true,false' }}"
          data-liked="{{ is_liked|yesno:'true,false' }}"
          data-in-watchlist="{{ in_watchlist|yesno:'true,false' }}"
@@ -152,14 +153,14 @@
 <div id="log-rate-modal" class="modal">
     <div class="modal-content log_rate_modal_content">
         <span class="close" onclick="closeLogRateModal()">&times;</span>
-
+        <div class="modal-content-inner">
         <div class="log_rate_toggles">
             <button class="log_rate_toggle_btn log_rate_toggle_btn--watchlist {% if in_watchlist %}active{% endif %}"
                     id="watchlist_toggle_btn"
                     data-tmdb-id="{{ film.id }}"
                     data-title="{{ film.title }}"
                     data-poster-path="{{ film.poster_path }}"
-                    data-release-date="{{ film.release_date }}"
+                    data-release-date="{{ film.release_date_str }}"
                     data-active="{{ in_watchlist|yesno:'true,false' }}">
                 <span class="toggle_label_inactive">+ Watchlist</span>
                 <span class="toggle_label_active">✓ Added to Watchlist</span>
@@ -169,7 +170,7 @@
                     data-tmdb-id="{{ film.id }}"
                     data-title="{{ film.title }}"
                     data-poster-path="{{ film.poster_path }}"
-                    data-release-date="{{ film.release_date }}"
+                    data-release-date="{{ film.release_date_str }}"
                     data-active="{{ watched|yesno:'true,false' }}">
                 <span class="toggle_label_inactive"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Mark as Watched</span>
                 <span class="toggle_label_active"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>Watched</span>
@@ -189,7 +190,7 @@
             {% csrf_token %}
             <input type="hidden" name="id"                   value="{{ film.id }}">
             <input type="hidden" name="title"                value="{{ film.title }}">
-            <input type="hidden" name="release_date"         value="{{ film.release_date }}">
+            <input type="hidden" name="release_date"         value="{{ film.release_date_str }}">
             <input type="hidden" name="poster_path"          value="{{ film.poster_path }}">
             <input type="hidden" name="backdrop_path"        value="{{ film.backdrop_path }}">
             <input type="hidden" name="overview"             value="{{ film.overview }}">
@@ -241,9 +242,9 @@
                 </span>
             </label>
         </form>
-
-    </div>
-</div>
+        </div><!-- end modal-content-inner -->
+    </div><!-- end modal-content -->
+</div><!-- end log-rate-modal -->
 
 
 <div class="film_tabs_wrap">
@@ -258,25 +259,25 @@
         </div>
 
         <div class="tab_panel active" id="tab-cast">
-            {% if film.credits.cast %}
+            {% if film.cast %}
             <ul class="cast_list" id="cast_list">
-                {% for member in film.credits.cast %}
+                {% for member in film.cast %}
                 <li class="cast_item{% if forloop.counter0 >= 10 %} list_extra{% endif %}">
+                    {% if member.id %}
                     <a href="{% url 'kinorg:person_credits' member.id %}">
-                        {% if member.profile_path %}
-                            <img class="cast_photo" src="{{config_data.secure_base_url}}w185{{member.profile_path}}" alt="{{ member.name }}">
-                        {% else %}
-                            <img class="cast_photo" src="{% static 'images/placeholder.jpg' %}" alt="{{ member.name }}">
-                        {% endif %}
+                    {% endif %}
+                        <img class="cast_photo" src="{% if member.profile_path %}{{config_data.secure_base_url}}w185{{member.profile_path}}{% else %}{% static 'images/placeholder.jpg' %}{% endif %}" alt="{{ member.name|default:member }}">
+                    {% if member.id %}
                     </a>
-                    <p><a href="{% url 'kinorg:person_credits' member.id %}">{{ member.name }}</a></p>
-                    <p class="cast_character">{{ member.character }}</p>
+                    {% endif %}
+                    <p>{% if member.id %}<a href="{% url 'kinorg:person_credits' member.id %}">{% endif %}{{ member.name|default:member }}{% if member.id %}</a>{% endif %}</p>
+                    {% if member.character %}<p class="cast_character">{{ member.character }}</p>{% endif %}
                 </li>
                 {% endfor %}
-                {% if film.credits.cast|length > 10 %}
+                {% if film.cast|length > 10 %}
                 <li class="cast_item see_more_card" data-target="cast_list">
                     <div class="cast_photo see_more_tile">
-                        <span>+ {{ film.credits.cast|length|add:"-10" }} more</span>
+                        <span>+ {{ film.cast|length|add:"-10" }} more</span>
                     </div>
                 </li>
                 {% endif %}
@@ -287,19 +288,19 @@
         </div>
 
         <div class="tab_panel" id="tab-crew">
-            {% with crew=film.credits.crew|key_crew %}
+            {% with crew=film.crew|key_crew %}
             {% if crew %}
             <ul class="cast_list" id="crew_list">
                 {% for member in crew %}
                 <li class="cast_item{% if forloop.counter0 >= 10 %} list_extra{% endif %}">
+                    {% if member.id %}
                     <a href="{% url 'kinorg:person_credits' member.id %}">
-                        {% if member.profile_path %}
-                            <img class="cast_photo" src="{{config_data.secure_base_url}}w185{{member.profile_path}}" alt="{{ member.name }}">
-                        {% else %}
-                            <img class="cast_photo" src="{% static 'images/placeholder.jpg' %}" alt="{{ member.name }}">
-                        {% endif %}
+                    {% endif %}
+                        <img class="cast_photo" src="{% if member.profile_path %}{{config_data.secure_base_url}}w185{{member.profile_path}}{% else %}{% static 'images/placeholder.jpg' %}{% endif %}" alt="{{ member.name }}">
+                    {% if member.id %}
                     </a>
-                    <p><a href="{% url 'kinorg:person_credits' member.id %}">{{ member.name }}</a></p>
+                    {% endif %}
+                    <p>{% if member.id %}<a href="{% url 'kinorg:person_credits' member.id %}">{% endif %}{{ member.name }}{% if member.id %}</a>{% endif %}</p>
                     <p class="cast_character">{{ member.job }}</p>
                 </li>
                 {% endfor %}
@@ -387,7 +388,7 @@
             <p>You don't have any lists yet. <a href="{% url 'kinorg:my_lists' %}" class="btn btn-cta">Create a list</a> to add this film!</p>
             {% endif %}
         </div>
-
+        </div><!-- end modal-content-inner -->
     </div>
 </div>
 
@@ -395,9 +396,10 @@
 <div class="modal" id="videos-modal">
     <div class="modal-content">
         <span class="close" onclick="closeVideosModal()">&times;</span>
+        <div class="modal-content-inner">
         <h4><b>Videos</b></h4>
         <ul class="video_list">
-            {% for video in film.videos.results %}
+            {% for video in film.videos %}
             <li class="video_item">
                 <a href="https://www.youtube.com/watch?v={{ video.key }}" target="_blank">
                     <img src="https://img.youtube.com/vi/{{ video.key }}/hqdefault.jpg"
@@ -408,6 +410,7 @@
             </li>
             {% endfor %}
         </ul>
+        </div><!-- end modal-content-inner -->
     </div>
 </div>
 
