@@ -114,6 +114,7 @@ class Film(models.Model):
 		max_length=2,
 		blank=True,
 		default='',
+		db_index=True,
 	)
 
 	collections = models.JSONField(
