@@ -22,7 +22,16 @@ if (modal) {
     let currentPosterPath = null;
     let currentTitle = null;
 
-    // Open modal: set film info, fetch user's lists to show add/remove state
+    function skeletonHTML(n) {
+        return Array.from({length: n}, () => `
+            <div class="film_modal_skeleton_item">
+                <div class="skeleton film_modal_skeleton_name"></div>
+                <div class="skeleton film_modal_skeleton_btn"></div>
+            </div>
+        `).join('');
+    }
+
+    // Open modal: show immediately with skeleton placeholders, then populate lists when fetch resolves
     function openModal(filmId, title, posterPath, detailUrl, year) {
         currentFilmId = filmId;
         currentPosterPath = posterPath;
@@ -30,16 +39,15 @@ if (modal) {
         modalTitle.textContent = title;
         modalPoster.src = posterPath ? `${TMDB_BASE}w200${posterPath}` : placeholder;
         modalDetailLink.href = detailUrl;
-        modalLists.innerHTML = '';
         modalMeta.innerHTML = year ? `<span>${year}</span>` : '';
+        modalLists.innerHTML = skeletonHTML(3);
+
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
 
         fetch(`/film-lists/?film_id=${filmId}`)
             .then(res => res.json())
-            .then(data => {
-                renderLists(data, filmId);
-                modal.style.display = 'flex';
-                document.body.style.overflow = 'hidden';
-            });
+            .then(data => renderLists(data, filmId));
     }
 
     // Render the list of user's film lists with add/remove toggle buttons

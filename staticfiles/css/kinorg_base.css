@@ -698,6 +698,40 @@ p {
     min-height: 1em;
 }
 
+@keyframes skeleton_shimmer {
+    0%   { background-position: -400px 0; }
+    100% { background-position: 400px 0; }
+}
+
+.skeleton {
+    border-radius: 4px;
+    background: linear-gradient(90deg, rgba(255,255,255,0.06) 25%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.06) 75%);
+    background-size: 800px 100%;
+    animation: skeleton_shimmer 1.4s infinite linear;
+}
+
+.film_modal_skeleton_item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.film_modal_skeleton_name {
+    height: 28px;
+    flex: 1;
+    border-radius: 6px;
+}
+
+.film_modal_skeleton_btn {
+    height: 28px;
+    width: 60px;
+    flex-shrink: 0;
+    border-radius: 6px;
+}
+
 .btn-loading {
     opacity: 0.6;
     cursor: not-allowed;
