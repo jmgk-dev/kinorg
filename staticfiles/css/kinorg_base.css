@@ -137,7 +137,6 @@ header {
     background-color: rgba(0, 0, 0, 0.8);
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
-    overscroll-behavior-y: contain;
 }
 
 h3 {

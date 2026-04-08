@@ -52,6 +52,12 @@
     }
 }
 
+.poster_skeleton {
+    aspect-ratio: 2 / 3;
+    border-radius: 4px;
+    width: 100%;
+}
+
 .list_actions {
     display: flex;
     justify-content: center;

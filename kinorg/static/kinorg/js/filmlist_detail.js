@@ -50,6 +50,19 @@ if (loadMoreBtn && filmGrid) {
     const filmUrlTemplate = filmGrid.dataset.filmUrl;
     const additionsUrl = filmGrid.dataset.additionsUrl;
 
+    function addSkeletons(count) {
+        for (let i = 0; i < count; i++) {
+            const li = document.createElement('li');
+            li.className = 'results_item skeleton_placeholder';
+            li.innerHTML = '<div class="poster_skeleton skeleton"></div>';
+            filmGrid.appendChild(li);
+        }
+    }
+
+    function removeSkeletons() {
+        filmGrid.querySelectorAll('.skeleton_placeholder').forEach(el => el.remove());
+    }
+
     loadMoreBtn.addEventListener('click', () => {
         const offset = loadMoreBtn.dataset.offset;
         const sort = loadMoreBtn.dataset.sort;
@@ -59,6 +72,7 @@ if (loadMoreBtn && filmGrid) {
 
         loadMoreBtn.disabled = true;
         loadMoreBtn.textContent = 'Loading...';
+        addSkeletons(12);
 
         const params = new URLSearchParams({ offset, sort });
         if (country) params.set('country', country);
@@ -68,6 +82,7 @@ if (loadMoreBtn && filmGrid) {
         fetch(`${additionsUrl}?${params}`)
             .then(res => res.json())
             .then(data => {
+                removeSkeletons();
                 data.films.forEach(film => {
                     const filmUrl = filmUrlTemplate.replace('/0', '/' + film.id);
                     const posterSrc = film.poster_path && film.poster_path !== 'None'
