@@ -867,11 +867,11 @@ p.italic {
 
     .film_header_wrap,
     .film_tabs_wrap {
-        padding: 0 4px;
+        padding: 0 10px 0 10px;
     }
 
     .film_header_inner {
-        padding: 14px;
+        padding: 3px;
         gap: 14px;
     }
 
@@ -947,6 +947,8 @@ p.italic {
 
     .activity_row_wrap {
         display: flex;
+        padding-left: 10px;
+        padding-right: 10px;
     }
 
     .like_btn--mobile {

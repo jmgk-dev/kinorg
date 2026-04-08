@@ -1065,8 +1065,8 @@ class FilmDetail(LoginRequiredMixin, TemplateView):
                 pass
 
         # Get user's lists for the "add to list" buttons
-        my_lists = FilmList.objects.filter(owner=user).order_by('-id')
-        guest_lists = FilmList.objects.filter(guests=user).order_by('-id')
+        my_lists = FilmList.objects.filter(owner=user, archived=False).order_by('-id')
+        guest_lists = FilmList.objects.filter(guests=user, archived=False).order_by('-id')
 
         # Get all visible reviews for this film (non-empty, non-private)
         film_reviews = WatchedFilm.objects.filter(film__id=movie_id, review_visible=True).exclude(mini_review__isnull=True).exclude(mini_review__exact='')

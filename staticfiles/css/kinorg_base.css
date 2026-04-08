@@ -856,6 +856,10 @@ p {
   }
 
   .header_inner {
-      padding: 2px 10px 3px 6px;
+      padding: 5px 10px 3px 10px;
+  }
+
+  .empty_state {
+      padding: 0 10px;
   }
 }
