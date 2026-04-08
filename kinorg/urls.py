@@ -15,6 +15,7 @@ urlpatterns = [
     path("remove-film/", views.remove_film, name="remove_film"),
     path('add-review/', views.add_review, name='add_review'),
     path("film-detail/<int:id>", views.FilmDetail.as_view(), name="film_detail"),
+    path("film-detail/<int:film_id>/similar/", views.similar_films_json, name="similar_films_json"),
     path("person-credits/<int:person_id>", views.PersonCredits.as_view(), name="person_credits"),
     path("invitations/", views.Invitations.as_view(), name="invitations"),
     path("invite-guest/", views.invite_guest, name="invite_guest"),

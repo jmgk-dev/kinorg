@@ -7,6 +7,18 @@ from django.contrib.auth import get_user_model
 from .models import Film, FilmList, Addition
 
 
+def compute_similar_films_for_film(film_id):
+    """Background task: compute and store similar_film_ids for a single film."""
+    from kinorg.views import get_similar_films
+    try:
+        film = Film.objects.get(pk=film_id)
+        similar = get_similar_films(film_id, film, limit=12)
+        film.similar_film_ids = [f.id for f in similar]
+        film.save(update_fields=['similar_film_ids'])
+    except Film.DoesNotExist:
+        pass
+
+
 def import_letterboxd_list(letterboxd_username, letterboxd_list_slug, film_list_id, user_id):
     """
     Background task: scrape a Letterboxd list and import films into a FilmList.

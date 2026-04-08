@@ -1056,6 +1056,14 @@ class FilmDetail(LoginRequiredMixin, TemplateView):
         if not film_obj:
             film_obj = _import_film_from_tmdb(movie_id)
 
+        # Queue background task to compute similar films if not yet done
+        if not film_obj.similar_film_ids:
+            try:
+                from django_q.tasks import async_task
+                async_task('kinorg.tasks.compute_similar_films_for_film', movie_id)
+            except Exception:
+                pass
+
         # Get user's lists for the "add to list" buttons
         my_lists = FilmList.objects.filter(owner=user).order_by('-id')
         guest_lists = FilmList.objects.filter(guests=user).order_by('-id')
@@ -1137,14 +1145,15 @@ class FilmDetail(LoginRequiredMixin, TemplateView):
         except WatchedFilm.DoesNotExist:
             watched = None
 
-        # Similar films from pre-computed IDs, fall back to live scoring
+        # Similar films from pre-computed IDs; background task handles computation
         if film_obj.similar_film_ids:
             similar_films = list(Film.objects.filter(id__in=film_obj.similar_film_ids))
             id_order = {fid: i for i, fid in enumerate(film_obj.similar_film_ids)}
             similar_films.sort(key=lambda f: id_order.get(f.id, 999))
         else:
-            similar_films = get_similar_films(movie_id, film_obj)
+            similar_films = []
         context['similar_films'] = similar_films
+        context['similar_pending'] = not bool(film_obj.similar_film_ids)
 
         context['my_lists'] = my_lists
         context['guest_lists'] = guest_lists
@@ -1874,6 +1883,20 @@ def remove_film_ajax(request):
         return JsonResponse({'success': True})
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
+
+def similar_films_json(request, film_id):
+    """Return pre-computed similar films for polling by the film detail page."""
+    film = Film.objects.filter(pk=film_id).only('similar_film_ids').first()
+    if not film or not film.similar_film_ids:
+        return JsonResponse({'ready': False, 'films': []})
+    similar = list(Film.objects.filter(id__in=film.similar_film_ids).only('id', 'title', 'poster_path'))
+    id_order = {fid: i for i, fid in enumerate(film.similar_film_ids)}
+    similar.sort(key=lambda f: id_order.get(f.id, 999))
+    return JsonResponse({
+        'ready': True,
+        'films': [{'id': f.id, 'title': f.title, 'poster_path': f.poster_path} for f in similar],
+    })
 
 
 def no_access(request):

@@ -349,7 +349,7 @@
 
         <div class="tab_panel" id="tab-similar">
             {% if similar_films %}
-            <ul class="similar_list">
+            <ul class="similar_list" id="similar-films-list">
                 {% for similar_film in similar_films %}
                 <li class="similar_item">
                     <a href="{% url 'kinorg:film_detail' similar_film.id %}">
@@ -360,6 +360,17 @@
                         {% endif %}
                     </a>
                     <p><a href="{% url 'kinorg:film_detail' similar_film.id %}">{{ similar_film.title }}</a></p>
+                </li>
+                {% endfor %}
+            </ul>
+            {% elif similar_pending %}
+            <ul class="similar_list" id="similar-films-list"
+                data-pending="{{ film.id }}"
+                data-placeholder="{% static 'kinorg/images/placeholder.jpg' %}">
+                {% for i in "123456" %}
+                <li class="similar_item">
+                    <div class="skeleton cast_photo"></div>
+                    <div class="skeleton" style="height:12px;width:70px;border-radius:3px;margin-top:2px;"></div>
                 </li>
                 {% endfor %}
             </ul>

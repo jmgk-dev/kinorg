@@ -287,4 +287,42 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    // Poll for similar films when background task is still computing
+    const similarList = document.getElementById('similar-films-list');
+    if (similarList && similarList.dataset.pending) {
+        const filmId = similarList.dataset.pending;
+        const placeholder = similarList.dataset.placeholder;
+        const TMDB_BASE = 'https://image.tmdb.org/t/p/w185';
+        let attempts = 0;
+
+        const poll = setInterval(() => {
+            if (++attempts > 20) {
+                clearInterval(poll);
+                similarList.outerHTML = '<p>No similar films found.</p>';
+                return;
+            }
+            fetch(`/film-detail/${filmId}/similar/`)
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.ready) return;
+                    clearInterval(poll);
+                    if (!data.films.length) {
+                        similarList.outerHTML = '<p>No similar films found.</p>';
+                        return;
+                    }
+                    similarList.innerHTML = data.films.map(f => `
+                        <li class="similar_item">
+                            <a href="/film-detail/${f.id}">
+                                <img class="cast_photo"
+                                     src="${f.poster_path ? TMDB_BASE + f.poster_path : placeholder}"
+                                     alt="${f.title}">
+                            </a>
+                            <p><a href="/film-detail/${f.id}">${f.title}</a></p>
+                        </li>
+                    `).join('');
+                })
+                .catch(() => {});
+        }, 2000);
+    }
+
 });
