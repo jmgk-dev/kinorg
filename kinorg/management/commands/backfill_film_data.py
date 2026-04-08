@@ -25,10 +25,12 @@ class Command(BaseCommand):
         elif options['all']:
             films = Film.objects.all()
         else:
-            # Target films with minimal cast data (strings, not dicts)
+            # Target films with minimal cast data (strings, not dicts) OR missing videos
             films = [
                 f for f in Film.objects.all()
-                if not f.cast or not isinstance((f.cast or [None])[0], dict)
+                if not f.cast
+                or not isinstance((f.cast or [None])[0], dict)
+                or not f.videos
             ]
 
         total = len(films) if isinstance(films, list) else films.count()
