@@ -25,20 +25,17 @@ class Command(BaseCommand):
         elif options['all']:
             films = Film.objects.all()
         else:
-            # Target films with minimal cast data (strings, not dicts) OR missing videos
-            films = [
-                f for f in Film.objects.all()
-                if not f.cast
-                or not isinstance((f.cast or [None])[0], dict)
-                or not f.videos
-            ]
+            # Films with empty videos (DB-level filter, no full load into memory)
+            # Cast format check (string vs dict) can't be done in SQL, but videos=[] covers
+            # both collection imports and films imported before migration 0019
+            films = Film.objects.filter(videos=[])
 
         total = len(films) if isinstance(films, list) else films.count()
         self.stdout.write(f"Backfilling {total} film(s)…")
 
         updated = 0
         errors = 0
-        for i, film in enumerate(films, start=1):
+        for i, film in enumerate(films.iterator() if hasattr(films, 'iterator') else films, start=1):
             try:
                 _import_film_from_tmdb(film.id)
                 updated += 1
