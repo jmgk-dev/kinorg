@@ -556,9 +556,9 @@ p.italic {
     z-index: 1002;
     inset: 0;
     background-color: rgba(0, 0, 0, 0.7);
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
-    padding: 16px;
+    padding: 80px 16px 16px;
     box-sizing: border-box;
 }
 
@@ -567,12 +567,13 @@ p.italic {
     border: 1px solid rgba(255,255,255,0.3);
     border-radius: 10px;
     width: 100%;
-    max-width: 560px;
+    max-width: 460px;
     max-height: 90vh;
     display: flex;
     flex-direction: column;
     overflow: hidden;
     box-sizing: border-box;
+    padding: 0px 10px;
 }
 
 .close {

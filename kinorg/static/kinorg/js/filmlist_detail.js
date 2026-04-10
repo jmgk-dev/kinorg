@@ -168,10 +168,10 @@ const inviteMessage = document.getElementById('invite_message');
 
 if (inviteOpenBtn) {
     inviteOpenBtn.addEventListener('click', () => {
-        inviteModal.style.display = 'block';
+        inviteModal.style.display = 'flex';
     });
     if (new URLSearchParams(window.location.search).get('invite') === '1') {
-        inviteModal.style.display = 'block';
+        inviteModal.style.display = 'flex';
     }
 }
 const openedViaInviteLink = new URLSearchParams(window.location.search).get('invite') === '1';
