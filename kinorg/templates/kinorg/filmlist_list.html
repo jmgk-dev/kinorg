@@ -42,22 +42,22 @@
                         {% else %}
                         <span class="list_item_title">{{ list.title|slice:":30" }}</span>
                         {% endif %}
-                        <button class="btn btn-invite" data-list-id="{{ list.id }}" data-list-title="{{ list.title|slice:':30' }}">Invite</button>
+                        <button class="btn btn-invite" data-list-id="{{ list.id }}" data-list-title="{{ list.title|slice:':30' }}" data-invitations="{{ per_list_invitations|get_item:list.id|to_json|escape }}">Invite</button>
                     </div>
 
                     {% if total > 0 %}
                     <ul class="list_poster_stack">
-                        {% for addition in list.addition_set.all|slice:":10" %}
+                        {% for addition in list.addition_set.all|slice:":7" %}
                             <li class="stack_item">
                                 <a class="poster_link" href="{% url 'kinorg:film_detail' addition.film.id %}" data-film-id="{{ addition.film.id }}" data-film-title="{{ addition.film.title }}" data-poster-path="{{ addition.film.poster_path }}" data-year="{{ addition.film.release_date|date:'Y' }}" data-director="{{ addition.film.crew|film_director }}" data-media-type="movie">
                                 <img class="poster" src="{{config_data.secure_base_url}}w200{{addition.film.poster_path}}">
                                 </a>
                             </li>
                         {% endfor %}
-                        {% if total > 10 %}
+                        {% if total > 7 %}
                             <li class="stack_item">
                                 <a href="{% url 'kinorg:list' list.sqid %}" class="stack_see_all">
-                                    <span>+ {{ total|add:"-10" }} more</span>
+                                    <span>+ {{ total|add:"-7" }} more</span>
                                 </a>
                             </li>
                         {% endif %}
@@ -95,17 +95,17 @@
                     {% with total=glist.addition_set.all|length %}
                     {% if total > 0 %}
                     <ul class="list_poster_stack">
-                        {% for addition in glist.addition_set.all|slice:":10" %}
+                        {% for addition in glist.addition_set.all|slice:":7" %}
                             <li class="stack_item">
                                 <a class="poster_link" href="{% url 'kinorg:film_detail' addition.film.id %}" data-film-id="{{ addition.film.id }}" data-film-title="{{ addition.film.title }}" data-poster-path="{{ addition.film.poster_path }}" data-year="{{ addition.film.release_date|date:'Y' }}" data-director="{{ addition.film.crew|film_director }}" data-media-type="movie">
                                 <img class="poster" src="{{config_data.secure_base_url}}w200{{addition.film.poster_path}}">
                                 </a>
                             </li>
                         {% endfor %}
-                        {% if total > 10 %}
+                        {% if total > 7 %}
                             <li class="stack_item">
                                 <a href="{% url 'kinorg:list' glist.sqid %}" class="stack_see_all">
-                                    <span>+ {{ total|add:"-10" }} more</span>
+                                    <span>+ {{ total|add:"-7" }} more</span>
                                 </a>
                             </li>
                         {% endif %}
@@ -139,7 +139,7 @@
                     {% with total=list.addition_set.all|length %}
                     {% if total > 0 %}
                     <ul class="list_poster_stack">
-                        {% for addition in list.addition_set.all|slice:":10" %}
+                        {% for addition in list.addition_set.all|slice:":7" %}
                             <li class="stack_item">
                                 <img class="poster" src="{{ config_data.secure_base_url }}w200{{ addition.film.poster_path }}" style="opacity:0.5;">
                             </li>

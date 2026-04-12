@@ -468,14 +468,29 @@ class MyLists(LoginRequiredMixin, TemplateView):
         user = self.request.user
 
         my_lists = FilmList.objects.filter(owner=user, archived=False).order_by('-id').prefetch_related('addition_set__film')
-        guest_lists = FilmList.objects.filter(guests=user, archived=False).order_by('-id')
-        archived_lists = FilmList.objects.filter(owner=user, archived=True).order_by('-id')
+        guest_lists = FilmList.objects.filter(guests=user, archived=False).order_by('-id').prefetch_related('addition_set__film')
+        archived_lists = FilmList.objects.filter(owner=user, archived=True).order_by('-id').prefetch_related('addition_set__film')
         invitations = Invitation.objects.filter(to_user=user).exclude(accepted=True)
+
+        # Per-list invitations (sent by this user) for the invite modal on each list card
+        sent_invitations = Invitation.objects.filter(
+            film_list__in=my_lists
+        ).select_related('to_user').order_by('id')
+        per_list_invitations = {}
+        for inv in sent_invitations:
+            per_list_invitations.setdefault(inv.film_list_id, []).append({
+                'id': inv.id,
+                'username': inv.to_user.username,
+                'user_id': inv.to_user.id,
+                'accepted': inv.accepted,
+                'declined': inv.declined,
+            })
 
         context["my_lists"] = my_lists
         context["guest_lists"] = guest_lists
         context["archived_lists"] = archived_lists
         context["invitations"] = invitations
+        context["per_list_invitations"] = per_list_invitations
 
         return context
 

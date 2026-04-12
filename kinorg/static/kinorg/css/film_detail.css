@@ -568,12 +568,12 @@ p.italic {
     border-radius: 10px;
     width: 100%;
     max-width: 460px;
-    max-height: 90vh;
+    max-height: 80vh;
     display: flex;
     flex-direction: column;
     overflow: hidden;
     box-sizing: border-box;
-    padding: 0px 10px;
+    padding: 0px 10px 10px 10px;
 }
 
 .close {

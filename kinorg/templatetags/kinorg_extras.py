@@ -58,6 +58,16 @@ def country_abbr(name):
 
 
 @register.filter
+def get_item(dictionary, key):
+    return dictionary.get(key, [])
+
+
+@register.filter
+def to_json(value):
+    return json.dumps(value)
+
+
+@register.filter
 def key_crew(crew_list):
     if not crew_list:
         return []

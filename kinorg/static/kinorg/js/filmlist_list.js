@@ -16,6 +16,60 @@ const csrfToken = document.querySelector('[name="csrfmiddlewaretoken"]').value;
 let listsUserSelected = false;
 let listsDebounce;
 
+// Render invited users section from per-list invitation data embedded in the button
+function renderInvitedUsers(invitations) {
+    const existing = listsModal.querySelector('.invited_users_section');
+    if (existing) existing.remove();
+    if (!invitations || invitations.length === 0) return;
+
+    const section = document.createElement('div');
+    section.className = 'invited_users_section';
+    section.innerHTML = '<p><b>Invited users</b></p><ul class="invited_users_list"></ul>';
+    const ul = section.querySelector('.invited_users_list');
+
+    invitations.forEach(inv => {
+        const li = document.createElement('li');
+        li.className = 'invited_user_item';
+        li.dataset.invitationId = inv.id;
+        let statusHtml;
+        if (inv.accepted) {
+            statusHtml = `✓ Accepted <button class="remove_guest_btn" data-user-id="${inv.user_id}">Remove</button>`;
+        } else if (inv.declined) {
+            statusHtml = `✗ Declined`;
+        } else {
+            statusHtml = `Pending <button class="cancel_invite_btn" data-invitation-id="${inv.id}" data-username="${inv.username}">Cancel</button>`;
+        }
+        li.innerHTML = `<span>${inv.username}</span><span class="invited_user_status">${statusHtml}</span>`;
+        ul.appendChild(li);
+    });
+
+    listsModal.querySelector('.modal-content').appendChild(section);
+}
+
+// Add a new "Pending" row after a successful invite
+function addInvitedUserToList(username, invitationId) {
+    let section = listsModal.querySelector('.invited_users_section');
+    if (!section) {
+        section = document.createElement('div');
+        section.className = 'invited_users_section';
+        section.innerHTML = '<p><b>Invited users</b></p><ul class="invited_users_list"></ul>';
+        listsModal.querySelector('.modal-content').appendChild(section);
+    }
+    const li = document.createElement('li');
+    li.className = 'invited_user_item';
+    li.dataset.invitationId = invitationId;
+    li.innerHTML = `<span>${username}</span><span class="invited_user_status">Pending <button class="cancel_invite_btn" data-invitation-id="${invitationId}" data-username="${username}">Cancel</button></span>`;
+    section.querySelector('.invited_users_list').appendChild(li);
+}
+
+function removeInviteRow(li, username) {
+    li.remove();
+    const ul = listsModal.querySelector('.invited_users_list');
+    if (ul && ul.children.length === 0) {
+        listsModal.querySelector('.invited_users_section')?.remove();
+    }
+}
+
 // Open invite modal for the clicked list — each list's invite button stores the list ID/title
 document.querySelectorAll('.btn-invite').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -24,7 +78,9 @@ document.querySelectorAll('.btn-invite').forEach(btn => {
         listsMessage.textContent = '';
         listsMessage.className = 'invite_message';
         resetListsForm();
-        listsModal.style.display = 'block';
+        const invitations = JSON.parse(btn.dataset.invitations || '[]');
+        renderInvitedUsers(invitations);
+        listsModal.style.display = 'flex';
     });
 });
 
@@ -96,6 +152,34 @@ document.querySelectorAll('.archive_btn').forEach(btn => {
     });
 });
 
+// Cancel/remove invite buttons inside the modal (event delegation)
+listsModal.addEventListener('click', e => {
+    if (e.target.classList.contains('cancel_invite_btn')) {
+        const invitationId = e.target.dataset.invitationId;
+        const username = e.target.dataset.username;
+        const li = e.target.closest('li');
+        fetch('/cancel-invite/', {
+            method: 'POST',
+            headers: { 'X-CSRFToken': csrfToken },
+            body: new URLSearchParams({ invitation_id: invitationId }),
+        })
+        .then(r => r.json())
+        .then(data => { if (data.success) removeInviteRow(li, username); });
+    }
+
+    if (e.target.classList.contains('remove_guest_btn')) {
+        const userId = e.target.dataset.userId;
+        const li = e.target.closest('li');
+        fetch('/remove-guest/', {
+            method: 'POST',
+            headers: { 'X-CSRFToken': csrfToken },
+            body: new URLSearchParams({ user_id: userId, list_id: listsListId.value }),
+        })
+        .then(r => r.json())
+        .then(data => { if (data.success) removeInviteRow(li, null); });
+    }
+});
+
 // Submit invite form via AJAX — show success/error message, reset form on success
 listsForm.addEventListener('submit', e => {
     e.preventDefault();
@@ -108,7 +192,10 @@ listsForm.addEventListener('submit', e => {
     .then(data => {
         listsMessage.textContent = data.message;
         listsMessage.className = 'invite_message ' + (data.success ? 'invite_success' : 'invite_error');
-        if (data.success) resetListsForm();
+        if (data.success) {
+            addInvitedUserToList(data.username, data.invitation_id);
+            resetListsForm();
+        }
     });
 });
 
