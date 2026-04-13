@@ -266,7 +266,7 @@
                     {% if member.id %}
                     <a href="{% url 'kinorg:person_credits' member.id %}">
                     {% endif %}
-                        <img class="cast_photo" src="{% if member.profile_path %}{{config_data.secure_base_url}}w185{{member.profile_path}}{% else %}{% static 'images/placeholder.jpg' %}{% endif %}" alt="{{ member.name|default:member }}">
+                        <img class="cast_photo" loading="lazy" src="{% if member.profile_path %}{{config_data.secure_base_url}}w185{{member.profile_path}}{% else %}{% static 'images/placeholder.jpg' %}{% endif %}" alt="{{ member.name|default:member }}">
                     {% if member.id %}
                     </a>
                     {% endif %}
@@ -296,7 +296,7 @@
                     {% if member.id %}
                     <a href="{% url 'kinorg:person_credits' member.id %}">
                     {% endif %}
-                        <img class="cast_photo" src="{% if member.profile_path %}{{config_data.secure_base_url}}w185{{member.profile_path}}{% else %}{% static 'images/placeholder.jpg' %}{% endif %}" alt="{{ member.name }}">
+                        <img class="cast_photo" loading="lazy" src="{% if member.profile_path %}{{config_data.secure_base_url}}w185{{member.profile_path}}{% else %}{% static 'images/placeholder.jpg' %}{% endif %}" alt="{{ member.name }}">
                     {% if member.id %}
                     </a>
                     {% endif %}
@@ -354,9 +354,9 @@
                 <li class="similar_item">
                     <a href="{% url 'kinorg:film_detail' similar_film.id %}">
                         {% if similar_film.poster_path %}
-                            <img class="cast_photo" src="{{config_data.secure_base_url}}w185{{similar_film.poster_path}}" alt="{{ similar_film.title }}">
+                            <img class="cast_photo" loading="lazy" src="{{config_data.secure_base_url}}w185{{similar_film.poster_path}}" alt="{{ similar_film.title }}">
                         {% else %}
-                            <img class="cast_photo" src="{% static 'images/placeholder.jpg' %}" alt="{{ similar_film.title }}">
+                            <img class="cast_photo" loading="lazy" src="{% static 'images/placeholder.jpg' %}" alt="{{ similar_film.title }}">
                         {% endif %}
                     </a>
                     <p><a href="{% url 'kinorg:film_detail' similar_film.id %}">{{ similar_film.title }}</a></p>

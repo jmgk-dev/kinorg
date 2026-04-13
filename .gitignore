@@ -30,6 +30,7 @@ deploy.sh
 
 # Local scratch files
 mockup.html
+mockups/
 staticfiles/fonts/
 
 # Import data files
