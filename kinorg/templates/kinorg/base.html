@@ -178,7 +178,8 @@
         .then(r => r.json())
         .then(data => {
             if (data.success) {
-                window.location.href = '/lists/' + data.sqid + '/';
+                closeModal();
+                window.location.reload();
             } else {
                 error.textContent = data.error || 'Could not create list.';
                 error.style.display = 'block';
