@@ -1,0 +1,183 @@
+{% extends "kinorg/base.html" %}
+{% load static %}
+{% load kinorg_extras %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'kinorg/css/film_list.css' %}">
+<link rel="stylesheet" href="{% static 'kinorg/css/content_list.css' %}">
+{% endblock %}
+
+{% block page_top %}<p class="welcome_banner">Welcome, {{ user.username }}</p>{% endblock %}
+
+{% block content %}
+
+<span class="page_title">Films</span>
+
+<div class="person_page" style="margin-top:0">
+    <div class="person_tabs_wrap" style="width:100%">
+
+        <div class="tab_nav" style="justify-content:center" id="films_tab_nav">
+            <button class="tab_btn active" data-tab="watchlist">Watchlist</button>
+            <button class="tab_btn" data-tab="watched">Watched</button>
+            <button class="tab_btn" data-tab="liked">Liked</button>
+        </div>
+
+        <!-- WATCHLIST -->
+        <div class="tab_panel active" id="tab-watchlist">
+            {% if watchlist_films %}
+            <ul class="list_of_content" id="watchlist_grid"
+                data-load-more-url="{% url 'kinorg:watchlist_json' %}"
+                data-offset="{{ watchlist_next_offset }}"
+                data-sort="added_desc">
+                {% for film in watchlist_films %}
+                <li class="results_item">
+                    <a class="poster_link"
+                       href="{% url 'kinorg:film_detail' film.id %}"
+                       data-film-id="{{ film.id }}"
+                       data-film-title="{{ film.title }}"
+                       data-poster-path="{{ film.poster_path }}"
+                       data-year="{{ film.release_date|date:'Y' }}"
+                       data-director="{{ film.crew|film_director }}"
+                       data-media-type="movie">
+                        <img class="poster" loading="lazy"
+                             src="{% if film.poster_path %}{{ config_data.secure_base_url }}w342{{ film.poster_path }}{% else %}{% static 'images/placeholder.jpg' %}{% endif %}"
+                             alt="{{ film.title }}">
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+            {% if watchlist_has_more %}
+            <div class="load_more_wrap">
+                <button class="btn load_more_btn" data-grid="watchlist_grid">Load more</button>
+            </div>
+            {% endif %}
+            {% else %}
+            <div class="empty_state" style="padding:30px 0">
+                <p class="page_blurb">No films in your watchlist yet.</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- WATCHED -->
+        <div class="tab_panel" id="tab-watched">
+            {% if watched_films %}
+            <ul class="list_of_content" id="watched_grid"
+                data-load-more-url="{% url 'kinorg:liked_watched_json' %}?show_liked=0&show_watched=1"
+                data-offset="{{ watched_next_offset }}"
+                data-sort="watched_desc">
+                {% for film in watched_films %}
+                <li class="results_item">
+                    <a class="poster_link"
+                       href="{% url 'kinorg:film_detail' film.id %}"
+                       data-film-id="{{ film.id }}"
+                       data-film-title="{{ film.title }}"
+                       data-poster-path="{{ film.poster_path }}"
+                       data-year="{{ film.release_date|date:'Y' }}"
+                       data-director="{{ film.crew|film_director }}"
+                       data-media-type="movie">
+                        <img class="poster" loading="lazy"
+                             src="{% if film.poster_path %}{{ config_data.secure_base_url }}w342{{ film.poster_path }}{% else %}{% static 'images/placeholder.jpg' %}{% endif %}"
+                             alt="{{ film.title }}">
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+            {% if watched_has_more %}
+            <div class="load_more_wrap">
+                <button class="btn load_more_btn" data-grid="watched_grid">Load more</button>
+            </div>
+            {% endif %}
+            {% else %}
+            <div class="empty_state" style="padding:30px 0">
+                <p class="page_blurb">You haven't marked any films as watched yet.</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- LIKED -->
+        <div class="tab_panel" id="tab-liked">
+            {% if liked_films %}
+            <ul class="list_of_content" id="liked_grid">
+                {% for film in liked_films %}
+                <li class="results_item">
+                    <a class="poster_link"
+                       href="{% url 'kinorg:film_detail' film.tmdb_id %}"
+                       data-film-id="{{ film.tmdb_id }}"
+                       data-film-title="{{ film.title }}"
+                       data-poster-path="{{ film.poster_path }}"
+                       data-media-type="movie">
+                        <img class="poster" loading="lazy"
+                             src="{% if film.poster_path %}{{ config_data.secure_base_url }}w342{{ film.poster_path }}{% else %}{% static 'images/placeholder.jpg' %}{% endif %}"
+                             alt="{{ film.title }}">
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <div class="empty_state" style="padding:30px 0">
+                <p class="page_blurb">No liked films yet.</p>
+            </div>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Tab switching
+document.querySelectorAll('#films_tab_nav .tab_btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('#films_tab_nav .tab_btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.person_tabs_wrap .tab_panel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    });
+});
+
+// Load more
+document.querySelectorAll('.load_more_btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        const gridId = btn.dataset.grid;
+        const grid = document.getElementById(gridId);
+        const url = grid.dataset.loadMoreUrl;
+        const offset = parseInt(grid.dataset.offset);
+        const sort = grid.dataset.sort || '';
+        const TMDB_BASE = '{{ config_data.secure_base_url }}';
+        const placeholder = '{% static "images/placeholder.jpg" %}';
+
+        btn.disabled = true;
+        btn.textContent = 'Loading…';
+
+        const sep = url.includes('?') ? '&' : '?';
+        fetch(`${url}${sep}offset=${offset}&sort=${sort}`)
+            .then(r => r.json())
+            .then(data => {
+                data.films.forEach(function(f) {
+                    const li = document.createElement('li');
+                    li.className = 'results_item';
+                    const src = f.poster_path ? TMDB_BASE + 'w342' + f.poster_path : placeholder;
+                    li.innerHTML = `<a class="poster_link"
+                        href="/film-detail/${f.id}"
+                        data-film-id="${f.id}"
+                        data-film-title="${f.title}"
+                        data-poster-path="${f.poster_path || ''}"
+                        data-media-type="movie">
+                        <img class="poster" loading="lazy" src="${src}" alt="${f.title}">
+                    </a>`;
+                    grid.appendChild(li);
+                });
+                grid.dataset.offset = offset + data.films.length;
+                if (!data.has_more) {
+                    btn.closest('.load_more_wrap').remove();
+                } else {
+                    btn.disabled = false;
+                    btn.textContent = 'Load more';
+                }
+            });
+    });
+});
+</script>
+{% endblock %}

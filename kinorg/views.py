@@ -468,7 +468,7 @@ class MyLists(LoginRequiredMixin, TemplateView):
         user = self.request.user
 
         my_lists = FilmList.objects.filter(owner=user, archived=False).order_by('-id').prefetch_related('addition_set__film')
-        guest_lists = FilmList.objects.filter(guests=user, archived=False).order_by('-id').prefetch_related('addition_set__film')
+        guest_lists = FilmList.objects.filter(guests=user).order_by('-id').prefetch_related('addition_set__film')
         archived_lists = FilmList.objects.filter(owner=user, archived=True).order_by('-id').prefetch_related('addition_set__film')
         invitations = Invitation.objects.filter(to_user=user).exclude(accepted=True)
 
@@ -696,6 +696,8 @@ class ListDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
         context['is_shared'] = is_shared
         context['contributors'] = contributors
         context['all_lists'] = all_lists
+        context['is_owner'] = self.object.owner == user
+        context['is_archived_guest'] = self.object.archived and self.object.owner != user
 
         return context
 
@@ -1172,6 +1174,7 @@ class FilmDetail(LoginRequiredMixin, TemplateView):
 
         context['my_lists'] = my_lists
         context['guest_lists'] = guest_lists
+        context['lists_containing_film_count'] = len(lists_containing_film)
         context['film'] = film_obj
         context['watched'] = watched
         context['film_reviews'] = film_reviews
@@ -1194,6 +1197,8 @@ def add_film(request):
     try:
         film_object = Film.objects.get(pk=request.POST.get("id"))
         filmlist_object = FilmList.objects.get(pk=request.POST.get('list_id'))
+        if filmlist_object.archived:
+            return render(request, "kinorg/_toggle_error.html", {"message": "This list may have been archived or removed"})
         Addition.objects.get_or_create(
             film=film_object,
             film_list=filmlist_object,
@@ -1217,6 +1222,8 @@ def remove_film(request):
     try:
         my_list = FilmList.objects.get(pk=request.POST.get("list_id"))
         my_film = Film.objects.get(id=request.POST.get("id"))
+        if my_list.archived:
+            return render(request, "kinorg/_toggle_error.html", {"message": "This list may have been archived or removed"})
         Addition.objects.filter(film=my_film, film_list=my_list).delete()
     except Exception:
         return render(request, "kinorg/_toggle_error.html", {"message": "Couldn't remove film"})
@@ -1396,6 +1403,37 @@ def toggle_watchlist(request, tmdb_id):
 # =====================================================================
 # Watchlist, Liked/Watched, and Person credits pages
 # =====================================================================
+
+class FilmsView(LoginRequiredMixin, TemplateView):
+    """Combined films page — Watchlist, Watched, and Liked tabs."""
+    login_url = "user_admin:login"
+    template_name = "kinorg/films.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        limit = 48
+
+        watchlist_qs = _watchlist_qs(user).order_by(F('added_at').desc(nulls_last=True))
+        watchlist_total = watchlist_qs.count()
+        context['watchlist_films'] = list(watchlist_qs[:limit])
+        context['watchlist_has_more'] = watchlist_total > limit
+        context['watchlist_next_offset'] = limit
+
+        watched_qs = _liked_watched_qs(user).filter(watched_at__isnull=False).order_by(F('watched_at').desc(nulls_last=True))
+        watched_total = watched_qs.count()
+        context['watched_films'] = list(watched_qs[:limit])
+        context['watched_has_more'] = watched_total > limit
+        context['watched_next_offset'] = limit
+
+        liked_films = list(LikedFilm.objects.filter(user=user).order_by('-liked_at')[:limit])
+        liked_total = LikedFilm.objects.filter(user=user).count()
+        context['liked_films'] = liked_films
+        context['liked_has_more'] = liked_total > limit
+        context['liked_next_offset'] = limit
+
+        return context
+
 
 class WatchlistView(LoginRequiredMixin, TemplateView):
     """User's watchlist page. Shows films they've added to watch later, with sort/genre/country filters."""
@@ -1864,6 +1902,8 @@ def add_film_by_tmdb_id(request):
         filmlist_object = FilmList.objects.get(pk=list_id)
         if filmlist_object.owner != request.user and request.user not in filmlist_object.guests.all():
             return JsonResponse({'error': 'Permission denied'}, status=403)
+        if filmlist_object.archived:
+            return JsonResponse({'error': 'This list may have been archived or removed'}, status=403)
 
         film_object = _import_film_from_tmdb(film_id)
 
@@ -1893,6 +1933,8 @@ def remove_film_ajax(request):
         film_list = FilmList.objects.get(pk=request.POST.get('list_id'))
         if film_list.owner != request.user and request.user not in film_list.guests.all():
             return JsonResponse({'error': 'Permission denied'}, status=403)
+        if film_list.archived:
+            return JsonResponse({'error': 'This list may have been archived or removed'}, status=403)
         film = Film.objects.get(id=request.POST.get('film_id'))
         film_list.films.remove(film)
         return JsonResponse({'success': True})

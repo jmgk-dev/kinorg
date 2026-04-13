@@ -111,6 +111,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     updateActivityRow();
 
+
     // Tab switching (Cast, Crew, Reviews, Similar, Lists)
     document.querySelectorAll('.tab_btn').forEach(function (btn) {
         btn.addEventListener('click', function () {
@@ -323,6 +324,35 @@ document.addEventListener('DOMContentLoaded', function () {
                 })
                 .catch(() => {});
         }, 2000);
+    }
+
+    // Update list status buttons when user adds/removes this film from a list via the film modal
+    const filmId = document.getElementById('activity_row')?.dataset.tmdbId;
+    if (filmId) {
+        document.addEventListener('filmListChanged', function (e) {
+            if (String(e.detail.filmId) !== String(filmId)) return;
+            fetch(`/film-lists/?film_id=${filmId}`)
+                .then(r => r.json())
+                .then(data => {
+                    const all = [...(data.my_lists || []), ...(data.guest_lists || [])];
+                    const count = all.filter(l => l.contains_film).length;
+                    const actRow = document.getElementById('activity_row');
+                    const openModal = `openFilmModal('${filmId}','${(actRow.dataset.title || '').replace(/'/g,"\\'")}','${actRow.dataset.posterPath}',window.location.pathname,'','',true)`;
+
+                    ['list_status_btn_desktop', 'list_status_btn_mobile'].forEach(id => {
+                        const btn = document.getElementById(id);
+                        if (!btn || btn.tagName === 'A') return;
+                        if (count === 0) {
+                            btn.textContent = '+ Add to list';
+                            btn.classList.remove('btn-list-status--in');
+                        } else {
+                            btn.textContent = `In ${count} of your lists`;
+                            btn.classList.add('btn-list-status--in');
+                        }
+                        btn.setAttribute('onclick', openModal);
+                    });
+                });
+        });
     }
 
 });

@@ -80,6 +80,13 @@
                 </div>
                 {% endif %}
                 <button class="activity_row_btn activity_row_btn--desktop" id="log_rate_btn_desktop" onclick="openLogRateModal()"></button>
+                {% if not my_lists and not guest_lists %}
+                <button onclick="openCreateListModal()" class="btn-list-status" id="list_status_btn_desktop">+ Create a list</button>
+                {% elif lists_containing_film_count == 0 %}
+                <button class="btn btn-list-status" id="list_status_btn_desktop" onclick="openFilmModal('{{ film.id }}','{{ film.title|escapejs }}','{{ film.poster_path }}','{% url 'kinorg:film_detail' film.id %}','{{ film.release_date|date:'Y' }}','',true)">+ Add to list</button>
+                {% else %}
+                <button class="btn btn-list-status btn-list-status--in" id="list_status_btn_desktop" onclick="openFilmModal('{{ film.id }}','{{ film.title|escapejs }}','{{ film.poster_path }}','{% url 'kinorg:film_detail' film.id %}','{{ film.release_date|date:'Y' }}','',true)">In {{ lists_containing_film_count }} of your lists</button>
+                {% endif %}
             </div>
 
         </div>
@@ -91,6 +98,15 @@
         <p class="overview">{{ film.overview }}</p>
         {% endif %}
 
+        <div class="watch_section watch_section--mobile watch_section--mobile-lists">
+            {% if not my_lists and not guest_lists %}
+            <button onclick="openCreateListModal()" class="btn-list-status" id="list_status_btn_mobile">+ Create a list</button>
+            {% elif lists_containing_film_count == 0 %}
+            <button class="btn btn-list-status" id="list_status_btn_mobile" onclick="openFilmModal('{{ film.id }}','{{ film.title|escapejs }}','{{ film.poster_path }}','{% url 'kinorg:film_detail' film.id %}','{{ film.release_date|date:'Y' }}','',true)">+ Add to list</button>
+            {% else %}
+            <button class="btn btn-list-status btn-list-status--in" id="list_status_btn_mobile" onclick="openFilmModal('{{ film.id }}','{{ film.title|escapejs }}','{{ film.poster_path }}','{% url 'kinorg:film_detail' film.id %}','{{ film.release_date|date:'Y' }}','',true)">In {{ lists_containing_film_count }} of your lists</button>
+            {% endif %}
+        </div>
         {% if watch_providers or pcc_url or film.videos %}
         <div class="watch_section watch_section--mobile">
             <p class="details_label">Where to Watch</p>
@@ -255,7 +271,6 @@
             <button class="tab_btn" data-tab="crew">Crew</button>
             <button class="tab_btn" data-tab="reviews">Reviews</button>
             <button class="tab_btn" data-tab="similar">Similar</button>
-            <button class="tab_btn" data-tab="lists">Lists</button>
         </div>
 
         <div class="tab_panel active" id="tab-cast">
@@ -379,26 +394,6 @@
             {% endif %}
         </div>
 
-        <div class="tab_panel" id="tab-lists">
-            {% if my_lists or guest_lists %}
-            <div class="add_remove_buttons">
-                {% for lst in my_lists %}
-                <div class="add_remove_button">
-                    <a href="{% url 'kinorg:list' lst.sqid %}" class="btn">{{ lst.title|slice:":30" }}</a>
-                    {% include "kinorg/_toggle_button.html" with lst=lst film=film is_in_list=lst.contains_film %}
-                </div>
-                {% endfor %}
-                {% for lst in guest_lists %}
-                <div class="add_remove_button">
-                    <a href="{% url 'kinorg:list' lst.sqid %}" class="btn">{{ lst.title|slice:":30" }}</a>
-                    {% include "kinorg/_toggle_button.html" with lst=lst film=film is_in_list=lst.contains_film %}
-                </div>
-                {% endfor %}
-            </div>
-            {% else %}
-            <p>You don't have any lists yet. <a href="{% url 'kinorg:my_lists' %}" class="btn btn-cta">Create a list</a> to add this film!</p>
-            {% endif %}
-        </div>
         </div><!-- end modal-content-inner -->
     </div>
 </div>

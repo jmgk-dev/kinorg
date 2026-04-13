@@ -2,6 +2,7 @@ import os
 import requests
 import logging
 from django.core.cache import cache
+from kinorg.models import Invitation
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
@@ -10,6 +11,18 @@ logging.basicConfig(
     encoding='utf-8', 
     level=logging.INFO
     )
+
+def get_pending_invitations(request):
+    if not request.user.is_authenticated:
+        return {'pending_invitation_count': 0}
+    count = Invitation.objects.filter(to_user=request.user, accepted=False, declined=False).count()
+    return {'pending_invitation_count': count}
+
+
+TMDB_FALLBACK_CONFIG = {
+    'secure_base_url': 'https://image.tmdb.org/t/p/',
+}
+
 
 def get_image_config(request):
 
@@ -27,14 +40,13 @@ def get_image_config(request):
         "Authorization": f"Bearer {api_key}"
     }
     config_url = "https://api.themoviedb.org/3/configuration"
-    config_response = requests.get(config_url, headers=headers)
-    config_data = config_response.json()
-
-    # cache for 24 hours
-    images_config = config_data["images"]
-    cache.set('tmdb_config', config_data["images"], timeout=86400)
-    logger.info('Image config fetched and cached')
-
-    return {
-        'config_data': images_config
-        }
+    try:
+        config_response = requests.get(config_url, headers=headers, timeout=5)
+        config_data = config_response.json()
+        images_config = config_data["images"]
+        cache.set('tmdb_config', images_config, timeout=86400)
+        logger.info('Image config fetched and cached')
+        return {'config_data': images_config}
+    except Exception as e:
+        logger.warning(f'Failed to fetch TMDB image config, using fallback: {e}')
+        return {'config_data': TMDB_FALLBACK_CONFIG}

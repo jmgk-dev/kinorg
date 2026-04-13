@@ -40,7 +40,7 @@ if (modal) {
     }
 
     // Open modal: show immediately with skeleton placeholders, then populate lists when fetch resolves
-    function openModal(filmId, title, posterPath, detailUrl, year) {
+    function openModal(filmId, title, posterPath, detailUrl, year, director, hideTop) {
         currentFilmId = filmId;
         currentPosterPath = posterPath;
         currentTitle = title;
@@ -49,6 +49,10 @@ if (modal) {
         modalDetailLink.href = detailUrl;
         modalMeta.innerHTML = year ? `<span>${year}</span>` : '';
         modalLists.innerHTML = skeletonHTML(3);
+
+        const modalTop = document.querySelector('.film_modal_top');
+        if (modalTop) modalTop.style.display = hideTop ? 'none' : '';
+        if (modalListsWrap) modalListsWrap.style.paddingTop = hideTop ? '40px' : '';
 
         modal.style.display = 'flex';
         document.body.style.overflow = 'hidden';
@@ -195,6 +199,8 @@ if (modal) {
     window.addEventListener('pageshow', (e) => {
         if (e.persisted) closeModal();
     });
+
+    window.openFilmModal = openModal;
 
     // Intercept clicks on any .poster_link to open the modal instead of navigating
     // (skips person links which should navigate directly to the credits page)

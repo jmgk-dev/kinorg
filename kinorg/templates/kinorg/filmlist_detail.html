@@ -30,6 +30,12 @@
     </div>
     {% endif %}
 
+    {% if is_archived_guest %}
+    <div class="archived_guest_banner">
+        <p>The owner has archived this list.</p>
+    </div>
+    {% endif %}
+
     {% if object.owner == request.user %}
     <div class="invite_user">
         <button id="invite_modal_btn">Invite</button>

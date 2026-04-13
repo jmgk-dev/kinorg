@@ -58,23 +58,21 @@
     <div class="header_right">
     <a href="{% url 'kinorg:search' %}" class="btn btn-search header_search_btn"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span class="search_btn_text"> Search</span></a>
     <!-- Hamburger / close button -->
-    <button id="nav_toggle" class="nav_toggle_btn" aria-label="Toggle menu">
+    <button id="nav_toggle" class="nav_toggle_btn{% if pending_invitation_count %} nav_toggle_btn--notify{% endif %}" aria-label="Toggle menu">
         <svg id="nav_icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
             <rect class="bar bar-top" x="0" y="4"  width="24" height="2.5" rx="1.25"/>
             <rect class="bar bar-mid" x="0" y="11" width="24" height="2.5" rx="1.25"/>
             <rect class="bar bar-bot" x="0" y="18" width="24" height="2.5" rx="1.25"/>
         </svg>
     </button>
-    
+
     <!-- Menu -->
     <nav id="nav_menu">
         <ul>
             <li><b>{{ user.username }}</b></li>
-            <li><a href="{% url 'kinorg:watchlist' %}">Watchlist</a></li>
             <li><a href="{% url 'kinorg:my_lists' %}">Lists</a></li>
-            <li><a href="{% url 'kinorg:create_list' %}">Create List</a></li>
-            <li><a href="{% url 'kinorg:invitations' %}">Invitations</a></li>
-            <li><a href="{% url 'kinorg:liked_films' %}">Liked &amp; Watched</a></li>
+            <li><a href="{% url 'kinorg:invitations' %}">Invitations{% if pending_invitation_count %} <span class="nav_invite_badge">{{ pending_invitation_count }}</span>{% endif %}</a></li>
+            <li><a href="{% url 'kinorg:films' %}">Films</a></li>
             <li><a href="{% url 'film_games:hub' %}">Games</a></li>
             <li><a href="{% url 'kinorg:about' %}">About</a></li>
             <li>
@@ -125,6 +123,80 @@
 <script src="{% static 'kinorg/js/typeahead.js' %}"></script>
 {% include "kinorg/_film_modal.html" %}
 <script src="{% static 'kinorg/js/film_modal.js' %}"></script>
+
+{% if user.is_authenticated %}
+<div id="create_list_modal" class="modal" style="display:none">
+    <div class="modal-content" style="max-width:400px">
+        <button class="close" id="create_list_modal_close">&times;</button>
+        <div class="modal-content-inner">
+            <h4 style="margin-bottom:16px">Create a list</h4>
+            <div class="invite_form_row">
+                <input type="text" id="create_list_title_input" placeholder="List name…" maxlength="80" autocomplete="off">
+                <button id="create_list_submit" class="btn btn-cta">Create</button>
+            </div>
+            <p id="create_list_error" style="color:#e05252;font-size:13px;margin-top:8px;display:none"></p>
+        </div>
+    </div>
+</div>
+<script>
+(function () {
+    const modal = document.getElementById('create_list_modal');
+    const input = document.getElementById('create_list_title_input');
+    const submit = document.getElementById('create_list_submit');
+    const error = document.getElementById('create_list_error');
+
+    function getCsrf() {
+        const m = document.cookie.match(/csrftoken=([^;]+)/);
+        return m ? m[1] : '';
+    }
+
+    window.openCreateListModal = function () {
+        input.value = '';
+        error.style.display = 'none';
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        setTimeout(() => input.focus(), 50);
+    };
+
+    function closeModal() {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+
+    document.getElementById('create_list_modal_close').addEventListener('click', closeModal);
+    modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+
+    function doCreate() {
+        const title = input.value.trim();
+        if (!title) return;
+        submit.disabled = true;
+        fetch('/create-list-ajax/', {
+            method: 'POST',
+            headers: { 'X-CSRFToken': getCsrf() },
+            body: new URLSearchParams({ title }),
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                window.location.href = '/lists/' + data.sqid + '/';
+            } else {
+                error.textContent = data.error || 'Could not create list.';
+                error.style.display = 'block';
+                submit.disabled = false;
+            }
+        })
+        .catch(() => {
+            error.textContent = 'Something went wrong.';
+            error.style.display = 'block';
+            submit.disabled = false;
+        });
+    }
+
+    submit.addEventListener('click', doCreate);
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') doCreate(); });
+}());
+</script>
+{% endif %}
 {% block extra_js %}{% endblock %}
 <div id="page_progress_bar"></div>
 <script>

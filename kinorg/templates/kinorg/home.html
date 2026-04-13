@@ -18,7 +18,7 @@
 		{% if user.is_authenticated %}
 			{% if not has_lists %}
 			<div class="home_quickstart">
-				<p>You don't have any lists yet. <a href="{% url 'kinorg:create_list' %}" class="btn btn-cta">Create one</a> to get started — then search for films and invite friends to add to it.</p>
+				<p>You don't have any lists yet. <button onclick="openCreateListModal()" class="btn btn-cta">Create one</button> to get started — then search for films and invite friends to add to it.</p>
 			</div>
 			{% endif %}
 		{% else %}
