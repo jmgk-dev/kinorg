@@ -23,7 +23,7 @@ pexpect==4.9.0
 prompt_toolkit==3.0.52
 ptyprocess==0.7.0
 pure_eval==0.2.3
-Pygments==2.19.2
+Pygments>=2.20.0
 pymemcache==4.0.0
 python-dotenv==1.2.1
 requests>=2.33.0
