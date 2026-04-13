@@ -31,7 +31,7 @@ sqids==0.5.2
 sqlparse==0.5.4
 stack-data==0.6.3
 traitlets==5.14.3
-urllib3==2.6.2
+urllib3==2.6.3
 wcwidth==0.2.14
 WebOb==1.8.9
 whitenoise==6.12.0
