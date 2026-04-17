@@ -34,6 +34,9 @@ if (modal) {
         `).join('');
     }
 
+    const ICON_ADD = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>';
+    const ICON_CHECK = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+
     // Open modal: show immediately with skeleton placeholders, then populate lists when fetch resolves.
     // hideTop: when true, hides the poster/title/year section at the top of the modal. Used on the
     // film detail page where that information is already visible — avoids redundancy.
@@ -77,8 +80,9 @@ if (modal) {
                 <button class="film_modal_toggle_btn ${lst.contains_film ? 'remove_button' : 'add_button'}"
                         data-list-id="${lst.id}"
                         data-film-id="${filmId}"
-                        data-in-list="${lst.contains_film}">
-                    ${lst.contains_film ? 'Remove' : 'Add'}
+                        data-in-list="${lst.contains_film}"
+                        aria-label="${lst.contains_film ? 'Remove from list' : 'Add to list'}">
+                    ${lst.contains_film ? ICON_CHECK : ICON_ADD}
                 </button>
             </div>
         `).join('');
@@ -94,7 +98,7 @@ if (modal) {
         const inList = btn.dataset.inList === 'true';
 
         btn.disabled = true;
-        btn.textContent = '';
+        btn.innerHTML = '';
         btn.classList.add('btn-loading');
 
         const url = inList ? '/remove-film-ajax/' : '/add-film-by-id/';
@@ -111,20 +115,21 @@ if (modal) {
                 const nowInList = !inList;
                 btn.dataset.inList = nowInList;
                 btn.className = `film_modal_toggle_btn ${nowInList ? 'remove_button' : 'add_button'}`;
-                btn.textContent = nowInList ? 'Remove' : 'Add';
+                btn.innerHTML = nowInList ? ICON_CHECK : ICON_ADD;
+                btn.setAttribute('aria-label', nowInList ? 'Remove from list' : 'Add to list');
                 document.dispatchEvent(new CustomEvent('filmListChanged', {
                     detail: { filmId, listId, nowInList, posterPath: currentPosterPath, title: currentTitle }
                 }));
             } else {
                 btn.classList.remove('btn-loading');
-                btn.textContent = inList ? 'Remove' : 'Add';
+                btn.innerHTML = inList ? ICON_CHECK : ICON_ADD;
             }
             btn.disabled = false;
         })
         .catch(() => {
             btn.disabled = false;
             btn.classList.remove('btn-loading');
-            btn.textContent = inList ? 'Remove' : 'Add';
+            btn.innerHTML = inList ? ICON_CHECK : ICON_ADD;
         });
     });
 
