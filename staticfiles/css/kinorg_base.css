@@ -624,7 +624,7 @@ p {
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 12px;
     padding: 20px;
-    max-width: 460px;
+    max-width: 360px;
     width: 100%;
     position: relative;
     height: min(420px, 90vh);
@@ -671,17 +671,34 @@ p {
     flex-direction: column;
     gap: 4px;
     padding-top: 4px;
+    min-width: 0;
 }
 
 .film_modal_info h4 {
     margin: 0;
 }
 
+.film_modal_detail_link {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    text-decoration: none;
+    color: inherit;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    transition: background 0.15s;
+}
+
+.film_modal_detail_link:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
 .film_modal_meta {
     display: flex;
     flex-direction: column;
     gap: 2px;
-    margin: 0 0 8px;
+    margin: 0;
     font-size: 0.8rem;
     opacity: 0.65;
 }
@@ -715,6 +732,7 @@ p {
     gap: 8px;
     height: 100%;
     overflow-y: auto;
+    padding-right: 8px;
 }
 
 

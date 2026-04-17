@@ -9,7 +9,7 @@
 
 <div class="film_header_wrap">
     {% if film.backdrop_path %}
-    <div class="film_backdrop_banner" style="background-image: linear-gradient(to bottom, transparent 40%, black 100%), url('{{config_data.secure_base_url}}w1280{{film.backdrop_path}}');"></div>
+    <div class="film_backdrop_banner" style="background-image: url('{{config_data.secure_base_url}}w1280{{film.backdrop_path}}');"></div>
     {% endif %}
     <div class="film_header_inner" {% if film.backdrop_path %}style="background-image: linear-gradient(to right, black, transparent 15%, transparent 85%, black), linear-gradient(to bottom, black 0%, transparent 25%, transparent 55%, black 100%), linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)), url('{{config_data.secure_base_url}}w1280{{film.backdrop_path}}'); background-size: cover; background-position: center top;"{% endif %}>
 
