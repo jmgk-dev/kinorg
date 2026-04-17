@@ -24,6 +24,7 @@ if (modal) {
     let currentFilmId = null;
     let currentPosterPath = null;
     let currentTitle = null;
+    let pushedModalState = false;
 
     function skeletonHTML(n) {
         return Array.from({length: n}, () => `
@@ -57,6 +58,8 @@ if (modal) {
 
         modal.style.display = 'flex';
         document.body.style.overflow = 'hidden';
+        history.pushState({ filmModal: true }, '');
+        pushedModalState = true;
 
         fetch(`/film-lists/?film_id=${filmId}`)
             .then(res => res.json())
@@ -187,13 +190,27 @@ if (modal) {
         if (e.key === 'Enter') createSubmit.click();
     });
 
-    function closeModal() {
+    function closeModalUI() {
         modal.style.display = 'none';
         document.body.style.overflow = '';
         createForm.style.display = 'none';
         newListBtn.style.display = '';
         createError.textContent = '';
+        pushedModalState = false;
     }
+
+    function closeModal() {
+        if (pushedModalState) {
+            history.back(); // triggers popstate which calls closeModalUI
+        } else {
+            closeModalUI();
+        }
+    }
+
+    // Browser back button — close modal without navigating away
+    window.addEventListener('popstate', () => {
+        if (modal.style.display !== 'none') closeModalUI();
+    });
 
     closeBtn.addEventListener('click', closeModal);
     modal.addEventListener('click', (e) => {

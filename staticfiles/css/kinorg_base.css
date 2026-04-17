@@ -873,23 +873,23 @@ p {
 
 .film_modal_toggle_btn.add_button {
     background-color: rgba(255, 255, 255, 0.08);
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(255, 255, 255, 0.4);
 }
 
 .film_modal_toggle_btn.add_button:hover {
-    background-color: rgba(34, 197, 94, 0.2);
-    color: #4ade80;
+    background-color: rgba(255, 255, 255, 0.14);
+    color: rgba(255, 255, 255, 0.7);
     filter: none;
 }
 
 .film_modal_toggle_btn.remove_button {
-    background-color: rgba(34, 197, 94, 0.15);
-    color: #4ade80;
+    background-color: rgba(34, 197, 94, 0.25);
+    color: #22c55e;
 }
 
 .film_modal_toggle_btn.remove_button:hover {
-    background-color: rgba(239, 68, 68, 0.2);
-    color: #f87171;
+    background-color: rgba(34, 197, 94, 0.35);
+    color: #4ade80;
     filter: none;
 }
 
