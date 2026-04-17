@@ -10,10 +10,10 @@ import requests
 
 from django.shortcuts import render, redirect
 from django.conf import settings
-from django.http import Http404, HttpResponse, JsonResponse
+from django.http import Http404, JsonResponse
 from django.db.models.fields.json import KeyTransform
 from django.db.models.functions import Cast
-from django.db.models import IntegerField, F, Q, Exists, OuterRef, Subquery
+from django.db.models import IntegerField, F, Q, OuterRef, Subquery
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
@@ -88,6 +88,20 @@ def _get_director(crew):
     return ''
 
 
+def _serialize_film(film, **extras):
+    """Build a dict for a Film object, suitable for JSON load-more endpoints.
+    Pass additional key=value pairs to merge in (e.g. rank, added_by, pcc_url)."""
+    data = {
+        'id': film.id,
+        'title': film.title,
+        'poster_path': film.poster_path,
+        'year': str(film.release_date.year) if film.release_date else '',
+        'director': _get_director(film.crew),
+    }
+    data.update(extras)
+    return data
+
+
 def _to_str_set(lst, key='name'):
     """Convert a JSONField (which may contain plain strings or dicts) into a set of strings for comparison."""
     result = set()
@@ -155,21 +169,6 @@ def get_tmdb_data(url):
 
     return search_data
 
-
-def order_by_popularity(search_results):
-    """Sort search results with movies first then people, each group ordered by popularity descending."""
-    movies = sorted([r for r in search_results if r.get('media_type') == 'movie' or 'release_date' in r],
-                    key=lambda i: i['popularity'], reverse=True)
-    people = sorted([r for r in search_results if r.get('media_type') == 'person'],
-                    key=lambda i: i['popularity'], reverse=True)
-    return movies + people
-
-
-def films_and_people(search_data):
-    """Filter TMDB multi-search results to only movies and people (drops TV shows etc.)."""
-    filtered_films = [film for film in search_data["results"] if film['media_type'] == 'movie' or film['media_type'] == 'person']
-
-    return filtered_films
 
 
 def send_invitation(invited_list, to_user, from_user):
@@ -736,14 +735,7 @@ def list_additions_json(request, slug):
     batch = additions[offset:offset + limit]
 
     films = [
-        {
-            'id': addition.film.id,
-            'title': addition.film.title,
-            'poster_path': addition.film.poster_path,
-            'added_by': addition.added_by.username,
-            'year': str(addition.film.release_date.year) if addition.film.release_date else '',
-            'director': _get_director(addition.film.crew),
-        }
+        _serialize_film(addition.film, added_by=addition.added_by.username)
         for addition in batch
     ]
 
@@ -752,6 +744,23 @@ def list_additions_json(request, slug):
         'has_more': (offset + limit) < total,
         'next_offset': offset + limit,
     })
+
+
+@login_required(login_url='user_admin:login')
+def rename_list(request):
+    """Rename a list. Only the list owner can rename."""
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Invalid request'}, status=400)
+    title = request.POST.get('title', '').strip()
+    if not title:
+        return JsonResponse({'error': 'Name cannot be empty.'})
+    try:
+        film_list = FilmList.objects.get(pk=request.POST.get('list_id'), owner=request.user)
+    except FilmList.DoesNotExist:
+        return JsonResponse({'error': 'Not found'}, status=404)
+    film_list.title = title[:80]
+    film_list.save(update_fields=['title'])
+    return JsonResponse({'success': True, 'title': film_list.title})
 
 
 @login_required(login_url='user_admin:login')
@@ -861,17 +870,7 @@ def collection_films_json(request, tag):
     total = qs.count()
     batch = list(qs[offset:offset + limit])
 
-    films = [
-        {
-            'id': f.id,
-            'title': f.title,
-            'poster_path': f.poster_path,
-            'rank': f.rank,
-            'year': str(f.release_date.year) if f.release_date else '',
-            'director': _get_director(f.crew),
-        }
-        for f in batch
-    ]
+    films = [_serialize_film(f, rank=f.rank) for f in batch]
 
     return JsonResponse({
         'films': films,
@@ -1499,16 +1498,7 @@ def watchlist_json(request):
     batch = qs[offset:offset + limit]
 
     return JsonResponse({
-        'films': [
-            {
-                'id': f.id,
-                'title': f.title,
-                'poster_path': f.poster_path,
-                'year': str(f.release_date.year) if f.release_date else '',
-                'director': _get_director(f.crew),
-            }
-            for f in batch
-        ],
+        'films': [_serialize_film(f) for f in batch],
         'has_more': (offset + limit) < total,
         'next_offset': offset + limit,
     })
@@ -1613,16 +1603,7 @@ def liked_watched_json(request):
     batch = qs[offset:offset + limit]
 
     return JsonResponse({
-        'films': [
-            {
-                'id': f.id,
-                'title': f.title,
-                'poster_path': f.poster_path,
-                'year': str(f.release_date.year) if f.release_date else '',
-                'director': _get_director(f.crew),
-            }
-            for f in batch
-        ],
+        'films': [_serialize_film(f) for f in batch],
         'has_more': (offset + limit) < total,
         'next_offset': offset + limit,
     })

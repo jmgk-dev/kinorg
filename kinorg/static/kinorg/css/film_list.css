@@ -65,6 +65,13 @@
     margin-top: 20px;
 }
 
+.list_card_actions {
+    display: flex;
+    gap: 8px;
+    align-self: flex-end;
+    margin-top: auto;
+}
+
 .archive_btn {
     background: none;
     border: 1px solid rgba(255,255,255,0.25);

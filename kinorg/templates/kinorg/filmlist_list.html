@@ -69,7 +69,10 @@
 
                     {% endwith %}
 
-                    <button class="archive_btn archive_btn--card" data-url="{% url 'kinorg:toggle_archive_list' list.sqid %}">Archive</button>
+                    <div class="list_card_actions">
+                        <button class="archive_btn rename_btn" data-list-id="{{ list.id }}" data-list-title="{{ list.title }}">Rename</button>
+                        <button class="archive_btn archive_btn--card" data-url="{% url 'kinorg:toggle_archive_list' list.sqid %}">Archive</button>
+                    </div>
 
                 </li>
 
@@ -159,6 +162,20 @@
     </div>
 {% endif %}
 
+</div>
+
+<div id="rename_modal" class="modal" style="display:none">
+    <div class="modal-content" style="max-width:400px">
+        <button class="close" id="rename_modal_close">&times;</button>
+        <div class="modal-content-inner">
+            <h4 style="margin-bottom:16px">Rename list</h4>
+            <div class="invite_form_row">
+                <input type="text" id="rename_input" placeholder="List name…" maxlength="80" autocomplete="off">
+                <button id="rename_submit" class="btn btn-cta">Save</button>
+            </div>
+            <p id="rename_error" style="color:#e05252;font-size:13px;margin-top:8px;display:none"></p>
+        </div>
+    </div>
 </div>
 
 <div id="lists_invite_modal" class="modal" style="display:none">

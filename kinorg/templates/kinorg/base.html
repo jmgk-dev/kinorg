@@ -56,9 +56,9 @@
 {% if user.is_authenticated %}
 
     <div class="header_right">
-    <a href="{% url 'kinorg:search' %}" class="btn btn-search header_search_btn"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span class="search_btn_text"> Search</span></a>
+    <a href="{% url 'kinorg:search' %}" class="btn btn-search header_search_btn"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span class="search_btn_text"> Search</span></a>
     <!-- Hamburger / close button -->
-    <button id="nav_toggle" class="nav_toggle_btn{% if pending_invitation_count %} nav_toggle_btn--notify{% endif %}" aria-label="Toggle menu">
+    <button id="nav_toggle" class="nav_toggle_btn{% if pending_invitation_count %} nav_toggle_btn--notify{% endif %}" aria-label="Toggle menu" aria-expanded="false">
         <svg id="nav_icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
             <rect class="bar bar-top" x="0" y="4"  width="24" height="2.5" rx="1.25"/>
             <rect class="bar bar-mid" x="0" y="11" width="24" height="2.5" rx="1.25"/>
@@ -119,6 +119,7 @@
 </div>{# end page_content #}
 
 {% if user.is_authenticated %}<div id="nav_backdrop"></div>{% endif %}
+<script src="{% static 'kinorg/js/utils.js' %}"></script>
 {% if user.is_authenticated %}<script src="{% static 'kinorg/js/nav.js' %}"></script>{% endif %}
 <script src="{% static 'kinorg/js/typeahead.js' %}"></script>
 {% include "kinorg/_film_modal.html" %}
@@ -139,17 +140,18 @@
     </div>
 </div>
 <script>
+// ===== CREATE LIST MODAL =====
+// Global modal available on every page. Triggered by window.openCreateListModal(), which is
+// called from the nav, the lists page header, and any empty-state "Create your first list"
+// buttons. POSTs to /create-list-ajax/ and reloads the current page on success so the new
+// list appears immediately (rather than redirecting away to the empty list detail page).
 (function () {
     const modal = document.getElementById('create_list_modal');
     const input = document.getElementById('create_list_title_input');
     const submit = document.getElementById('create_list_submit');
     const error = document.getElementById('create_list_error');
 
-    function getCsrf() {
-        const m = document.cookie.match(/csrftoken=([^;]+)/);
-        return m ? m[1] : '';
-    }
-
+    // Exposed globally so any button on any page can open the modal
     window.openCreateListModal = function () {
         input.value = '';
         error.style.display = 'none';
@@ -165,6 +167,7 @@
 
     document.getElementById('create_list_modal_close').addEventListener('click', closeModal);
     modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal.style.display !== 'none') closeModal(); });
 
     function doCreate() {
         const title = input.value.trim();
@@ -178,6 +181,7 @@
         .then(r => r.json())
         .then(data => {
             if (data.success) {
+                // Stay on the current page — reload to show the new list
                 closeModal();
                 window.location.reload();
             } else {

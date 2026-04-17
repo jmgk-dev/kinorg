@@ -21,11 +21,6 @@ if (modal) {
     const placeholder = modal.dataset.placeholder;
     const TMDB_BASE = 'https://image.tmdb.org/t/p/';
 
-    function getCsrf() {
-        const match = document.cookie.match(/csrftoken=([^;]+)/);
-        return match ? match[1] : '';
-    }
-
     let currentFilmId = null;
     let currentPosterPath = null;
     let currentTitle = null;
@@ -39,7 +34,9 @@ if (modal) {
         `).join('');
     }
 
-    // Open modal: show immediately with skeleton placeholders, then populate lists when fetch resolves
+    // Open modal: show immediately with skeleton placeholders, then populate lists when fetch resolves.
+    // hideTop: when true, hides the poster/title/year section at the top of the modal. Used on the
+    // film detail page where that information is already visible — avoids redundancy.
     function openModal(filmId, title, posterPath, detailUrl, year, director, hideTop) {
         currentFilmId = filmId;
         currentPosterPath = posterPath;
@@ -50,6 +47,7 @@ if (modal) {
         modalMeta.innerHTML = year ? `<span>${year}</span>` : '';
         modalLists.innerHTML = skeletonHTML(3);
 
+        // Hide the top section (poster/title/link) when opening from the film detail page
         const modalTop = document.querySelector('.film_modal_top');
         if (modalTop) modalTop.style.display = hideTop ? 'none' : '';
         if (modalListsWrap) modalListsWrap.style.paddingTop = hideTop ? '40px' : '';
@@ -195,6 +193,9 @@ if (modal) {
     closeBtn.addEventListener('click', closeModal);
     modal.addEventListener('click', (e) => {
         if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.style.display !== 'none') closeModal();
     });
     window.addEventListener('pageshow', (e) => {
         if (e.persisted) closeModal();

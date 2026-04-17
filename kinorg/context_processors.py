@@ -5,12 +5,6 @@ from django.core.cache import cache
 from kinorg.models import Invitation
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(
-    filename='logs/cache.log',
-    format='%(asctime)s - %(message)s',
-    encoding='utf-8', 
-    level=logging.INFO
-    )
 
 def get_pending_invitations(request):
     if not request.user.is_authenticated:

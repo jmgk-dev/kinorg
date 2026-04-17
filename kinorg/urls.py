@@ -10,6 +10,7 @@ urlpatterns = [
     path("lists/<slug>/", views.ListDetail.as_view(), name="list"),
     path("lists/<slug>/additions/", views.list_additions_json, name="list_additions_json"),
     path("lists/<slug>/archive/", views.toggle_archive_list, name="toggle_archive_list"),
+    path("rename-list/", views.rename_list, name="rename_list"),
     path("create/", views.CreateList.as_view(), name="create_list"),
     path("add-film/", views.add_film, name="add_film"),
     path("remove-film/", views.remove_film, name="remove_film"),

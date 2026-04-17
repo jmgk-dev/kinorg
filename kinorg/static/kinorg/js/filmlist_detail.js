@@ -112,6 +112,11 @@ if (loadMoreBtn && filmGrid) {
                     loadMoreBtn.disabled = false;
                     loadMoreBtn.textContent = 'Load more';
                 }
+            })
+            .catch(() => {
+                removeSkeletons();
+                loadMoreBtn.disabled = false;
+                loadMoreBtn.textContent = 'Load more';
             });
     });
 }
@@ -122,10 +127,9 @@ if (loadMoreBtn && filmGrid) {
 const archiveBtn = document.querySelector('.archive_btn');
 if (archiveBtn) {
     archiveBtn.addEventListener('click', () => {
-        const csrfToken = document.cookie.match(/csrftoken=([^;]+)/)[1];
         fetch(archiveBtn.dataset.url, {
             method: 'POST',
-            headers: { 'X-CSRFToken': csrfToken },
+            headers: { 'X-CSRFToken': getCsrf() },
         })
         .then(r => r.json())
         .then(data => {
@@ -188,6 +192,12 @@ window.addEventListener('click', (e) => {
         if (openedViaInviteLink) history.back();
     }
 });
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && inviteModal && inviteModal.style.display !== 'none') {
+        inviteModal.style.display = 'none';
+        if (openedViaInviteLink) history.back();
+    }
+});
 
 const usernameInput = document.getElementById('invite_username_input');
 const selectedUser = document.getElementById('selected_user');
@@ -196,8 +206,7 @@ const clearSelected = document.getElementById('clear_selected');
 const listIdInput = document.querySelector('input[name="list_id"]');
 const listId = listIdInput ? listIdInput.value : null;
 const inviteForm = document.querySelector('#invite_modal form');
-const csrfTokenEl = document.querySelector('[name="csrfmiddlewaretoken"]');
-const csrfToken = csrfTokenEl ? csrfTokenEl.value : null;
+// getCsrf() is provided by utils.js (loaded in base.html)
 let debounceTimer;
 let userSelected = false;
 
@@ -263,7 +272,7 @@ if (inviteForm) {
 
             fetch('/cancel-invite/', {
                 method: 'POST',
-                headers: { 'X-CSRFToken': csrfToken },
+                headers: { 'X-CSRFToken': getCsrf() },
                 body: new URLSearchParams({ invitation_id: invitationId }),
             })
             .then(res => res.json())
@@ -278,7 +287,7 @@ if (inviteForm) {
 
             fetch('/remove-guest/', {
                 method: 'POST',
-                headers: { 'X-CSRFToken': csrfToken },
+                headers: { 'X-CSRFToken': getCsrf() },
                 body: new URLSearchParams({ user_id: userId, list_id: listId }),
             })
             .then(res => res.json())

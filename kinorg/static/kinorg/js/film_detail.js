@@ -63,10 +63,14 @@ window.onclick = function(event) {
     if (event.target === videosModal) closeVideosModal();
 };
 
-// Extract CSRF token from cookies for AJAX POST requests
-function getCsrf() {
-    return document.cookie.match(/csrftoken=([^;]+)/)[1];
-}
+// Close modals on Escape key
+document.addEventListener('keydown', function (event) {
+    if (event.key !== 'Escape') return;
+    const logRateModal = document.getElementById('log-rate-modal');
+    const videosModal = document.getElementById('videos-modal');
+    if (logRateModal && logRateModal.style.display !== 'none') closeLogRateModal();
+    if (videosModal && videosModal.style.display !== 'none') closeVideosModal();
+});
 
 // Update the activity row below the film header to reflect current state
 // Shows "Log, Rate & Review" when no actions taken, or coloured pills for each action
@@ -162,7 +166,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (badge) badge.style.display = data.in_watchlist ? '' : 'none';
                     updateActivityRow();
                 }
-            });
+            })
+            .catch(() => {});
         });
     }
 
@@ -190,7 +195,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (!data.watched) row.dataset.stars = '';
                     updateActivityRow();
                 }
-            });
+            })
+            .catch(() => {});
         });
     }
 
@@ -216,7 +222,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     row.dataset.liked = data.liked ? 'true' : 'false';
                     updateActivityRow();
                 }
-            });
+            })
+            .catch(() => {});
         });
     }
 
@@ -230,7 +237,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 method: 'POST',
                 headers: { 'X-CSRFToken': getCsrf() },
                 body: formData,
-            }).then(() => window.location.reload());
+            })
+            .then(() => window.location.reload())
+            .catch(() => window.location.reload());
         });
     }
 
@@ -266,7 +275,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     privateCheckbox.checked = !data.review_visible;
                     updatePrivateLabel(!data.review_visible);
                 }
-            });
+            })
+            .catch(() => {});
         });
     }
 
@@ -284,7 +294,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     btn.classList.toggle('flagged', data.flagged);
                     btn.textContent = data.flagged ? '🚩 Flagged' : 'Flag';
                 }
-            });
+            })
+            .catch(() => {});
         });
     });
 
@@ -326,10 +337,17 @@ document.addEventListener('DOMContentLoaded', function () {
         }, 2000);
     }
 
-    // Update list status buttons when user adds/removes this film from a list via the film modal
+    // ===== LIST STATUS BUTTON — live update =====
+    // The header shows a button indicating how many of the user's lists contain this film.
+    // When the film modal adds or removes the film from a list, 'filmListChanged' fires on
+    // document (dispatched by film_modal.js). We re-fetch the user's lists and update both
+    // the desktop and mobile buttons to reflect the new count without a page reload.
+    // The 'hideTop' flag (7th arg to openFilmModal) hides the redundant poster/title section
+    // in the modal since we're already on the film's detail page.
     const filmId = document.getElementById('activity_row')?.dataset.tmdbId;
     if (filmId) {
         document.addEventListener('filmListChanged', function (e) {
+            // Ignore events for other films (the modal is global, shared across all posters)
             if (String(e.detail.filmId) !== String(filmId)) return;
             fetch(`/film-lists/?film_id=${filmId}`)
                 .then(r => r.json())
@@ -339,8 +357,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     const actRow = document.getElementById('activity_row');
                     const openModal = `openFilmModal('${filmId}','${(actRow.dataset.title || '').replace(/'/g,"\\'")}','${actRow.dataset.posterPath}',window.location.pathname,'','',true)`;
 
+                    // Update both desktop and mobile variants of the button
                     ['list_status_btn_desktop', 'list_status_btn_mobile'].forEach(id => {
                         const btn = document.getElementById(id);
+                        // Skip if not found or if it's the static <a> "Create a list" link
                         if (!btn || btn.tagName === 'A') return;
                         if (count === 0) {
                             btn.textContent = '+ Add to list';
@@ -351,7 +371,8 @@ document.addEventListener('DOMContentLoaded', function () {
                         }
                         btn.setAttribute('onclick', openModal);
                     });
-                });
+                })
+                .catch(() => {});
         });
     }
 

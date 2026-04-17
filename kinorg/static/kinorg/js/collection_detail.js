@@ -109,6 +109,11 @@ if (loadMoreBtn && filmGrid) {
                     loadMoreBtn.disabled = false;
                     loadMoreBtn.textContent = 'Load more';
                 }
+            })
+            .catch(() => {
+                removeSkeletons();
+                loadMoreBtn.disabled = false;
+                loadMoreBtn.textContent = 'Load more';
             });
     });
 }

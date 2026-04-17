@@ -11,7 +11,7 @@ const listsSelected = document.getElementById('lists_invite_selected');
 const listsSelectedLabel = document.getElementById('lists_invite_selected_label');
 const listsClear = document.getElementById('lists_invite_clear');
 const listsAutocomplete = document.getElementById('lists_invite_autocomplete');
-const csrfToken = document.querySelector('[name="csrfmiddlewaretoken"]').value;
+// getCsrf() is provided by utils.js (loaded in base.html)
 
 let listsUserSelected = false;
 let listsDebounce;
@@ -91,6 +91,9 @@ document.getElementById('lists_invite_close').addEventListener('click', () => {
 window.addEventListener('click', e => {
     if (e.target === listsModal) listsModal.style.display = 'none';
 });
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && listsModal.style.display !== 'none') listsModal.style.display = 'none';
+});
 
 function resetListsForm() {
     listsUserSelected = false;
@@ -139,18 +142,89 @@ listsInput.addEventListener('input', () => {
 });
 
 // Archive/unarchive toggle buttons — POST then reload page to move list between sections
-document.querySelectorAll('.archive_btn').forEach(btn => {
+document.querySelectorAll('.archive_btn:not(.rename_btn)').forEach(btn => {
     btn.addEventListener('click', () => {
         fetch(btn.dataset.url, {
             method: 'POST',
-            headers: { 'X-CSRFToken': csrfToken },
+            headers: { 'X-CSRFToken': getCsrf() },
         })
         .then(r => r.json())
         .then(() => {
             window.location.reload();
+        })
+        .catch(() => {
+            window.location.reload();
         });
     });
 });
+
+// ===== RENAME MODAL =====
+// Each list card has a Rename button that opens a modal pre-filled with the current title.
+// On save, we POST to /rename-list/ and update the title in the DOM directly — no page reload
+// needed. The rename button's data-list-title is also updated so re-opening the modal shows
+// the latest name. currentListId and currentListItem track which card triggered the modal.
+(function () {
+    const modal = document.getElementById('rename_modal');
+    const input = document.getElementById('rename_input');
+    const submit = document.getElementById('rename_submit');
+    const error = document.getElementById('rename_error');
+    let currentListId = null;     // ID of the list being renamed
+    let currentListItem = null;   // The .list_item element for that list card
+
+    // Wire up each Rename button to open the modal for its list
+    document.querySelectorAll('.rename_btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            currentListId = btn.dataset.listId;
+            currentListItem = btn.closest('.list_item');
+            input.value = btn.dataset.listTitle;
+            error.style.display = 'none';
+            modal.style.display = 'flex';
+            setTimeout(() => { input.focus(); input.select(); }, 50);
+        });
+    });
+
+    document.getElementById('rename_modal_close').addEventListener('click', close);
+    modal.addEventListener('click', e => { if (e.target === modal) close(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal.style.display !== 'none') close(); });
+
+    function close() {
+        modal.style.display = 'none';
+    }
+
+    function doRename() {
+        const title = input.value.trim();
+        if (!title) return;
+        submit.disabled = true;
+        fetch('/rename-list/', {
+            method: 'POST',
+            headers: { 'X-CSRFToken': getCsrf() },
+            body: new URLSearchParams({ list_id: currentListId, title }),
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                // Update the visible title and the button's stored title in the DOM
+                const titleEl = currentListItem.querySelector('.list_item_title');
+                if (titleEl) titleEl.textContent = data.title;
+                const renameBtn = currentListItem.querySelector('.rename_btn');
+                if (renameBtn) renameBtn.dataset.listTitle = data.title;
+                close();
+            } else {
+                error.textContent = data.error || 'Could not rename list.';
+                error.style.display = 'block';
+            }
+            submit.disabled = false;
+        })
+        .catch(() => {
+            error.textContent = 'Something went wrong.';
+            error.style.display = 'block';
+            submit.disabled = false;
+        });
+    }
+
+    submit.addEventListener('click', doRename);
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') doRename(); });
+}());
 
 // Cancel/remove invite buttons inside the modal (event delegation)
 listsModal.addEventListener('click', e => {
@@ -160,7 +234,7 @@ listsModal.addEventListener('click', e => {
         const li = e.target.closest('li');
         fetch('/cancel-invite/', {
             method: 'POST',
-            headers: { 'X-CSRFToken': csrfToken },
+            headers: { 'X-CSRFToken': getCsrf() },
             body: new URLSearchParams({ invitation_id: invitationId }),
         })
         .then(r => r.json())
@@ -172,7 +246,7 @@ listsModal.addEventListener('click', e => {
         const li = e.target.closest('li');
         fetch('/remove-guest/', {
             method: 'POST',
-            headers: { 'X-CSRFToken': csrfToken },
+            headers: { 'X-CSRFToken': getCsrf() },
             body: new URLSearchParams({ user_id: userId, list_id: listsListId.value }),
         })
         .then(r => r.json())

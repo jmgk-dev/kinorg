@@ -42,6 +42,10 @@ if (filmInput && filmDropdown) {
                 });
 
                 filmDropdown.hidden = false;
+            })
+            .catch(() => {
+                filmDropdown.innerHTML = '';
+                filmDropdown.hidden = true;
             });
         }, 300);
     });
@@ -97,6 +101,10 @@ if (userInput && userDropdown) {
                 });
 
                 userDropdown.hidden = false;
+            })
+            .catch(() => {
+                userDropdown.innerHTML = '';
+                userDropdown.hidden = true;
             });
         }, 300);
     });

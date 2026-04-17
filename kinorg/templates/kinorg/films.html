@@ -127,7 +127,7 @@
 
 {% block extra_js %}
 <script>
-// Tab switching
+// Tab switching — scoped to #films_tab_nav so it doesn't interfere with other tab sets on the page
 document.querySelectorAll('#films_tab_nav .tab_btn').forEach(function(btn) {
     btn.addEventListener('click', function() {
         document.querySelectorAll('#films_tab_nav .tab_btn').forEach(b => b.classList.remove('active'));
@@ -137,7 +137,9 @@ document.querySelectorAll('#films_tab_nav .tab_btn').forEach(function(btn) {
     });
 });
 
-// Load more
+// Load more — each grid (<ul>) stores the next offset and API URL as data attributes.
+// On click, fetches the next batch and appends poster items. Removes the button when
+// the server indicates there are no further results (has_more: false).
 document.querySelectorAll('.load_more_btn').forEach(function(btn) {
     btn.addEventListener('click', function() {
         const gridId = btn.dataset.grid;
