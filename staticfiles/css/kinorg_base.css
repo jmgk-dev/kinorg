@@ -729,7 +729,7 @@ p {
 .film_modal_lists {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 0;
     height: 100%;
     overflow-y: auto;
     padding-right: 8px;
@@ -741,7 +741,7 @@ p {
     justify-content: space-between;
     align-items: center;
     gap: 8px;
-    padding: 4px 0;
+    padding: 7px 0;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
@@ -750,6 +750,7 @@ p {
     text-overflow: ellipsis;
     white-space: nowrap;
     flex: 1;
+    align-self: center;
     text-align: left;
     padding: 4px 0;
     font-size: 14px;
