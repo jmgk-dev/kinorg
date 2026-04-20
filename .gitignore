@@ -32,6 +32,9 @@ deploy.sh
 mockup.html
 mockups/
 staticfiles/fonts/
+CLAUDE.md
+TODO.md
+nohup.out
 
 # Import data files
 *.xls
