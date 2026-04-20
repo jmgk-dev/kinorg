@@ -429,6 +429,31 @@ class About(TemplateView):
     template_name = "kinorg/about.html"
 
 
+class Profile(LoginRequiredMixin, TemplateView):
+    login_url = "user_admin:login"
+    template_name = "kinorg/profile.html"
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        user = self.request.user
+        ctx['watched_count'] = WatchedFilm.objects.filter(user=user).count()
+        ctx['liked_count'] = LikedFilm.objects.filter(user=user).count()
+        ctx['watchlist_count'] = WatchlistItem.objects.filter(user=user).count()
+        ctx['list_count'] = FilmList.objects.filter(owner=user, archived=False).count()
+        return ctx
+
+
+@login_required(login_url="user_admin:login")
+def delete_account(request):
+    if request.method == "POST":
+        user = request.user
+        from django.contrib.auth import logout
+        logout(request)
+        user.delete()
+        return redirect("kinorg:home")
+    return redirect("kinorg:profile")
+
+
 class Search(LoginRequiredMixin, TemplateView):
     """Search page. The actual searching happens client-side via film_autocomplete endpoint."""
     login_url = "user_admin:login"

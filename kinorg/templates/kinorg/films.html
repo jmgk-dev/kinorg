@@ -128,14 +128,25 @@
 {% block extra_js %}
 <script>
 // Tab switching — scoped to #films_tab_nav so it doesn't interfere with other tab sets on the page
+function activateFilmsTab(tabName) {
+    const btn = document.querySelector('#films_tab_nav .tab_btn[data-tab="' + tabName + '"]');
+    const panel = document.getElementById('tab-' + tabName);
+    if (!btn || !panel) return;
+    document.querySelectorAll('#films_tab_nav .tab_btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.person_tabs_wrap .tab_panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    panel.classList.add('active');
+}
+
 document.querySelectorAll('#films_tab_nav .tab_btn').forEach(function(btn) {
     btn.addEventListener('click', function() {
-        document.querySelectorAll('#films_tab_nav .tab_btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.person_tabs_wrap .tab_panel').forEach(p => p.classList.remove('active'));
-        btn.classList.add('active');
-        document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+        activateFilmsTab(btn.dataset.tab);
+        history.replaceState(null, '', '#' + btn.dataset.tab);
     });
 });
+
+const hash = window.location.hash.replace('#', '');
+if (hash) activateFilmsTab(hash);
 
 // Load more — each grid (<ul>) stores the next offset and API URL as data attributes.
 // On click, fetches the next batch and appends poster items. Removes the button when

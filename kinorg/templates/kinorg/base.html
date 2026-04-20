@@ -69,7 +69,7 @@
     <!-- Menu -->
     <nav id="nav_menu">
         <ul>
-            <li><b>{{ user.username }}</b></li>
+            <li><a href="{% url 'kinorg:profile' %}"><b>{{ user.username }}</b></a></li>
             <li><a href="{% url 'kinorg:my_lists' %}">Lists</a></li>
             <li><a href="{% url 'kinorg:invitations' %}">Invitations{% if pending_invitation_count %} <span class="nav_invite_badge">{{ pending_invitation_count }}</span>{% endif %}</a></li>
             <li><a href="{% url 'kinorg:films' %}">Films</a></li>
