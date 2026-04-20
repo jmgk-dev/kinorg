@@ -167,6 +167,7 @@ if (modal) {
     const createForm = document.getElementById('film_modal_create_form');
     const titleInput = document.getElementById('film_modal_list_title');
     const createSubmit = document.getElementById('film_modal_create_submit');
+    const createCancel = document.getElementById('film_modal_create_cancel');
     const createError = document.getElementById('film_modal_create_error');
 
     newListBtn.addEventListener('click', () => {
@@ -175,6 +176,13 @@ if (modal) {
         titleInput.value = '';
         createError.textContent = '';
         titleInput.focus();
+    });
+
+    createCancel.addEventListener('click', () => {
+        createForm.style.display = 'none';
+        newListBtn.style.display = '';
+        createError.textContent = '';
+        titleInput.value = '';
     });
 
     createSubmit.addEventListener('click', () => {

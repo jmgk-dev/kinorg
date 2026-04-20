@@ -658,6 +658,7 @@ p {
     gap: 14px;
     align-items: flex-start;
     margin-bottom: 16px;
+    padding-right: 32px;
 }
 
 .film_modal_poster {
@@ -800,6 +801,22 @@ p {
 
 .film_modal_create_form input:focus {
     border-color: rgba(255,255,255,0.6);
+}
+
+.film_modal_create_cancel {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 18px;
+    padding: 0 4px;
+    line-height: 1;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.film_modal_create_cancel:hover {
+    color: rgba(255, 255, 255, 0.8);
+    filter: none;
 }
 
 .film_modal_create_error {
