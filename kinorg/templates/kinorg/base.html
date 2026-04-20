@@ -122,6 +122,22 @@
 <script src="{% static 'kinorg/js/utils.js' %}"></script>
 {% if user.is_authenticated %}<script src="{% static 'kinorg/js/nav.js' %}"></script>{% endif %}
 <script src="{% static 'kinorg/js/typeahead.js' %}"></script>
+{% if user.is_authenticated and kinorg_data %}
+{{ kinorg_data|json_script:"kinorg-data" }}
+<script>
+(function() {
+    var d = JSON.parse(document.getElementById('kinorg-data').textContent);
+    window.KINORG = {
+        watchedIds:   new Set(d.watched_ids),
+        likedIds:     new Set(d.liked_ids),
+        watchlistIds: new Set(d.watchlist_ids),
+        lists: d.lists.map(function(l) {
+            return { id: l.id, sqid: l.sqid, title: l.title, filmIds: new Set(l.film_ids), isOwner: l.is_owner };
+        })
+    };
+})();
+</script>
+{% endif %}
 {% include "kinorg/_film_modal.html" %}
 <script src="{% static 'kinorg/js/film_modal.js' %}"></script>
 

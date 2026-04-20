@@ -73,6 +73,11 @@ COUNTRY_ISO = {
 }
 
 
+def _invalidate_user_kinorg_cache(user_id):
+    """Clear the per-user Memcached entry so the next page load rebuilds it."""
+    cache.delete(f"kinorg_user_{user_id}")
+
+
 def _get_director(crew):
     """Extract the first Director's name from a crew JSONField. Handles both list and raw JSON string formats."""
     if not crew:
@@ -774,6 +779,7 @@ def toggle_archive_list(request, slug):
         return JsonResponse({'error': 'Not found'}, status=404)
     film_list.archived = not film_list.archived
     film_list.save(update_fields=['archived'])
+    _invalidate_user_kinorg_cache(request.user.id)
     return JsonResponse({'archived': film_list.archived})
 
 
@@ -1289,6 +1295,9 @@ def add_review(request):
             defaults={'stars': stars, 'mini_review': mini_review, 'review_visible': review_visible},
         )
 
+        if created:
+            _invalidate_user_kinorg_cache(user.id)
+
         # Redirect back to the film detail page
         return redirect('kinorg:film_detail', id=film_id)
 
@@ -1345,7 +1354,9 @@ def toggle_like(request, tmdb_id):
         )
         if not created:
             liked.delete()
+            _invalidate_user_kinorg_cache(request.user.id)
             return JsonResponse({'liked': False})
+        _invalidate_user_kinorg_cache(request.user.id)
         return JsonResponse({'liked': True})
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
@@ -1360,6 +1371,7 @@ def toggle_watched(request, tmdb_id):
     existing = WatchedFilm.objects.filter(user=request.user, film_id=tmdb_id).first()
     if existing:
         existing.delete()
+        _invalidate_user_kinorg_cache(request.user.id)
         return JsonResponse({'watched': False})
 
     # Ensure film exists in DB — use get_or_create so existing data is never overwritten
@@ -1374,6 +1386,7 @@ def toggle_watched(request, tmdb_id):
         },
     )
     WatchedFilm.objects.create(user=request.user, film=film)
+    _invalidate_user_kinorg_cache(request.user.id)
     return JsonResponse({'watched': True})
 
 
@@ -1385,6 +1398,7 @@ def toggle_watchlist(request, tmdb_id):
     existing = WatchlistItem.objects.filter(user=request.user, film_id=tmdb_id).first()
     if existing:
         existing.delete()
+        _invalidate_user_kinorg_cache(request.user.id)
         return JsonResponse({'in_watchlist': False})
     release_date = request.POST.get('release_date') or str(_date.today())
     film, _ = Film.objects.get_or_create(
@@ -1396,6 +1410,7 @@ def toggle_watchlist(request, tmdb_id):
         },
     )
     WatchlistItem.objects.create(user=request.user, film=film)
+    _invalidate_user_kinorg_cache(request.user.id)
     return JsonResponse({'in_watchlist': True})
 
 
@@ -1764,6 +1779,7 @@ def remove_guest(request):
             user = get_user_model().objects.get(pk=request.POST.get("user_id"))
             film_list.guests.remove(user)
             Invitation.objects.filter(film_list=film_list, to_user=user).delete()
+            _invalidate_user_kinorg_cache(user.id)
             return JsonResponse({'success': True})
         except (FilmList.DoesNotExist, get_user_model().DoesNotExist):
             return JsonResponse({'success': False, 'message': 'Not found.'})
@@ -1794,6 +1810,7 @@ def accept_invite(request):
             )
 
         accept_invitation(list_object, user)
+        _invalidate_user_kinorg_cache(user.id)
 
         return redirect("kinorg:my_lists")
 
@@ -1837,6 +1854,7 @@ def create_list_ajax(request):
     if not title:
         return JsonResponse({'success': False, 'error': 'Title required'})
     film_list = FilmList.objects.create(owner=request.user, title=title)
+    _invalidate_user_kinorg_cache(request.user.id)
     return JsonResponse({'success': True, 'id': film_list.id, 'sqid': film_list.sqid, 'title': film_list.title})
 
 
@@ -1894,6 +1912,7 @@ def add_film_by_tmdb_id(request):
             defaults={'added_by': request.user}
         )
 
+        _invalidate_user_kinorg_cache(request.user.id)
         return JsonResponse({'success': True})
 
     except FilmList.DoesNotExist:
@@ -1918,6 +1937,7 @@ def remove_film_ajax(request):
             return JsonResponse({'error': 'This list may have been archived or removed'}, status=403)
         film = Film.objects.get(id=request.POST.get('film_id'))
         film_list.films.remove(film)
+        _invalidate_user_kinorg_cache(request.user.id)
         return JsonResponse({'success': True})
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)

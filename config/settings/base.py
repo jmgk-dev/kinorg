@@ -69,6 +69,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'kinorg.context_processors.get_image_config',
                 'kinorg.context_processors.get_pending_invitations',
+                'kinorg.context_processors.get_user_kinorg_data',
             ],
         },
     },

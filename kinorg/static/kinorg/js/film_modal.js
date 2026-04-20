@@ -61,12 +61,28 @@ if (modal) {
         history.pushState({ filmModal: true }, '');
         pushedModalState = true;
 
-        fetch(`/film-lists/?film_id=${filmId}`)
-            .then(res => res.json())
-            .then(data => {
-                renderLists(data, filmId);
-                updateScrollFade();
-            });
+        if (window.KINORG && window.KINORG.lists) {
+            renderListsFromCache(filmId);
+            updateScrollFade();
+        } else {
+            fetch(`/film-lists/?film_id=${filmId}`)
+                .then(res => res.json())
+                .then(data => {
+                    renderLists(data, filmId);
+                    updateScrollFade();
+                });
+        }
+    }
+
+    function renderListsFromCache(filmId) {
+        const fid = parseInt(filmId);
+        const myLists = window.KINORG.lists
+            .filter(l => l.isOwner)
+            .map(l => ({ ...l, contains_film: l.filmIds.has(fid) }));
+        const guestLists = window.KINORG.lists
+            .filter(l => !l.isOwner)
+            .map(l => ({ ...l, contains_film: l.filmIds.has(fid) }));
+        renderLists({ my_lists: myLists, guest_lists: guestLists }, filmId);
     }
 
     // Render the list of user's film lists with add/remove toggle buttons
@@ -120,6 +136,16 @@ if (modal) {
                 btn.className = `film_modal_toggle_btn ${nowInList ? 'remove_button' : 'add_button'}`;
                 btn.innerHTML = nowInList ? ICON_CHECK : ICON_ADD;
                 btn.setAttribute('aria-label', nowInList ? 'Remove from list' : 'Add to list');
+
+                // Keep client-side cache in sync
+                if (window.KINORG) {
+                    const lst = window.KINORG.lists.find(l => l.id == listId);
+                    if (lst) {
+                        if (nowInList) lst.filmIds.add(parseInt(filmId));
+                        else lst.filmIds.delete(parseInt(filmId));
+                    }
+                }
+
                 document.dispatchEvent(new CustomEvent('filmListChanged', {
                     detail: { filmId, listId, nowInList, posterPath: currentPosterPath, title: currentTitle }
                 }));
@@ -166,6 +192,15 @@ if (modal) {
             if (data.success) {
                 createForm.style.display = 'none';
                 newListBtn.style.display = '';
+
+                // Keep client-side cache in sync
+                if (window.KINORG) {
+                    window.KINORG.lists.unshift({
+                        id: data.id, sqid: data.sqid, title: data.title,
+                        filmIds: new Set(), isOwner: true
+                    });
+                }
+
                 const newItem = document.createElement('div');
                 newItem.className = 'film_modal_list_item';
                 newItem.innerHTML = `
@@ -173,7 +208,8 @@ if (modal) {
                     <button class="film_modal_toggle_btn add_button"
                             data-list-id="${data.id}"
                             data-film-id="${currentFilmId}"
-                            data-in-list="false">Add</button>`;
+                            data-in-list="false"
+                            aria-label="Add to list">${ICON_ADD}</button>`;
                 modalLists.prepend(newItem);
             } else {
                 createError.textContent = data.error || 'Could not create list.';
