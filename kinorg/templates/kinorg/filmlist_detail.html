@@ -101,6 +101,13 @@
         </div>
     </div>
 
+    {% if not additions %}
+    <div class="empty_state" style="padding:40px 0">
+        <p class="page_blurb">No films in this list yet.</p>
+        <a href="{% url 'kinorg:search' %}" class="btn btn-cta">Search for films to add</a>
+    </div>
+    {% endif %}
+
     <div class="content_list_container">
         <ul class="list_of_content"
             id="film_grid"
