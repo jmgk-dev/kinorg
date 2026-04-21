@@ -49,6 +49,7 @@
     opacity: 0.5;
     text-align: center;
     margin-top: 8px;
+    max-width: 260px;
 }
 
 .signup_terms a {
