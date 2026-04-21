@@ -13,7 +13,9 @@
 
 .signup_login_link {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
 }
 
 .auth_subtitle {
