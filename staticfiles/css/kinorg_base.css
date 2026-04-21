@@ -94,6 +94,17 @@ button:active {
     max-width: 320px;
 }
 
+.btn-centered {
+    align-self: center;
+}
+
+.btn:disabled,
+button:disabled {
+    opacity: 0.35;
+    cursor: default;
+    pointer-events: none;
+}
+
 .btn:hover {
     filter: brightness(1.2);
 }

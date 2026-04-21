@@ -25,7 +25,7 @@
             <a href="{% url 'kinorg:my_lists' %}" class="btn">← Lists</a>
         </div>
         <div class="list_action_center">
-            <button class="btn btn-cta" id="filter_btn">
+            <button class="btn btn-cta" id="filter_btn" {% if not additions %}disabled{% endif %}>
                 Filter{% if current_country or current_genre or added_by_filter %} ●{% endif %}
             </button>
         </div>
@@ -104,7 +104,7 @@
     {% if not additions %}
     <div class="empty_state" style="padding:40px 0">
         <p class="page_blurb">No films in this list yet.</p>
-        <a href="{% url 'kinorg:search' %}" class="btn btn-cta">Search for films to add</a>
+        <a href="{% url 'kinorg:search' %}" class="btn btn-search btn-centered">Search for films to add</a>
     </div>
     {% endif %}
 
