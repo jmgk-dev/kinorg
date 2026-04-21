@@ -42,6 +42,18 @@
     margin: 0;
 }
 
+.signup_terms {
+    font-size: 0.78rem;
+    opacity: 0.5;
+    text-align: center;
+    margin-top: 8px;
+}
+
+.signup_terms a {
+    color: inherit;
+    text-decoration: underline;
+}
+
 .reset_link {
     display: flex;
     justify-content: center;
