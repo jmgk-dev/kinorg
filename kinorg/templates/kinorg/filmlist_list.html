@@ -38,11 +38,7 @@
                     {% with total=list.addition_set.all|length %}
 
                     <div class="list_item_header">
-                        {% if total > 0 %}
                         <a href="{% url 'kinorg:list' list.sqid %}" class="list_item_title">{{ list.title }}</a>
-                        {% else %}
-                        <span class="list_item_title">{{ list.title }}</span>
-                        {% endif %}
                         <button class="btn btn-invite" data-list-id="{{ list.id }}" data-list-title="{{ list.title }}" data-invitations="{{ per_list_invitations|get_item:list.id|to_json|escape }}">Invite</button>
                     </div>
 
