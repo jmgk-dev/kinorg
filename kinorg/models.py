@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.contrib.postgres.indexes import GinIndex
 
 from django_sqids import SqidsField, shuffle_alphabet
 
@@ -10,6 +11,9 @@ class Film(models.Model):
 
 	class Meta:
 		ordering = ["title"]
+		indexes = [
+			GinIndex(fields=['collections'], name='film_collections_gin'),
+		]
 
 	title = models.CharField(
 		max_length=200,
