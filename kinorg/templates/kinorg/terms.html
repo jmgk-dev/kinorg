@@ -1,0 +1,50 @@
+{% extends "kinorg/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" type="text/css" href="{% static 'kinorg/css/about.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="about_container">
+
+    <h4 class="about_title">Terms of Service</h4>
+
+    <div class="about_section">
+        <p>Last updated: April 2026</p>
+    </div>
+
+    <div class="about_section">
+        <h4>Using Kinorg</h4>
+        <p>Kinorg is a free service for personal, non-commercial use. By creating an account, you agree to use it responsibly and not to misuse the platform or attempt to harm other users.</p>
+    </div>
+
+    <div class="about_section">
+        <h4>Your content</h4>
+        <p>You own any content you create (lists, reviews). By posting a review, you grant Kinorg a licence to display it to other users of the service. We reserve the right to remove content that is abusive, offensive, or in violation of these terms.</p>
+    </div>
+
+    <div class="about_section">
+        <h4>Account</h4>
+        <p>You are responsible for keeping your account secure. Do not share your password. If you believe your account has been compromised, contact us immediately at <a href="mailto:jamie@jmgk.dev">jamie@jmgk.dev</a>.</p>
+    </div>
+
+    <div class="about_section">
+        <h4>Availability</h4>
+        <p>We aim to keep Kinorg running but cannot guarantee uninterrupted service. We may update, suspend, or discontinue the service at any time.</p>
+    </div>
+
+    <div class="about_section">
+        <h4>Limitation of liability</h4>
+        <p>Kinorg is provided as-is. We are not liable for any loss of data or other damages arising from use of the service.</p>
+    </div>
+
+    <div class="about_section">
+        <h4>Contact</h4>
+        <p>Questions? Email <a href="mailto:jamie@jmgk.dev">jamie@jmgk.dev</a>.</p>
+    </div>
+
+</div>
+
+{% endblock %}

@@ -429,6 +429,14 @@ class About(TemplateView):
     template_name = "kinorg/about.html"
 
 
+class Privacy(TemplateView):
+    template_name = "kinorg/privacy.html"
+
+
+class Terms(TemplateView):
+    template_name = "kinorg/terms.html"
+
+
 class Profile(LoginRequiredMixin, TemplateView):
     login_url = "user_admin:login"
     template_name = "kinorg/profile.html"

@@ -1,0 +1,55 @@
+{% extends "kinorg/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" type="text/css" href="{% static 'kinorg/css/about.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="about_container">
+
+    <h4 class="about_title">Privacy Policy</h4>
+
+    <div class="about_section">
+        <p>Last updated: April 2026</p>
+    </div>
+
+    <div class="about_section">
+        <h4>What we collect</h4>
+        <p>When you create an account, we store your username, email address, and password (hashed). We also store the content you create on Kinorg: film lists, watched/liked/watchlist records, and any reviews you write.</p>
+    </div>
+
+    <div class="about_section">
+        <h4>How we use it</h4>
+        <p>Your data is used solely to provide the Kinorg service — logging you in, showing your lists, and enabling collaboration with other users. We do not sell your data or use it for advertising.</p>
+    </div>
+
+    <div class="about_section">
+        <h4>Third-party services</h4>
+        <p>We use <strong>Bugsnag</strong> for error monitoring. If an error occurs, technical details (such as the URL and error message) may be sent to Bugsnag. No personal data is deliberately included. Film data is provided by <strong>TMDB</strong> — we do not share your data with them.</p>
+    </div>
+
+    <div class="about_section">
+        <h4>Cookies</h4>
+        <p>We use a single session cookie to keep you logged in. No tracking or advertising cookies are used.</p>
+    </div>
+
+    <div class="about_section">
+        <h4>Your rights</h4>
+        <p>You can delete your account at any time from your <a href="{% url 'kinorg:profile' %}">profile page</a>, which permanently removes all your data. You can also request a copy of your data or ask any questions by emailing <a href="mailto:jamie@jmgk.dev">jamie@jmgk.dev</a>.</p>
+    </div>
+
+    <div class="about_section">
+        <h4>Data storage</h4>
+        <p>Data is stored on servers in the EU (DigitalOcean, Amsterdam region). We take reasonable steps to keep it secure.</p>
+    </div>
+
+    <div class="about_section">
+        <h4>Contact</h4>
+        <p>For any privacy-related queries, email <a href="mailto:jamie@jmgk.dev">jamie@jmgk.dev</a>.</p>
+    </div>
+
+</div>
+
+{% endblock %}
