@@ -1,0 +1,40 @@
+.signup_page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    margin-top: 40px;
+}
+
+.signup_form_container {
+    display: flex;
+    justify-content: center;
+}
+
+.signup_login_link {
+    display: flex;
+    justify-content: center;
+}
+
+.form_field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.form_field label {
+    font-size: 0.85rem;
+    opacity: 0.8;
+}
+
+.field_error {
+    color: #ff6b6b;
+    font-size: 0.8rem;
+    margin: 0;
+}
+
+.reset_link {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+}

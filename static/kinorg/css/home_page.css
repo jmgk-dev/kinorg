@@ -1,0 +1,157 @@
+.home_page_container {
+  width: 100%;
+  flex: 1;
+  padding-top: 10px;
+}
+
+.blurb {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+    margin-top: 0;
+}
+
+@media (max-width: 600px) {
+    .blurb {
+        margin-top: 15px;
+    }
+}
+
+.blurb_text {
+    font-size: 20px;
+    text-align: center;
+    max-width: 600px;
+}
+
+.blurb_sub {
+    text-align: center;
+    margin-top: 10px;
+    padding: 3px;
+}
+
+.home_cta {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.home_login_link {
+    text-align: center;
+    font-size: 13px;
+    margin-bottom: 40px;
+}
+
+.home_quickstart {
+    text-align: center;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.home_reviews_section {
+    margin-bottom: 20px;
+    padding: 0 15px;
+}
+
+.home_reviews_list {
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-bottom: 8px;
+}
+
+.home_reviews_list::-webkit-scrollbar {
+    display: none;
+}
+
+.home_review_item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 10px;
+    padding: 10px;
+    min-width: 140px;
+    max-width: 140px;
+    flex-shrink: 0;
+}
+
+
+.home_review_text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.home_review_quote {
+    font-style: italic;
+    opacity: 0.85;
+    font-size: 12px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.home_review_user {
+    font-size: 12px;
+    opacity: 0.6;
+}
+
+.learn_more_button {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    padding: 8px 16px;
+    font-size: 16px;
+}
+
+.signup_button {
+    background: radial-gradient(circle, rgba(63, 94, 251, 1) 0%, rgba(252, 70, 107, 1) 100%);
+    padding: 8px 16px;
+    font-size: 16px;
+}
+
+.my_lists_link {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-decoration: underline;
+    margin-bottom: 40px;
+}
+
+.list_header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
+    font-style: italic;
+}
+
+/* Scrolling bar ----------------------------------- */
+
+.carousel_container {
+    height: 160px;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    scrollbar-width: none;
+}
+
+.carousel_container::-webkit-scrollbar {
+    display: none;
+}
+
+.carousel_inner {
+    display: inline-block;
+    white-space: nowrap;
+    height: 100%;
+}
+
+.carousel_inner img {
+    margin: 0 0.3em;
+}
+
+/* Scrolling bar END ----------------------------------- */

@@ -8,27 +8,11 @@
 <link rel="stylesheet" href="{% static 'kinorg/css/film_detail.css' %}">
 {% endblock %}
 
+{% block page_top %}<p class="welcome_banner">Welcome, <a href="{% url 'kinorg:profile' %}">{{ user.username }}</a></p>{% endblock %}
+
 {% block content %}
 
-    {% if all_lists|length > 1 %}
-    <div class="collection_title_wrap">
-        <button class="collection_title_btn" id="collection_picker_btn" aria-expanded="false">
-            <h4>{{ object.title }}</h4>
-            <span class="collection_picker_chevron"></span>
-        </button>
-        <ul class="collection_picker_dropdown" id="collection_picker_dropdown">
-            {% for lst in all_lists %}
-            <li class="collection_picker_item {% if lst.sqid == object.sqid %}collection_picker_active{% endif %}">
-                <a href="{% url 'kinorg:list' lst.sqid %}">{{ lst.title }}</a>
-            </li>
-            {% endfor %}
-        </ul>
-    </div>
-    {% else %}
-    <div class="list_title">
-        <h4>{{ object.title }}</h4>
-    </div>
-    {% endif %}
+    <h3 class="page_title">{{ object.title }}</h3>
 
     {% if is_archived_guest %}
     <div class="archived_guest_banner">
@@ -36,51 +20,85 @@
     </div>
     {% endif %}
 
-    {% if object.owner == request.user %}
-    <div class="invite_user">
-        <button id="invite_modal_btn">Invite</button>
+    <div class="list_action_bar">
+        <div class="list_action_left">
+            <a href="{% url 'kinorg:my_lists' %}" class="btn">← Lists</a>
+        </div>
+        <div class="list_action_center">
+            <button class="btn btn-cta" id="filter_btn">
+                Filter{% if current_country or current_genre or added_by_filter %} ●{% endif %}
+            </button>
+        </div>
+        <div class="list_action_right">
+            {% if object.owner == request.user %}
+            <button class="btn btn-invite" id="invite_modal_btn">Invite</button>
+            {% endif %}
+        </div>
     </div>
-    {% endif %}
 
-    <div class="list_controls">
-        <form method="get" id="list_controls_form">
-            <select name="sort" onchange="document.getElementById('list_controls_form').submit()">
-                <option value="date_desc" {% if current_sort == 'date_desc' %}selected{% endif %}>Date added (newest first)</option>
-                <option value="date_asc" {% if current_sort == 'date_asc' %}selected{% endif %}>Date added (oldest first)</option>
-                <option value="title_asc" {% if current_sort == 'title_asc' %}selected{% endif %}>Title (A–Z)</option>
-                <option value="title_desc" {% if current_sort == 'title_desc' %}selected{% endif %}>Title (Z–A)</option>
-                <option value="release_desc" {% if current_sort == 'release_desc' %}selected{% endif %}>Release date (newest first)</option>
-                <option value="release_asc" {% if current_sort == 'release_asc' %}selected{% endif %}>Release date (oldest first)</option>
-                {% if is_shared %}
-                <option value="added_by_asc" {% if current_sort == 'added_by_asc' %}selected{% endif %}>Added by (A–Z)</option>
-                <option value="added_by_desc" {% if current_sort == 'added_by_desc' %}selected{% endif %}>Added by (Z–A)</option>
-                {% endif %}
-            </select>
-            {% if countries %}
-            <select name="country" onchange="document.getElementById('list_controls_form').submit()">
-                <option value="">All countries</option>
-                {% for code, name in countries %}
-                <option value="{{ code }}" {% if current_country == code %}selected{% endif %}>{{ name }}</option>
-                {% endfor %}
-            </select>
-            {% endif %}
-            {% if genres %}
-            <select name="genre" onchange="document.getElementById('list_controls_form').submit()">
-                <option value="">All genres</option>
-                {% for g in genres %}
-                <option value="{{ g }}" {% if current_genre == g %}selected{% endif %}>{{ g }}</option>
-                {% endfor %}
-            </select>
-            {% endif %}
-            {% if is_shared and contributors|length > 1 %}
-            <select name="added_by" onchange="document.getElementById('list_controls_form').submit()">
-                <option value="">All members</option>
-                {% for username in contributors %}
-                <option value="{{ username }}" {% if added_by_filter == username %}selected{% endif %}>{{ username }}</option>
-                {% endfor %}
-            </select>
-            {% endif %}
-        </form>
+    <div class="filter_modal" id="filter_modal">
+        <div class="filter_modal_inner">
+            <div class="filter_modal_header">
+                <span>Filter & Sort</span>
+                <button type="button" id="filter_modal_close">✕</button>
+            </div>
+            <form method="get" id="list_controls_form">
+                <div class="filter_modal_body">
+                    <div class="filter_modal_group">
+                        <label>Sort by</label>
+                        <select name="sort">
+                            <option value="date_desc" {% if current_sort == 'date_desc' %}selected{% endif %}>Date added (newest first)</option>
+                            <option value="date_asc" {% if current_sort == 'date_asc' %}selected{% endif %}>Date added (oldest first)</option>
+                            <option value="title_asc" {% if current_sort == 'title_asc' %}selected{% endif %}>Title (A–Z)</option>
+                            <option value="title_desc" {% if current_sort == 'title_desc' %}selected{% endif %}>Title (Z–A)</option>
+                            <option value="release_desc" {% if current_sort == 'release_desc' %}selected{% endif %}>Release date (newest first)</option>
+                            <option value="release_asc" {% if current_sort == 'release_asc' %}selected{% endif %}>Release date (oldest first)</option>
+                            {% if is_shared %}
+                            <option value="added_by_asc" {% if current_sort == 'added_by_asc' %}selected{% endif %}>Added by (A–Z)</option>
+                            <option value="added_by_desc" {% if current_sort == 'added_by_desc' %}selected{% endif %}>Added by (Z–A)</option>
+                            {% endif %}
+                        </select>
+                    </div>
+                    {% if countries %}
+                    <div class="filter_modal_group">
+                        <label>Country</label>
+                        <select name="country">
+                            <option value="">All countries</option>
+                            {% for code, name in countries %}
+                            <option value="{{ code }}" {% if current_country == code %}selected{% endif %}>{{ name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% endif %}
+                    {% if genres %}
+                    <div class="filter_modal_group">
+                        <label>Genre</label>
+                        <select name="genre">
+                            <option value="">All genres</option>
+                            {% for g in genres %}
+                            <option value="{{ g }}" {% if current_genre == g %}selected{% endif %}>{{ g }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% endif %}
+                    {% if is_shared and contributors|length > 1 %}
+                    <div class="filter_modal_group">
+                        <label>Added by</label>
+                        <select name="added_by">
+                            <option value="">All members</option>
+                            {% for username in contributors %}
+                            <option value="{{ username }}" {% if added_by_filter == username %}selected{% endif %}>{{ username }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="filter_modal_footer">
+                    <a href="?" class="btn btn-clear">Clear</a>
+                    <button type="submit" class="btn btn-cta">Apply</button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <div class="content_list_container">
@@ -178,4 +196,16 @@
 
 {% block extra_js %}
 <script src="{% static 'kinorg/js/filmlist_detail.js' %}"></script>
+<script>
+(function () {
+    const filterModal = document.getElementById('filter_modal');
+    const filterBtn = document.getElementById('filter_btn');
+    const filterClose = document.getElementById('filter_modal_close');
+    if (!filterModal || !filterBtn) return;
+    filterBtn.addEventListener('click', () => filterModal.style.display = 'flex');
+    filterClose.addEventListener('click', () => filterModal.style.display = 'none');
+    filterModal.addEventListener('click', e => { if (e.target === filterModal) filterModal.style.display = 'none'; });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') filterModal.style.display = 'none'; });
+}());
+</script>
 {% endblock %}

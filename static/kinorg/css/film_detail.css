@@ -1,0 +1,1029 @@
+p.italic {
+    font-style: italic;
+    margin: 0;
+}
+
+/* ===== HEADER ===== */
+
+.film_header_wrap {
+    display: flex;
+    justify-content: center;
+    margin-top: -70px;
+    margin-bottom: 20px;
+    padding: 0 16px;
+}
+
+.film_header_inner {
+    width: 100%;
+    max-width: 960px;
+    border-radius: 10px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    overflow: hidden;
+    background-color: rgba(255,255,255,0.05);
+}
+
+.film_header_top {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    grid-template-rows: auto 1fr;
+    gap: 0 40px;
+    align-items: start;
+}
+
+.film_title_row {
+    grid-column: 2;
+    grid-row: 1;
+    margin-bottom: 12px;
+}
+
+.detail_poster_wrap {
+    position: relative;
+    width: 200px;
+    flex-shrink: 0;
+    grid-column: 1;
+    grid-row: 1 / 3;
+}
+
+.detail_poster {
+    width: 100%;
+    aspect-ratio: 2/3;
+    object-fit: cover;
+    border: 1px solid white;
+    border-radius: 5px;
+    display: block;
+}
+
+.watchlist_poster_badge {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    background: rgba(0, 0, 0, 0.72);
+    border-radius: 6px;
+    font-size: 14px;
+    line-height: 1;
+    padding: 3px 4px;
+    pointer-events: none;
+}
+
+.film_info {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: 300px;
+    overflow: hidden;
+    grid-column: 2;
+    grid-row: 2;
+}
+
+.like_btn--mobile {
+    display: none;
+}
+
+.film_action_btns {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.film_action_btns--desktop {
+    align-self: flex-end;
+    margin-bottom: auto;
+}
+
+.watched_btn {
+    background: none;
+    border: 1px solid rgba(255,255,255,0.4);
+    color: rgba(255,255,255,0.5);
+    padding: 4px 7px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: color 0.2s, border-color 0.2s;
+}
+
+.watched_btn.is-watched {
+    color: white;
+    border-color: white;
+}
+
+.watched_btn.is-watched .watched_pupil {
+    fill: currentColor;
+}
+
+.watched_btn--mobile {
+    display: none;
+}
+
+.watch_section--desktop {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
+    grid-column: 3;
+    grid-row: 1 / 3;
+}
+
+.btn-list-status {
+    display: block;
+    width: 100%;
+    align-self: stretch;
+    font-size: 14px;
+    padding: 12px 16px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
+    box-sizing: border-box;
+}
+
+.btn-list-status:hover {
+    background: rgba(255,255,255,0.12);
+    border-color: rgba(255,255,255,0.4);
+    color: white;
+    filter: none;
+}
+
+.btn-list-status--in {
+    background: rgba(102,51,153,0.25);
+    border-color: rebeccapurple;
+}
+
+.like_btn--desktop {
+}
+
+.film_title_row h3 {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: bold;
+}
+
+.like_btn {
+    background: none;
+    border: none;
+    font-size: 1.6rem;
+    cursor: pointer;
+    color: white;
+    line-height: 1;
+    padding: 0;
+    flex-shrink: 0;
+    transition: transform 0.15s;
+}
+
+.like_btn:hover {
+    transform: scale(1.2);
+}
+
+.like_btn.liked {
+    color: #e05252;
+}
+
+.film_meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.meta_chip {
+    font-size: 12px;
+    padding: 3px 8px;
+    border: 1px solid rgba(255,255,255,0.4);
+    border-radius: 20px;
+    opacity: 0.8;
+    white-space: nowrap;
+}
+
+.details_label {
+    margin: 0;
+    font-size: 13px;
+    opacity: 0.8;
+}
+
+.director_links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.director_links .btn {
+    font-size: 14px;
+    padding: 5px 10px;
+}
+
+.watch_section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.watch_section--desktop {
+    display: flex;
+}
+
+.watch_section--mobile {
+    display: none;
+}
+
+.watch_section--mobile-lists {
+    display: none;
+}
+
+.watch_rows {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.watch_row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+.watch_row_label {
+    font-size: 13px;
+    opacity: 0.6;
+    width: 80px;
+    flex-shrink: 0;
+}
+
+.watch_row--videos {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255,255,255,0.15);
+}
+
+.provider_logo {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: block;
+}
+
+.provider_link {
+    display: block;
+    border-radius: 10px;
+    border: 2px solid rgba(255,255,255,0.7);
+    transition: border-color 0.2s, filter 0.2s;
+}
+
+.provider_link:hover {
+    border-color: white;
+    filter: brightness(1.15);
+}
+
+.provider_link .provider_logo {
+    border: none;
+}
+
+.overview {
+    font-size: 14px;
+    line-height: 1.6;
+    opacity: 0.9;
+    margin: 0;
+}
+
+
+/* ===== TABS ===== */
+
+.film_tabs_wrap {
+    display: flex;
+    justify-content: center;
+    padding: 0 16px;
+    margin-bottom: 40px;
+}
+
+.film_tabs_inner {
+    width: 100%;
+    max-width: 960px;
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: rgba(255,255,255,0.05);
+    min-height: 320px;
+}
+
+/* tab styles are in kinorg_base.css */
+
+
+/* ===== SEE MORE ===== */
+
+.cast_list .list_extra {
+    display: none;
+}
+
+.cast_list.show-all .list_extra {
+    display: flex;
+}
+
+.cast_list.show-all .see_more_card {
+    display: none;
+}
+
+.see_more_tile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 13px;
+    padding: 8px;
+    box-sizing: border-box;
+    opacity: 0.7;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.see_more_tile:hover {
+    opacity: 1;
+}
+
+/* ===== CAST / SIMILAR ===== */
+
+.cast_list.has-overflow,
+.similar_list.has-overflow {
+    -webkit-mask-image: linear-gradient(to right, black calc(100% - 70px), transparent 100%);
+    mask-image: linear-gradient(to right, black calc(100% - 70px), transparent 100%);
+}
+
+.cast_list,
+.similar_list {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+    overflow-x: auto;
+    margin: 0 -20px;
+    padding: 0 20px 10px;
+    list-style: none;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.3) transparent;
+}
+
+.cast_item,
+.similar_item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex-shrink: 0;
+    width: 100px;
+}
+
+.cast_item p,
+.similar_item p {
+    font-size: 13px;
+    line-height: 1.3;
+    margin: 0;
+}
+
+.cast_character {
+    opacity: 0.6;
+    font-size: 12px !important;
+}
+
+.cast_photo {
+    width: 100px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 5px;
+    border: 1px solid rgba(255,255,255,0.4);
+    display: block;
+}
+
+
+/* ===== REVIEWS ===== */
+
+.reviews_list {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+    overflow-x: auto;
+    margin: 16px -20px 0;
+    padding: 0 20px 10px;
+    list-style: none;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.3) transparent;
+}
+
+.review_item {
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 12px;
+    padding: 16px;
+    background: rgba(255,255,255,0.12);
+    min-width: 260px;
+    max-width: 320px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.review_header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.review_item p {
+    font-size: 15px;
+    line-height: 1.5;
+    margin: 0;
+}
+
+.flag_btn {
+    background: none;
+    border: 1px solid rgba(255,255,255,0.6);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    color: white;
+    padding: 2px 7px;
+    transition: border-color 0.2s, color 0.2s;
+    flex-shrink: 0;
+}
+
+.flag_btn:hover {
+    border-color: white;
+}
+
+.flag_btn.flagged {
+    border-color: #e05252;
+    color: #e05252;
+}
+
+
+/* ===== LISTS TAB ===== */
+
+.add_remove_buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-width: 360px;
+}
+
+.add_remove_button {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.add_remove_button > .btn {
+    font-size: 12px;
+    padding: 4px 8px;
+    flex: 1;
+    max-width: none;
+}
+
+.add_remove_button .add_button,
+.add_remove_button .remove_button {
+    width: 90px;
+    font-size: 12px;
+    text-align: center;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.add_remove_button .add_button {
+    background-color: green;
+}
+
+.add_remove_button .remove_button {
+    background-color: red;
+}
+
+
+/* ===== REVIEW SECTION (add/edit) ===== */
+
+.review_section {
+    margin-bottom: 16px;
+}
+
+.review_display {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.review_actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+.review_private_note,
+.review_watched_note {
+    font-size: 0.8rem;
+    opacity: 0.5;
+    margin: 0;
+}
+
+/* "No rating" clear button in star row */
+.star-clear-label {
+    font-size: 1rem !important;
+    color: rgba(255,255,255,0.3) !important;
+    align-self: center;
+}
+
+.star-rating {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    gap: 5px;
+}
+
+.star-rating input[type="radio"] {
+    display: none;
+}
+
+.star-rating label {
+    font-size: 2rem;
+    color: #ddd;
+    cursor: pointer;
+}
+
+.star-rating input[type="radio"]:checked ~ label:not(.star-clear-label),
+.star-rating label:not(.star-clear-label):hover,
+.star-rating label:not(.star-clear-label):hover ~ label:not(.star-clear-label) {
+    color: #ffc107;
+}
+
+.review_display .star {
+    font-size: 1.5rem;
+}
+
+.mini_review {
+    color: black;
+    margin: 1rem 0;
+    padding: 1rem;
+    background: #f5f5f5;
+    border-radius: 4px;
+}
+
+
+/* ===== VIDEO LIST (in modal) ===== */
+
+.video_list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    list-style: none;
+    padding: 0;
+    margin: 16px 0 0;
+}
+
+.video_item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 13px;
+}
+
+
+/* ===== MODAL ===== */
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1002;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    align-items: flex-start;
+    justify-content: center;
+    padding: 80px 16px 16px;
+    box-sizing: border-box;
+}
+
+.modal-content {
+    background-color: black;
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 10px;
+    width: 100%;
+    max-width: 460px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-sizing: border-box;
+    padding: 0px 10px 10px 10px;
+}
+
+.close {
+    align-self: flex-end;
+    flex-shrink: 0;
+    margin: 12px 12px 0;
+    background: rgba(0,0,0,0.6);
+    border: 1px solid rgba(255,255,255,0.4);
+    border-radius: 6px;
+    color: white;
+    font-size: 14px;
+    font-weight: normal;
+    cursor: pointer;
+    line-height: 1;
+    padding: 5px 9px;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.close:hover {
+    background: rgba(255,255,255,0.15);
+    border-color: white;
+}
+
+.modal-content-inner {
+    overflow-y: auto;
+    padding: 8px 24px 24px;
+    flex: 1;
+}
+
+.rating-input,
+.review-input {
+    margin: 0.4rem 0;
+}
+
+.review-input textarea {
+    width: 96%;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-family: inherit;
+}
+
+.review-input label,
+.rating-input label:first-of-type {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+}
+
+
+/* ===== ACTIVITY ROW ===== */
+
+.activity_row_wrap {
+    display: flex;
+    justify-content: center;
+    padding: 0 16px;
+    margin-bottom: 20px;
+}
+
+.activity_row_btn--desktop {
+    display: block;
+    width: 100%;
+}
+
+@media (min-width: 601px) {
+    .activity_row_wrap {
+        display: none;
+    }
+}
+
+.activity_row {
+    width: 100%;
+    max-width: 960px;
+}
+
+.activity_row_btn {
+    width: 100%;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 10px;
+    color: rgba(255,255,255,0.6);
+    font-size: 14px;
+    padding: 12px 16px;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.activity_row_btn:hover {
+    background: rgba(255,255,255,0.12);
+    border-color: rgba(255,255,255,0.4);
+    color: white;
+    filter: none;
+}
+
+.activity_row_btn--logged {
+    color: white;
+    border-color: rgba(255,255,255,0.4);
+}
+
+.ar_off {
+    opacity: 0.4;
+}
+
+.ar_watched.ar_on,
+.ar_stars.ar_on,
+.ar_reviewed.ar_on {
+    color: white;
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-size: 12px;
+}
+
+.ar_watched.ar_on  { background: #3b82f6; }
+.ar_stars.ar_on    { background: #b8860b; position: relative; top: -1px; padding-top: 0; padding-bottom: 2px; }
+.ar_reviewed.ar_on { background: #22c55e; }
+
+.ar_sep {
+    opacity: 0.3;
+}
+
+/* ===== LOG/RATE MODAL ===== */
+
+.log_rate_modal_content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.log_rate_toggles {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.log_rate_toggle_btn {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 20px;
+    color: rgba(255,255,255,0.6);
+    font-size: 14px;
+    padding: 6px 14px;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.log_rate_toggle_btn:hover {
+    background: rgba(255,255,255,0.15);
+    color: white;
+    filter: none;
+}
+
+/* Both labels occupy the same grid cell — button sizes to the widest, no layout shift */
+.log_rate_toggle_btn {
+    display: inline-grid;
+}
+.log_rate_toggle_btn .toggle_label_inactive,
+.log_rate_toggle_btn .toggle_label_active {
+    grid-area: 1 / 1;
+    display: flex;
+    align-items: center;
+}
+.log_rate_toggle_btn .toggle_label_active { visibility: hidden; }
+.log_rate_toggle_btn.active .toggle_label_inactive { visibility: hidden; }
+.log_rate_toggle_btn.active .toggle_label_active { visibility: visible; }
+
+/* Colour per type when active */
+.log_rate_toggle_btn--watchlist.active {
+    background: rgba(34, 197, 94, 0.2);
+    border-color: #22c55e;
+    color: #22c55e;
+}
+
+.log_rate_toggle_btn--watched.active {
+    background: rgba(59, 130, 246, 0.2);
+    border-color: #3b82f6;
+    color: #3b82f6;
+}
+
+.log_rate_toggle_btn--like.active {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: #ef4444;
+    color: #ef4444;
+}
+
+.review_hidden {
+    opacity: 0.45;
+}
+
+.log_rate_form_actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.review_private_label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 12px;
+    cursor: pointer;
+}
+
+.review_private_text {
+    font-size: 13px;
+    opacity: 0.75;
+    transition: opacity 0.2s ease;
+    display: grid;
+}
+
+.review_private--on .review_private_text {
+    opacity: 0.45;
+}
+
+.review_private_off,
+.review_private_on {
+    grid-area: 1 / 1;
+    transition: visibility 0s;
+}
+
+.review_private_on { visibility: hidden; }
+.review_private--on .review_private_off { visibility: hidden; }
+.review_private--on .review_private_on { visibility: visible; }
+
+.toggle_switch {
+    position: relative;
+    display: inline-block;
+    width: 42px;
+    height: 24px;
+    flex-shrink: 0;
+}
+
+.toggle_switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+}
+
+.toggle_switch_track {
+    position: absolute;
+    inset: 0;
+    background: rgba(255,255,255,0.2);
+    border-radius: 24px;
+    transition: background 0.2s ease;
+}
+
+.toggle_switch_track::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.2s ease;
+}
+
+.toggle_switch input:checked + .toggle_switch_track {
+    background: #6a0dad;
+}
+
+.toggle_switch input:checked + .toggle_switch_track::after {
+    transform: translateX(18px);
+}
+
+#log-rate-modal .mini_review {
+    width: 100%;
+    box-sizing: border-box;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    color: white;
+    padding: 10px;
+    font-size: 14px;
+    resize: vertical;
+}
+
+#log-rate-modal .mini_review::placeholder {
+    color: rgba(255,255,255,0.4);
+}
+
+/* ===== MOBILE ===== */
+
+@media (max-width: 600px) {
+
+    .film_header_wrap {
+        margin-top: -10px;
+    }
+
+    .film_header_wrap,
+    .film_tabs_wrap {
+        padding: 0 10px 0 10px;
+    }
+
+    .film_header_inner {
+        padding: 3px;
+        gap: 14px;
+    }
+
+    .film_header_top {
+        grid-template-columns: auto 1fr;
+        grid-template-rows: auto auto;
+        gap: 0 16px;
+    }
+
+    .film_title_row {
+        grid-column: 1 / -1;
+        grid-row: 1;
+        margin-bottom: 14px;
+    }
+
+    .detail_poster_wrap {
+        width: 110px;
+        grid-column: 1;
+        grid-row: 2;
+    }
+
+    .film_info {
+        max-height: none;
+        overflow: visible;
+        gap: 12px;
+        justify-content: flex-start;
+        grid-column: 2;
+        grid-row: 2;
+    }
+
+    .film_title_row h3 {
+        font-size: 1.3rem;
+    }
+
+    .overview {
+        background: rgba(0, 0, 0, 0.75);
+        padding: 12px;
+        border-radius: 8px;
+    }
+
+    .like_btn {
+        font-size: 1.2rem;
+    }
+
+    p.italic {
+        font-size: 13px;
+    }
+
+    .meta_chip {
+        font-size: 12px;
+        padding: 2px 7px;
+        opacity: 0.7;
+    }
+
+    .details_label {
+        font-size: 12px;
+    }
+
+    .director_links .btn {
+        font-size: 13px;
+        padding: 5px 10px;
+    }
+
+    .tab_btn {
+        padding: 12px 14px;
+        font-size: 13px;
+    }
+
+    .tab_panel {
+        padding: 14px;
+    }
+
+    .cast_list,
+    .similar_list,
+    .reviews_list {
+        margin: 0 -14px;
+        padding: 0 14px 10px;
+    }
+
+    .watch_section--desktop {
+        display: none;
+    }
+
+    .watch_section--mobile-lists {
+        display: flex;
+    }
+
+    .activity_row_btn--desktop {
+        display: none;
+    }
+
+    .activity_row_wrap {
+        display: flex;
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    .like_btn--mobile {
+        display: block;
+    }
+
+    .watched_btn--mobile {
+        display: flex;
+        padding-top: 4px;
+    }
+
+    .watch_section--mobile {
+        display: flex;
+        margin-top: 8px;
+    }
+
+    .tagline,
+    .overview {
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+}

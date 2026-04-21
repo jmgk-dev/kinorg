@@ -1,0 +1,244 @@
+.results_title_info {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.person_page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 10px 40px;
+    gap: 24px;
+    margin-top: -40px;
+}
+
+.person_header {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 20px;
+    width: 100%;
+    max-width: 960px;
+}
+
+.person_photo {
+    width: 120px;
+    flex-shrink: 0;
+    aspect-ratio: 2/3;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.3);
+}
+
+.person_info {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.person_name {
+    text-align: left;
+}
+
+.person_bio {
+    font-size: 13px;
+    line-height: 1.6;
+    opacity: 0.75;
+    margin: 0;
+}
+
+.person_bio_more_btn {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.5);
+    font-size: 12px;
+    cursor: pointer;
+    padding: 0;
+    display: inline;
+    text-decoration: underline;
+}
+
+.person_bio_modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    z-index: 1001;
+    justify-content: center;
+    align-items: center;
+    padding: 16px;
+}
+
+.person_bio_modal_card {
+    background: #1a1a1a;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    max-width: 560px;
+    width: 100%;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.person_bio_modal_close {
+    align-self: flex-end;
+    flex-shrink: 0;
+    margin: 12px 12px 8px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 6px;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 5px 9px;
+    line-height: 1;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.person_bio_modal_close:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: white;
+}
+
+.person_bio--mobile {
+    display: none;
+}
+
+.person_bio_modal_text {
+    font-size: 13px;
+    line-height: 1.7;
+    opacity: 0.85;
+    margin: 0;
+    padding: 0 24px 20px;
+    overflow-y: auto;
+}
+
+.person_tabs_wrap {
+    width: 100%;
+    max-width: 960px;
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: rgba(255,255,255,0.12);
+    min-height: 200px;
+}
+
+.filter_toggles {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    padding: 0 10px;
+    margin: 10px auto 0;
+    max-width: 1000px;
+}
+
+.filter_toggle_btn {
+    flex: 1;
+    max-width: 180px;
+    padding: 10px 16px;
+    font-size: 14px;
+    background: none;
+    border: 2px solid rgba(255,255,255,0.25);
+    border-radius: 8px;
+    color: rgba(255,255,255,0.35);
+    cursor: pointer;
+    transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+
+.filter_toggle_liked.active {
+    border-color: #2ecc71;
+    color: white;
+    background: #2ecc71;
+}
+
+.filter_toggle_watched.active {
+    border-color: #3498db;
+    color: white;
+    background: #3498db;
+}
+
+.content_list_container {
+}
+
+.list_of_content {
+    display: grid;
+    grid-gap: 0.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(6rem, 1fr));
+    list-style: none;
+    padding: 10px;
+    margin: 10px auto;
+    max-width: 1000px;
+}
+
+.results_item {
+    display: inline-flex;
+    justify-content: center;
+}
+
+.tab {
+    padding: 6px 16px;
+    text-decoration: none;
+    opacity: 0.5;
+}
+
+.tab.active {
+    opacity: 1;
+    border-bottom: 2px solid currentColor;
+}
+
+@media (max-width: 600px) {
+    .person_page {
+        margin-top: 0;
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    .person_photo {
+        width: 90px;
+    }
+
+    .person_name {
+        font-size: 1rem;
+    }
+
+    .person_info {
+        gap: 6px;
+    }
+
+    .person_bio {
+        font-size: 12px;
+    }
+
+    .person_bio--desktop {
+        display: none;
+    }
+
+    .person_bio--mobile {
+        display: block;
+    }
+
+    .person_tabs_wrap .tab_panel {
+        padding: 10px;
+    }
+
+    .list_of_content {
+        grid-template-columns: repeat(3, 1fr);
+        row-gap: 0.6rem;
+        column-gap: 0.6rem;
+        padding: 0;
+        margin: 0;
+    }
+
+    .results_item {
+        display: block;
+        width: 100%;
+    }
+
+    .results_item .poster {
+        display: block;
+        width: 100%;
+        height: auto;
+        aspect-ratio: 2/3;
+    }
+}

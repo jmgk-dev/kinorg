@@ -26,31 +26,56 @@
         </ul>
     </div>
 
-    <div class="list_controls">
-        <form method="get" id="list_controls_form">
-            <select name="sort" onchange="document.getElementById('list_controls_form').submit()">
-                <option value="title_asc" {% if current_sort == 'title_asc' %}selected{% endif %}>Title (A–Z)</option>
-                <option value="title_desc" {% if current_sort == 'title_desc' %}selected{% endif %}>Title (Z–A)</option>
-                <option value="release_desc" {% if current_sort == 'release_desc' %}selected{% endif %}>Release date (newest first)</option>
-                <option value="release_asc" {% if current_sort == 'release_asc' %}selected{% endif %}>Release date (oldest first)</option>
-            </select>
-            {% if countries %}
-            <select name="country" onchange="document.getElementById('list_controls_form').submit()">
-                <option value="">All countries</option>
-                {% for code, name in countries %}
-                <option value="{{ code }}" {% if current_country == code %}selected{% endif %}>{{ name }}</option>
-                {% endfor %}
-            </select>
-            {% endif %}
-            {% if genres %}
-            <select name="genre" onchange="document.getElementById('list_controls_form').submit()">
-                <option value="">All genres</option>
-                {% for g in genres %}
-                <option value="{{ g }}" {% if current_genre == g %}selected{% endif %}>{{ g }}</option>
-                {% endfor %}
-            </select>
-            {% endif %}
-        </form>
+    <div class="filter_btn_wrap">
+        <button class="btn btn-cta" id="filter_btn">Filter</button>
+    </div>
+
+    <div class="filter_modal" id="filter_modal">
+        <div class="filter_modal_inner">
+            <div class="filter_modal_header">
+                <span>Filter & Sort</span>
+                <button type="button" id="filter_modal_close">✕</button>
+            </div>
+            <form method="get" id="list_controls_form">
+                <div class="filter_modal_body">
+                    <div class="filter_modal_group">
+                        <label>Sort by</label>
+                        <select name="sort">
+                            <option value="title_asc" {% if current_sort == 'title_asc' %}selected{% endif %}>Title (A–Z)</option>
+                            <option value="title_desc" {% if current_sort == 'title_desc' %}selected{% endif %}>Title (Z–A)</option>
+                            <option value="release_desc" {% if current_sort == 'release_desc' %}selected{% endif %}>Release date (newest first)</option>
+                            <option value="release_asc" {% if current_sort == 'release_asc' %}selected{% endif %}>Release date (oldest first)</option>
+                        </select>
+                    </div>
+                    {% if countries %}
+                    <div class="filter_modal_group">
+                        <label>Country</label>
+                        <select name="country">
+                            <option value="">All countries</option>
+                            {% for code, name in countries %}
+                            <option value="{{ code }}" {% if current_country == code %}selected{% endif %}>{{ name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% endif %}
+                    {% if genres %}
+                    <div class="filter_modal_group">
+                        <label>Genre</label>
+                        <select name="genre">
+                            <option value="">All genres</option>
+                            {% for g in genres %}
+                            <option value="{{ g }}" {% if current_genre == g %}selected{% endif %}>{{ g }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="filter_modal_footer">
+                    <a href="?" class="btn btn-clear">Clear</a>
+                    <button type="submit" class="btn btn-cta">Apply</button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <div class="content_list_container">

@@ -5,7 +5,7 @@
 <link rel="stylesheet" type="text/css" href="{% static 'kinorg/css/invitations.css' %}">
 {% endblock %}
 
-{% block page_top %}<p class="welcome_banner">Welcome, {{ user.username }}</p>{% endblock %}
+{% block page_top %}<p class="welcome_banner">Welcome, <a href="{% url 'kinorg:profile' %}">{{ user.username }}</a></p>{% endblock %}
 {% block content %}
 
 <div class="invitations_page">

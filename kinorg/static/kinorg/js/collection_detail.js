@@ -3,6 +3,18 @@
 // Supports ranked collections (with rank badges), PCC screenings (external links),
 // and standard film grids.
 
+// Filter modal — open/close for pages using the filter modal pattern
+(function () {
+    const filterModal = document.getElementById('filter_modal');
+    const filterBtn = document.getElementById('filter_btn');
+    const filterClose = document.getElementById('filter_modal_close');
+    if (!filterModal || !filterBtn) return;
+    filterBtn.addEventListener('click', () => filterModal.style.display = 'flex');
+    filterClose.addEventListener('click', () => filterModal.style.display = 'none');
+    filterModal.addEventListener('click', e => { if (e.target === filterModal) filterModal.style.display = 'none'; });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') filterModal.style.display = 'none'; });
+}());
+
 // Collection picker dropdown — lets users switch between collections
 const pickerBtn = document.getElementById('collection_picker_btn');
 const pickerDropdown = document.getElementById('collection_picker_dropdown');
