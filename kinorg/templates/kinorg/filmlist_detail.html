@@ -108,7 +108,7 @@
     </div>
     {% endif %}
 
-    <div class="content_list_container">
+    <div class="content_list_container" {% if not additions %}style="background:none;border:none;padding:0"{% endif %}>
         <ul class="list_of_content"
             id="film_grid"
             data-base-url="{{ config_data.secure_base_url }}"
