@@ -91,3 +91,4 @@ media/
  *.pyc
 cache/
 data_dump.json
+static/
