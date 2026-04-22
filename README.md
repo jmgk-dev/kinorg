@@ -38,8 +38,8 @@ Live at [kinorg.com](https://kinorg.com).
 
 ```bash
 # Clone
-git clone git@github.com:jmgk-dev/kinorg2.git
-cd kinorg2
+git clone git@github.com:jmgk-dev/kinorg.git
+cd kinorg
 
 # Create a virtualenv and install deps
 python -m venv venv
