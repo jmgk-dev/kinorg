@@ -13,7 +13,6 @@ Live at [kinorg.com](https://kinorg.com).
 - Curated collections: TSPDT 1000, TSPDT 21st Century, Sight & Sound 2022, Letterboxd Top 500, Criterion, Janus, Oscar International Feature, Vinegar Syndrome
 - UK cinema listings integration — daily scrape of what's on
 - Similar films (pre-computed weekly)
-- Higher or Lower film guessing game
 
 ## Tech stack
 
@@ -98,7 +97,6 @@ python manage.py refresh_watch_providers
 ```
 kinorg/              — main app (films, lists, reviews, cinema integration)
 user_admin/          — custom user model
-film_games/          — Higher or Lower game
 config/settings/     — split settings (base, dev, prod)
 staticfiles/css/     — global CSS (source)
 kinorg/static/       — per-app JS and CSS (source)
