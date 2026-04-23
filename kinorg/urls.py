@@ -42,6 +42,7 @@ urlpatterns = [
     path("like/<int:tmdb_id>/", views.toggle_like, name="toggle_like"),
     path("watched/<int:tmdb_id>/", views.toggle_watched, name="toggle_watched"),
     path("watchlist/<int:tmdb_id>/", views.toggle_watchlist, name="toggle_watchlist"),
+    path("set-stars/<int:tmdb_id>/", views.set_stars, name="set_stars"),
     path("films/", views.FilmsView.as_view(), name="films"),
     path("watchlist/films/", views.watchlist_json, name="watchlist_json"),
     path("review-private/", views.toggle_review_private, name="toggle_review_private"),

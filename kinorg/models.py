@@ -13,6 +13,8 @@ class Film(models.Model):
 		ordering = ["title"]
 		indexes = [
 			GinIndex(fields=['collections'], name='film_collections_gin'),
+			GinIndex(fields=['genres'], name='film_genres_gin'),
+			models.Index(fields=['title'], name='film_title_idx'),
 		]
 
 	title = models.CharField(
@@ -256,10 +258,13 @@ class WatchedFilm(models.Model):
 	class Meta:
 		constraints = [
 			models.UniqueConstraint(
-				fields=['user', 'film'], 
+				fields=['user', 'film'],
 				name="unique_watched_film_per_user")
 		]
 		ordering = ['-watched_at']
+		indexes = [
+			models.Index(fields=['-watched_at'], name='watchedfilm_watched_at_idx'),
+		]
 
 
 	user = models.ForeignKey(
@@ -303,7 +308,7 @@ class WatchedFilm(models.Model):
 class PCCScreening(models.Model):
 	title = models.CharField(max_length=255)
 	year = models.IntegerField(null=True, blank=True)
-	pcc_url = models.URLField()
+	pcc_url = models.URLField(unique=True)
 	film = models.ForeignKey(
 		'Film',
 		null=True,
@@ -324,6 +329,9 @@ class WatchlistItem(models.Model):
 			models.UniqueConstraint(fields=['user', 'film'], name='unique_watchlist_item')
 		]
 		ordering = ['-added_at']
+		indexes = [
+			models.Index(fields=['-added_at'], name='watchlistitem_added_at_idx'),
+		]
 
 	user = models.ForeignKey(
 		settings.AUTH_USER_MODEL,

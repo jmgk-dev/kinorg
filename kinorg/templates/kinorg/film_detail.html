@@ -47,18 +47,10 @@
             </div>
 
             <div class="watch_section watch_section--desktop">
-                {% if watch_providers or pcc_url or film.videos %}
+                {% if watch_providers or film.videos %}
                 <p class="details_label">Where to Watch</p>
                 <div class="watch_rows">
-                    {% if pcc_url %}
-                    <div class="watch_row">
-                        <span class="watch_row_label">In cinemas</span>
-                        <a href="{{ pcc_url }}" target="_blank" rel="noopener" class="provider_link" title="Showing at Prince Charles Cinema">
-                            <img class="provider_logo" src="{% static 'kinorg/img/pcc_logo_474.jpg' %}" alt="Prince Charles Cinema">
-                        </a>
-                    </div>
-                    {% endif %}
-                    {% if amazon_url or watch_providers %}
+                        {% if amazon_url or watch_providers %}
                     <div class="watch_row">
                         <span class="watch_row_label">Stream / Buy</span>
                         {% if amazon_url %}
@@ -82,14 +74,6 @@
                     {% endif %}
                 </div>
                 {% endif %}
-                <button class="activity_row_btn activity_row_btn--desktop" id="log_rate_btn_desktop" onclick="openLogRateModal()"></button>
-                {% if not my_lists and not guest_lists %}
-                <button onclick="openCreateListModal()" class="btn-list-status" id="list_status_btn_desktop">+ Create a list</button>
-                {% elif lists_containing_film_count == 0 %}
-                <button class="btn btn-list-status" id="list_status_btn_desktop" onclick="openFilmModal('{{ film.id }}','{{ film.title|escapejs }}','{{ film.poster_path }}','{% url 'kinorg:film_detail' film.id %}','{{ film.release_date|date:'Y' }}','',true)">+ Add to list</button>
-                {% else %}
-                <button class="btn btn-list-status btn-list-status--in" id="list_status_btn_desktop" onclick="openFilmModal('{{ film.id }}','{{ film.title|escapejs }}','{{ film.poster_path }}','{% url 'kinorg:film_detail' film.id %}','{{ film.release_date|date:'Y' }}','',true)">In {{ lists_containing_film_count }} of your lists</button>
-                {% endif %}
             </div>
 
         </div>
@@ -101,27 +85,10 @@
         <p class="overview">{{ film.overview }}</p>
         {% endif %}
 
-        <div class="watch_section watch_section--mobile watch_section--mobile-lists">
-            {% if not my_lists and not guest_lists %}
-            <button onclick="openCreateListModal()" class="btn-list-status" id="list_status_btn_mobile">+ Create a list</button>
-            {% elif lists_containing_film_count == 0 %}
-            <button class="btn btn-list-status" id="list_status_btn_mobile" onclick="openFilmModal('{{ film.id }}','{{ film.title|escapejs }}','{{ film.poster_path }}','{% url 'kinorg:film_detail' film.id %}','{{ film.release_date|date:'Y' }}','',true)">+ Add to list</button>
-            {% else %}
-            <button class="btn btn-list-status btn-list-status--in" id="list_status_btn_mobile" onclick="openFilmModal('{{ film.id }}','{{ film.title|escapejs }}','{{ film.poster_path }}','{% url 'kinorg:film_detail' film.id %}','{{ film.release_date|date:'Y' }}','',true)">In {{ lists_containing_film_count }} of your lists</button>
-            {% endif %}
-        </div>
-        {% if watch_providers or pcc_url or film.videos %}
+        {% if watch_providers or film.videos %}
         <div class="watch_section watch_section--mobile">
             <p class="details_label">Where to Watch</p>
             <div class="watch_rows">
-                {% if pcc_url %}
-                <div class="watch_row">
-                    <span class="watch_row_label">In cinemas</span>
-                    <a href="{{ pcc_url }}" target="_blank" rel="noopener" class="provider_link" title="Showing at Prince Charles Cinema">
-                        <img class="provider_logo" src="{% static 'kinorg/img/pcc_logo_474.jpg' %}" alt="Prince Charles Cinema">
-                    </a>
-                </div>
-                {% endif %}
                 {% if amazon_url or watch_providers %}
                 <div class="watch_row">
                     <span class="watch_row_label">Stream / Buy</span>
@@ -152,59 +119,100 @@
     </div>
 </div>
 
-<div class="activity_row_wrap">
-    <div class="activity_row"
-         id="activity_row"
-         data-tmdb-id="{{ film.id }}"
-         data-title="{{ film.title }}"
-         data-poster-path="{{ film.poster_path }}"
-         data-release-date="{{ film.release_date_str }}"
-         data-watched="{{ watched|yesno:'true,false' }}"
-         data-liked="{{ is_liked|yesno:'true,false' }}"
-         data-in-watchlist="{{ in_watchlist|yesno:'true,false' }}"
-         data-stars="{{ watched.stars|default:'' }}"
-         data-reviewed="{% if watched.mini_review %}true{% else %}false{% endif %}">
-        <button class="activity_row_btn" id="log_rate_btn" onclick="openLogRateModal()"></button>
-    </div>
-</div>
+<!-- Hidden data for JS -->
+<div id="action_strip_data" style="display:none"
+     data-tmdb-id="{{ film.id }}"
+     data-title="{{ film.title }}"
+     data-poster-path="{{ film.poster_path }}"
+     data-release-date="{{ film.release_date_str }}"></div>
 
-<!-- Log / Rate modal -->
-<div id="log-rate-modal" class="modal">
-    <div class="modal-content log_rate_modal_content">
-        <span class="close" onclick="closeLogRateModal()">&times;</span>
-        <div class="modal-content-inner">
-        <div class="log_rate_toggles">
-            <button class="log_rate_toggle_btn log_rate_toggle_btn--watchlist {% if in_watchlist %}active{% endif %}"
+<div class="action_strip_wrap">
+    <div class="action_strip">
+        <div class="action_tiles">
+
+            <button class="action_tile action_tile--watchlist{% if in_watchlist %} active{% endif %}"
                     id="watchlist_toggle_btn"
                     data-tmdb-id="{{ film.id }}"
                     data-title="{{ film.title }}"
                     data-poster-path="{{ film.poster_path }}"
                     data-release-date="{{ film.release_date_str }}"
                     data-active="{{ in_watchlist|yesno:'true,false' }}">
-                <span class="toggle_label_inactive">+ Watchlist</span>
-                <span class="toggle_label_active">✓ Added to Watchlist</span>
+                <div class="action_tile_icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h14a1 1 0 0 1 1 1v17l-8-4-8 4V4a1 1 0 0 1 1-1z"/></svg>
+                </div>
+                <span class="action_tile_label">Watchlist</span>
             </button>
-            <button class="log_rate_toggle_btn log_rate_toggle_btn--watched {% if watched %}active{% endif %}"
+
+            <button class="action_tile action_tile--watched{% if watched %} active{% endif %}"
                     id="watched_toggle_btn"
                     data-tmdb-id="{{ film.id }}"
                     data-title="{{ film.title }}"
                     data-poster-path="{{ film.poster_path }}"
                     data-release-date="{{ film.release_date_str }}"
                     data-active="{{ watched|yesno:'true,false' }}">
-                <span class="toggle_label_inactive"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Mark as Watched</span>
-                <span class="toggle_label_active"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>Watched</span>
+                <div class="action_tile_icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3" class="watched_pupil"/></svg>
+                </div>
+                <span class="action_tile_label">Watched</span>
             </button>
-            <button class="log_rate_toggle_btn log_rate_toggle_btn--like {% if is_liked %}active{% endif %}"
+
+            <button class="action_tile action_tile--like{% if is_liked %} active{% endif %}"
                     id="liked_toggle_btn"
                     data-tmdb-id="{{ film.id }}"
                     data-title="{{ film.title }}"
                     data-poster-path="{{ film.poster_path }}"
                     data-active="{{ is_liked|yesno:'true,false' }}">
-                <span class="toggle_label_inactive">♡ Like</span>
-                <span class="toggle_label_active">♥ Liked</span>
+                <div class="action_tile_icon action_tile_icon--heart">
+                    <span class="tile_heart_off">♡</span>
+                    <span class="tile_heart_on">♥</span>
+                </div>
+                <span class="action_tile_label">Like</span>
             </button>
+
+            {% if not my_lists and not guest_lists %}
+            <button class="action_tile action_tile--list" id="list_status_tile"
+                    onclick="openCreateListModal()">
+                <div class="action_tile_icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                </div>
+                <span class="action_tile_label">Add to list</span>
+            </button>
+            {% elif lists_containing_film_count == 0 %}
+            <button class="action_tile action_tile--list" id="list_status_tile"
+                    onclick="openFilmModal('{{ film.id }}','{{ film.title|escapejs }}','{{ film.poster_path }}','{% url 'kinorg:film_detail' film.id %}','{{ film.release_date|date:'Y' }}','',true)">
+                <div class="action_tile_icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                </div>
+                <span class="action_tile_label">Add to list</span>
+            </button>
+            {% else %}
+            <button class="action_tile action_tile--list active" id="list_status_tile"
+                    onclick="openFilmModal('{{ film.id }}','{{ film.title|escapejs }}','{{ film.poster_path }}','{% url 'kinorg:film_detail' film.id %}','{{ film.release_date|date:'Y' }}','',true)">
+                <div class="action_tile_icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                </div>
+                <span class="action_tile_label">{{ lists_containing_film_count }} list{{ lists_containing_film_count|pluralize }}</span>
+            </button>
+            {% endif %}
+
         </div>
 
+        <div class="action_rating_row">
+            <div class="action_stars" id="action_stars" data-current-stars="{{ watched.stars|default:0 }}">
+                {% for i in "12345" %}
+                <span class="action_star{% if watched.stars and watched.stars >= forloop.counter %} filled{% endif %}" data-value="{{ forloop.counter }}">★</span>
+                {% endfor %}
+            </div>
+            <a href="javascript:void(0)" class="action_review_link" id="action_review_link" onclick="openReviewModal()">{% if watched and watched.mini_review %}Your review →{% else %}Write a review{% endif %}</a>
+        </div>
+    </div>
+</div>
+
+<!-- Review modal -->
+<div id="review-modal" class="modal">
+    <div class="modal-content log_rate_modal_content">
+        <span class="close" onclick="closeReviewModal()">&times;</span>
+        <div class="modal-content-inner">
         <form method="POST" action="{% url 'kinorg:add_review' %}" id="log_rate_form">
             {% csrf_token %}
             <input type="hidden" name="id"                   value="{{ film.id }}">
@@ -219,26 +227,14 @@
             <input type="hidden" name="genres"               value="{{ film.genres_json }}">
             <input type="hidden" name="keywords"             value="{{ film.keywords_json }}">
             <input type="hidden" name="production_companies" value="{{ film.production_companies_json }}">
+            <input type="hidden" name="stars" id="modal_stars_input" value="{{ watched.stars|default:'' }}">
             <input type="hidden" name="review_visible" id="review_visible_input" value="{{ watched.review_visible|yesno:'true,false'|default:'true' }}">
-
-            <div class="rating-input">
-                <div class="star-rating">
-                    {% for i in "54321" %}
-                        <input type="radio" name="stars" id="lr-star-{{ i }}" value="{{ i }}"
-                               {% if watched.stars == i|add:0 %}checked{% endif %}>
-                        <label for="lr-star-{{ i }}">★</label>
-                    {% endfor %}
-                    <input type="radio" name="stars" id="lr-star-0" value=""
-                           {% if not watched.stars %}checked{% endif %}>
-                    <label for="lr-star-0" class="star-clear-label" title="Clear rating">✕</label>
-                </div>
-            </div>
 
             <textarea name="mini_review"
                       id="lr-mini-review"
                       class="mini_review"
-                      rows="3"
-                      placeholder="What did you think? (optional)">{{ watched.mini_review|default:"" }}</textarea>
+                      rows="4"
+                      placeholder="What did you think?">{{ watched.mini_review|default:"" }}</textarea>
 
             <div class="log_rate_form_actions">
                 <button type="submit" class="btn btn-cta">Save</button>
@@ -261,9 +257,9 @@
                 </span>
             </label>
         </form>
-        </div><!-- end modal-content-inner -->
-    </div><!-- end modal-content -->
-</div><!-- end log-rate-modal -->
+        </div>
+    </div>
+</div>
 
 
 <div class="film_tabs_wrap">

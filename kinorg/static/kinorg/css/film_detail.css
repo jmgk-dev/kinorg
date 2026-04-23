@@ -673,75 +673,146 @@ p.italic {
 }
 
 
-/* ===== ACTIVITY ROW ===== */
+/* ===== ACTION STRIP ===== */
 
-.activity_row_wrap {
+.action_strip_wrap {
     display: flex;
     justify-content: center;
     padding: 0 16px;
     margin-bottom: 20px;
 }
 
-.activity_row_btn--desktop {
-    display: block;
-    width: 100%;
-}
-
-@media (min-width: 601px) {
-    .activity_row_wrap {
-        display: none;
-    }
-}
-
-.activity_row {
+.action_strip {
     width: 100%;
     max-width: 960px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 
-.activity_row_btn {
-    width: 100%;
+.action_tiles {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+}
+
+.action_tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 14px 8px;
     background: rgba(255,255,255,0.07);
-    border: 1px solid rgba(255,255,255,0.2);
-    border-radius: 10px;
-    color: rgba(255,255,255,0.6);
-    font-size: 14px;
-    padding: 12px 16px;
-    text-align: left;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 12px;
+    color: rgba(255,255,255,0.5);
     cursor: pointer;
     transition: background 0.2s, border-color 0.2s, color 0.2s;
+    font-size: 13px;
+    line-height: 1.2;
 }
 
-.activity_row_btn:hover {
+.action_tile:hover {
     background: rgba(255,255,255,0.12);
-    border-color: rgba(255,255,255,0.4);
+    border-color: rgba(255,255,255,0.3);
     color: white;
     filter: none;
 }
 
-.activity_row_btn--logged {
-    color: white;
-    border-color: rgba(255,255,255,0.4);
+.action_tile_icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 22px;
 }
 
-.ar_off {
-    opacity: 0.4;
+.action_tile_icon--heart {
+    font-size: 20px;
+    display: grid;
 }
 
-.ar_watched.ar_on,
-.ar_stars.ar_on,
-.ar_reviewed.ar_on {
-    color: white;
-    border-radius: 4px;
-    padding: 1px 6px;
+.tile_heart_off,
+.tile_heart_on {
+    grid-area: 1 / 1;
+}
+
+.tile_heart_on { visibility: hidden; }
+.action_tile--like.active .tile_heart_off { visibility: hidden; }
+.action_tile--like.active .tile_heart_on  { visibility: visible; }
+
+.action_tile_label {
     font-size: 12px;
+    text-align: center;
 }
 
-.ar_watched.ar_on  { background: #3b82f6; }
-.ar_stars.ar_on    { background: #b8860b; position: relative; top: -1px; padding-top: 0; padding-bottom: 2px; }
-.ar_reviewed.ar_on { background: #22c55e; }
+.action_tile--watchlist.active {
+    background: rgba(34, 197, 94, 0.15);
+    border-color: #22c55e;
+    color: #22c55e;
+}
 
-.ar_sep {
-    opacity: 0.3;
+.action_tile--watched.active {
+    background: rgba(59, 130, 246, 0.15);
+    border-color: #3b82f6;
+    color: #3b82f6;
+}
+
+.action_tile--watched.active .watched_pupil {
+    fill: currentColor;
+}
+
+.action_tile--like.active {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: #ef4444;
+    color: #ef4444;
+}
+
+.action_tile--list.active {
+    background: rgba(102, 51, 153, 0.2);
+    border-color: rebeccapurple;
+    color: #b57bee;
+}
+
+.action_rating_row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 4px 4px;
+}
+
+.action_stars {
+    display: flex;
+    gap: 2px;
+}
+
+.action_star {
+    font-size: 24px;
+    color: rgba(255,255,255,0.2);
+    cursor: pointer;
+    transition: color 0.1s;
+    user-select: none;
+    line-height: 1;
+}
+
+.action_star.filled {
+    color: #f59e0b;
+}
+
+.action_star.hover {
+    color: #f59e0b;
+}
+
+.action_review_link {
+    font-size: 13px;
+    color: rgba(255,255,255,0.45);
+    text-decoration: none;
+    transition: color 0.2s;
+    white-space: nowrap;
+}
+
+.action_review_link:hover {
+    color: white;
 }
 
 /* ===== LOG/RATE MODAL ===== */
@@ -1013,18 +1084,22 @@ p.italic {
         display: none;
     }
 
-    .watch_section--mobile-lists {
-        display: flex;
-    }
-
-    .activity_row_btn--desktop {
-        display: none;
-    }
-
-    .activity_row_wrap {
-        display: flex;
+    .action_strip_wrap {
         padding-left: 10px;
         padding-right: 10px;
+    }
+
+    .action_tiles {
+        gap: 6px;
+    }
+
+    .action_tile {
+        padding: 12px 4px;
+        border-radius: 10px;
+    }
+
+    .action_star {
+        font-size: 22px;
     }
 
     .like_btn--mobile {

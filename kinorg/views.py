@@ -19,6 +19,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import ListView, CreateView, DetailView, TemplateView
+from django.views import View
 from django.urls import reverse_lazy
 
 from django.core.cache import cache
@@ -1021,10 +1022,12 @@ def pcc_schedule_json(request):
     })
 
 
-class PCCSchedule(LoginRequiredMixin, TemplateView):
-    """PCC cinema schedule page. Shows non-hidden screenings with sort/genre/country filters."""
+class PCCSchedule(LoginRequiredMixin, View):
+    """PCC schedule page — temporarily hidden awaiting venue permission."""
     login_url = "user_admin:login"
-    template_name = "kinorg/pcc_schedule.html"
+
+    def get(self, request, *args, **kwargs):
+        return redirect('kinorg:home')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1421,6 +1424,25 @@ def toggle_watched(request, tmdb_id):
     WatchedFilm.objects.create(user=request.user, film=film)
     _invalidate_user_kinorg_cache(request.user.id)
     return JsonResponse({'watched': True})
+
+
+@login_required
+def set_stars(request, tmdb_id):
+    """Set (or clear) a star rating for a film inline on the detail page. Returns JSON."""
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Invalid request'}, status=400)
+    stars_raw = request.POST.get('stars')
+    stars = int(stars_raw) if stars_raw else None
+    try:
+        film = Film.objects.get(pk=tmdb_id)
+    except Film.DoesNotExist:
+        return JsonResponse({'error': 'Film not found'}, status=404)
+    WatchedFilm.objects.update_or_create(
+        user=request.user,
+        film=film,
+        defaults={'stars': stars},
+    )
+    return JsonResponse({'stars': stars or 0})
 
 
 @login_required
