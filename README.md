@@ -10,8 +10,8 @@ Live at [kinorg.com](https://kinorg.com).
 - Personal watchlist, liked films, and watched log
 - Mini-reviews (280 chars) with 1-5 star ratings
 - Collaborative film lists — invite other users as guests
-- Curated collections: TSPDT 1000, TSPDT 21st Century, Sight & Sound 2022, Letterboxd Top 500, Criterion, Janus, Oscar International Feature, Vinegar Syndrome
-- UK cinema listings integration — daily scrape of what's on
+- Curated collections: Sight & Sound 2022, Letterboxd Top 500, Criterion, Janus, Oscar International Feature, Vinegar Syndrome
+- UK cinema listings integration (In development)
 - Similar films (pre-computed weekly)
 
 ## Tech stack
@@ -77,16 +77,10 @@ Useful commands for populating data:
 
 ```bash
 # Import curated collections (requires CSV/Excel files — see the command source)
-python manage.py import_tspdt_1000
-python manage.py import_tspdt_21c
-python manage.py import_sight_and_sound_2022
 python manage.py import_all_csvs
 
 # Compute similar films (runs weekly in production)
 python manage.py compute_similar_films
-
-# Scrape cinema listings
-python manage.py scrape_pcc
 
 # Refresh TMDB watch provider data
 python manage.py refresh_watch_providers
