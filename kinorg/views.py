@@ -1134,7 +1134,6 @@ class FilmDetail(LoginRequiredMixin, TemplateView):
 
         # Watch providers from DB
         gb_providers = film_obj.watch_providers or {}
-        context['watch_providers'] = gb_providers
         context['justwatch_url'] = gb_providers.get('link') or f"https://www.justwatch.com/uk/search?q={quote(film_obj.title)}"
 
         # Build Amazon affiliate link if Amazon is among the available providers
@@ -1144,6 +1143,9 @@ class FilmDetail(LoginRequiredMixin, TemplateView):
             gb_providers.get('rent', []) +
             gb_providers.get('buy', [])
         )
+        # Only expose watch_providers when there are actual entries — an empty dict
+        # with just a 'link' key is truthy but has nothing to display
+        context['watch_providers'] = gb_providers if all_providers else None
         amazon_provider = next(
             (p for p in all_providers if 'amazon' in p.get('provider_name', '').lower()),
             None
