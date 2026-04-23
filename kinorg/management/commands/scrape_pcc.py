@@ -41,6 +41,9 @@ class Command(BaseCommand):
     help = "Scrape Prince Charles Cinema what's on page and update PCCScreening table"
 
     def handle(self, *args, **options):
+        self.stdout.write("PCC scraping paused — awaiting permission from venue.")
+        return
+
         self.stdout.write("Fetching PCC programme...")
         try:
             headers = {"User-Agent": "Mozilla/5.0 (compatible; Kinorg/1.0)"}

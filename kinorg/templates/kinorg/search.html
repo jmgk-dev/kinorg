@@ -50,9 +50,7 @@
     <div id="collections_browse" class="collections_browse">
         <p class="collections_browse_header">Browse collections</p>
         <ul class="collections_list">
-            <li class="collection_browse_item">
-                <a href="{% url 'kinorg:pcc_schedule' %}">Showing At The PCC</a>
-            </li>
+
             {% for tag, name in collections.items %}
             {% if not tag|slice:":5" == "tspdt" %}
             <li class="collection_browse_item">
