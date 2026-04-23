@@ -47,6 +47,29 @@
         {% endfor %}
     </ul>
 
+    <div id="genre_chips_wrap" class="genre_chips_wrap">
+        <p class="collections_browse_header">Browse by genre</p>
+        <div class="genre_chips">
+            <a href="{% url 'kinorg:genre_detail' 'action' %}" class="genre_chip">Action</a>
+            <a href="{% url 'kinorg:genre_detail' 'adventure' %}" class="genre_chip">Adventure</a>
+            <a href="{% url 'kinorg:genre_detail' 'animation' %}" class="genre_chip">Animation</a>
+            <a href="{% url 'kinorg:genre_detail' 'comedy' %}" class="genre_chip">Comedy</a>
+            <a href="{% url 'kinorg:genre_detail' 'crime' %}" class="genre_chip">Crime</a>
+            <a href="{% url 'kinorg:genre_detail' 'documentary' %}" class="genre_chip">Documentary</a>
+            <a href="{% url 'kinorg:genre_detail' 'drama' %}" class="genre_chip">Drama</a>
+            <a href="{% url 'kinorg:genre_detail' 'fantasy' %}" class="genre_chip">Fantasy</a>
+            <a href="{% url 'kinorg:genre_detail' 'history' %}" class="genre_chip">History</a>
+            <a href="{% url 'kinorg:genre_detail' 'horror' %}" class="genre_chip">Horror</a>
+            <a href="{% url 'kinorg:genre_detail' 'music' %}" class="genre_chip">Music</a>
+            <a href="{% url 'kinorg:genre_detail' 'mystery' %}" class="genre_chip">Mystery</a>
+            <a href="{% url 'kinorg:genre_detail' 'romance' %}" class="genre_chip">Romance</a>
+            <a href="{% url 'kinorg:genre_detail' 'science-fiction' %}" class="genre_chip">Science Fiction</a>
+            <a href="{% url 'kinorg:genre_detail' 'thriller' %}" class="genre_chip">Thriller</a>
+            <a href="{% url 'kinorg:genre_detail' 'war' %}" class="genre_chip">War</a>
+            <a href="{% url 'kinorg:genre_detail' 'western' %}" class="genre_chip">Western</a>
+        </div>
+    </div>
+
     <div id="collections_browse" class="collections_browse">
         <p class="collections_browse_header">Browse collections</p>
         <ul class="collections_list">

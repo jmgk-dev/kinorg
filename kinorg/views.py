@@ -560,6 +560,27 @@ COLLECTIONS = {
 # Collections that have a meaningful rank ordering (shown with rank badges)
 RANKED_COLLECTIONS = {'tspdt_1000', 'tspdt_21c', 'sight_and_sound_2022', 'letterboxd_top_500'}
 
+# TMDB genre slug → (display name, TMDB genre ID)
+TMDB_GENRES = {
+    'action':          ('Action', 28),
+    'adventure':       ('Adventure', 12),
+    'animation':       ('Animation', 16),
+    'comedy':          ('Comedy', 35),
+    'crime':           ('Crime', 80),
+    'documentary':     ('Documentary', 99),
+    'drama':           ('Drama', 18),
+    'fantasy':         ('Fantasy', 14),
+    'history':         ('History', 36),
+    'horror':          ('Horror', 27),
+    'music':           ('Music', 10402),
+    'mystery':         ('Mystery', 9648),
+    'romance':         ('Romance', 10749),
+    'science-fiction': ('Science Fiction', 878),
+    'thriller':        ('Thriller', 53),
+    'war':             ('War', 10752),
+    'western':         ('Western', 37),
+}
+
 # Sort options for collection pages
 COLLECTION_SORT_MAP = {
     'title_asc': 'title',
@@ -914,6 +935,63 @@ def collection_films_json(request, tag):
 
     return JsonResponse({
         'films': films,
+        'has_more': (offset + limit) < total,
+        'next_offset': offset + limit,
+    })
+
+
+# =====================================================================
+# Genre browse views (TMDB discover API)
+# =====================================================================
+
+class GenreDetail(LoginRequiredMixin, TemplateView):
+    """Browse films by genre from the local DB, using the GIN index on Film.genres."""
+    login_url = "user_admin:login"
+    template_name = "kinorg/genre_detail.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        slug = self.kwargs['slug']
+        if slug not in TMDB_GENRES:
+            raise Http404
+        genre_name, _genre_id = TMDB_GENRES[slug]
+
+        sort = self.request.GET.get('sort', 'release_desc')
+        qs = Film.objects.filter(genres__contains=[{"name": genre_name}])
+        qs = qs.order_by(COLLECTION_SORT_MAP.get(sort, '-release_date'))
+
+        limit = 48
+        total = qs.count()
+
+        context['genre_slug'] = slug
+        context['genre_name'] = genre_name
+        context['films'] = list(qs[:limit])
+        context['total'] = total
+        context['has_more'] = total > limit
+        context['next_offset'] = limit
+        context['current_sort'] = sort
+        return context
+
+
+@login_required(login_url='user_admin:login')
+def genre_films_json(request, slug):
+    """Load-more JSON endpoint for genre browse pages."""
+    if slug not in TMDB_GENRES:
+        return JsonResponse({'error': 'Not found'}, status=404)
+
+    genre_name, _genre_id = TMDB_GENRES[slug]
+    sort = request.GET.get('sort', 'release_desc')
+    offset = int(request.GET.get('offset', 48))
+    limit = 48
+
+    qs = Film.objects.filter(genres__contains=[{"name": genre_name}])
+    qs = qs.order_by(COLLECTION_SORT_MAP.get(sort, '-release_date'))
+
+    total = qs.count()
+    batch = list(qs[offset:offset + limit])
+
+    return JsonResponse({
+        'films': [_serialize_film(f) for f in batch],
         'has_more': (offset + limit) < total,
         'next_offset': offset + limit,
     })

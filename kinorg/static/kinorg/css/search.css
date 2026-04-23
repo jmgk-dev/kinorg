@@ -107,6 +107,31 @@
     font-style: italic;
 }
 
+.genre_chips_wrap {
+    width: 100%;
+    margin-bottom: 24px;
+}
+
+.genre_chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.genre_chip {
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 0.85rem;
+    transition: background 0.15s, border-color 0.15s;
+    white-space: nowrap;
+}
+
+.genre_chip:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
 .collections_browse {
     width: 100%;
 }

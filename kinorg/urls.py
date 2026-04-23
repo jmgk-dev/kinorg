@@ -49,6 +49,8 @@ urlpatterns = [
     path("liked/films/", views.liked_watched_json, name="liked_watched_json"),
     path("collections/<str:tag>/", views.CollectionDetail.as_view(), name="collection_detail"),
     path("collections/<str:tag>/films/", views.collection_films_json, name="collection_films_json"),
+    path("genre/<slug:slug>/", views.GenreDetail.as_view(), name="genre_detail"),
+    path("genre/<slug:slug>/films/", views.genre_films_json, name="genre_films_json"),
     path("pcc/", views.PCCSchedule.as_view(), name="pcc_schedule"),
     path("pcc/films/", views.pcc_schedule_json, name="pcc_schedule_json"),
     ]

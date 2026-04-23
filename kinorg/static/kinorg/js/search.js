@@ -5,15 +5,18 @@
 const input = document.getElementById('live_search_input');
 const resultsList = document.getElementById('live_search_results');
 const collectionsBrowse = document.getElementById('collections_browse');
+const genreChipsWrap = document.getElementById('genre_chips_wrap');
 const baseUrl = resultsList.dataset.baseUrl;        // TMDB image base URL
 const placeholderUrl = resultsList.dataset.placeholderUrl; // fallback poster image
 
 function showCollections() {
     if (collectionsBrowse) collectionsBrowse.style.display = '';
+    if (genreChipsWrap) genreChipsWrap.style.display = '';
 }
 
 function hideCollections() {
     if (collectionsBrowse) collectionsBrowse.style.display = 'none';
+    if (genreChipsWrap) genreChipsWrap.style.display = 'none';
 }
 
 let debounceTimer;

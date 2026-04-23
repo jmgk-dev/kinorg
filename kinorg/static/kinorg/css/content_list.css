@@ -1,3 +1,35 @@
+.genre_action_bar {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    max-width: 960px;
+    margin: 8px auto 4px;
+    padding: 0 10px;
+    box-sizing: border-box;
+}
+
+.genre_action_side {
+    flex: 1;
+    min-width: 0;
+}
+
+.genre_action_bar .back_link {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 6px 14px;
+    opacity: 1;
+    font-size: 0.85rem;
+    width: 65px;
+    text-align: center;
+    display: inline-block;
+}
+
+.genre_action_bar .back_link:hover {
+    background: rgba(255, 255, 255, 0.14);
+    opacity: 1;
+}
+
 .results_title_info {
     display: flex;
     justify-content: center;
@@ -253,4 +285,5 @@
         height: auto;
         aspect-ratio: 2/3;
     }
+
 }

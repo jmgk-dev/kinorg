@@ -20,6 +20,14 @@
 			<div class="home_quickstart">
 				<p>You don't have any lists yet. <button onclick="openCreateListModal()" class="btn btn-cta">Create one</button> to get started — then search for films and invite friends to add to it.</p>
 			</div>
+			{% else %}
+			<div class="home_hero">
+				<p class="home_hero_text">Your lists are waiting.</p>
+				<div class="home_hero_cta">
+					<a href="{% url 'kinorg:my_lists' %}" class="btn home_hero_btn--primary">My Lists</a>
+					<a href="{% url 'kinorg:search' %}" class="btn home_hero_btn--ghost">Browse Films</a>
+				</div>
+			</div>
 			{% endif %}
 		{% else %}
 			<div class="blurb">

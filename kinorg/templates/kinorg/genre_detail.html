@@ -1,0 +1,90 @@
+{% extends "kinorg/base.html" %}
+{% load static %}
+{% load kinorg_extras %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'kinorg/css/film_list.css' %}">
+<link rel="stylesheet" href="{% static 'kinorg/css/content_list.css' %}">
+{% endblock %}
+
+{% block content %}
+
+    <h4 class="page_title">{{ genre_name }}</h4>
+
+    <div class="genre_action_bar">
+        <div class="genre_action_side">
+            <a href="{% url 'kinorg:search' %}" class="back_link">← Search</a>
+        </div>
+        <button class="btn btn-cta" id="filter_btn">Sort</button>
+        <div class="genre_action_side"></div>
+    </div>
+
+    <div class="filter_modal" id="filter_modal">
+        <div class="filter_modal_inner">
+            <div class="filter_modal_header">
+                <span>Sort</span>
+                <button type="button" id="filter_modal_close">✕</button>
+            </div>
+            <form method="get" id="list_controls_form">
+                <div class="filter_modal_body">
+                    <div class="filter_modal_group">
+                        <label>Sort by</label>
+                        <select name="sort">
+                            <option value="release_desc" {% if current_sort == 'release_desc' %}selected{% endif %}>Release date (newest first)</option>
+                            <option value="release_asc" {% if current_sort == 'release_asc' %}selected{% endif %}>Release date (oldest first)</option>
+                            <option value="title_asc" {% if current_sort == 'title_asc' %}selected{% endif %}>Title (A–Z)</option>
+                            <option value="title_desc" {% if current_sort == 'title_desc' %}selected{% endif %}>Title (Z–A)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="filter_modal_footer">
+                    <a href="?" class="btn btn-clear">Clear</a>
+                    <button type="submit" class="btn btn-cta">Apply</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="content_list_container">
+        <ul class="list_of_content"
+            id="film_grid"
+            data-base-url="{{ config_data.secure_base_url }}"
+            data-placeholder-url="{% static 'images/placeholder.jpg' %}"
+            data-film-url="{% url 'kinorg:film_detail' 0 %}"
+            data-films-url="{% url 'kinorg:genre_films_json' genre_slug %}"
+            data-is-ranked="false">
+            {% for film in films %}
+            <li class="results_item collection_result_item">
+                <a class="poster_link" href="{% url 'kinorg:film_detail' film.id %}"
+                   data-film-id="{{ film.id }}"
+                   data-film-title="{{ film.title }}"
+                   data-poster-path="{{ film.poster_path }}"
+                   data-year="{{ film.release_date|date:'Y' }}"
+                   data-director="{{ film.crew|film_director }}"
+                   data-media-type="movie">
+                    {% if film.poster_path and film.poster_path != 'None' %}
+                    <img class="poster" src="{{ config_data.secure_base_url }}w200{{ film.poster_path }}" alt="{{ film.title }}">
+                    {% else %}
+                    <img class="poster" src="{% static 'images/placeholder.jpg' %}" alt="{{ film.title }}">
+                    {% endif %}
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    {% if has_more %}
+    <div class="load_more_container">
+        <button id="load_more_btn"
+                data-offset="{{ next_offset }}"
+                data-sort="{{ current_sort }}"
+                data-country=""
+                data-genre="">Load more</button>
+    </div>
+    {% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'kinorg/js/collection_detail.js' %}"></script>
+{% endblock %}

@@ -51,6 +51,35 @@
     margin-bottom: 20px;
 }
 
+.home_hero {
+    text-align: center;
+    padding: 16px 0 24px;
+}
+
+.home_hero_text {
+    font-size: 18px;
+    margin-bottom: 14px;
+}
+
+.home_hero_cta {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.home_hero_btn--primary {
+    background: #11998e;
+    padding: 7px 16px;
+    font-size: 14px;
+}
+
+.home_hero_btn--ghost {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 7px 16px;
+    font-size: 14px;
+}
+
 .home_reviews_section {
     margin-bottom: 20px;
     padding: 0 15px;
