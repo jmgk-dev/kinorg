@@ -1,6 +1,6 @@
 # Kinorg
 
-A social film tracker built with Django. Create lists, invite collaborators, log watched films with star ratings and reviews, and discover what's playing at certain UK cinemas.
+A social film tracker built with Django. Create lists, invite collaborators, log watched films with star ratings and reviews, and discover what's playing at certain UK cinemas (in development).
 
 Live at [kinorg.com](https://kinorg.com).
 
@@ -11,7 +11,7 @@ Live at [kinorg.com](https://kinorg.com).
 - Mini-reviews (280 chars) with 1-5 star ratings
 - Collaborative film lists — invite other users as guests
 - Curated collections: Sight & Sound 2022, Letterboxd Top 500, Criterion, Janus, Oscar International Feature, Vinegar Syndrome
-- UK cinema listings integration (In development)
+- UK cinema listings integration (in development)
 - Similar films (pre-computed weekly)
 
 ## Tech stack
